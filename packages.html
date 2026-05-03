@@ -199,6 +199,7 @@
   @keyframes spin { to { transform:rotate(360deg); } }
   .addr-empty { padding:12px 14px; font-size:12.5px; color:var(--ash); }
   .postal-hint { font-size:11px; color:var(--saffron-dark); margin-top:4px; display:none; font-style:italic; }
+  .addr-autofill-note { font-size:11px; color:var(--green,#2D6A4F); margin-top:5px; font-weight:600; font-style:italic; }
   /* COUNTRY + PHONE SPLIT */
   .country-phone-wrap { display:flex; gap:0; position:relative; }
   .country-select-wrap {
@@ -1160,7 +1161,7 @@
       <div class="fields-grid">
         <div class="field-group">
           <label for="fname">Full Name <span class="required-star">*</span></label>
-          <input type="text" id="fname" placeholder="e.g. Priya Sharma" oninput="updateQuote()">
+          <input type="text" id="fname" placeholder="e.g. Priya Sharma" oninput="updateQuote()" autocomplete="name" name="name" spellcheck="false">
         </div>
         <!-- COUNTRY CODE + PHONE — full width row -->
         <div class="field-group full">
@@ -1196,25 +1197,31 @@
         </div>
         <div class="field-group">
           <label for="femail">Email <span class="required-star">*</span></label>
-          <input type="email" id="femail" placeholder="you@example.com" oninput="updateQuote()">
+          <input type="email" id="femail" placeholder="you@example.com" oninput="updateQuote()" autocomplete="email" inputmode="email" name="email" spellcheck="false" autocapitalize="none" autocorrect="off">
         </div>
-        <div class="field-group">
-          <label for="fcity">City <span class="required-star">*</span></label>
-          <input type="text" id="fcity" placeholder="Brampton">
-        </div>
+        <!-- Street Address — full width with autocomplete -->
         <div class="field-group full">
           <label for="fstreet">Street Address <span class="required-star">*</span></label>
           <div class="addr-wrap">
-            <input type="text" id="fstreet" placeholder="Start typing your address…"
+            <input type="text" id="fstreet" placeholder="Start typing your address…" autocomplete="street-address" name="street-address"
               autocomplete="off" oninput="onStreetInput(this)" onkeydown="onStreetKeydown(event)"
               onfocus="if(this.value.length>2)openDrop()" onblur="setTimeout(closeDrop,180)">
             <div class="addr-dropdown" id="addrDropdown"></div>
           </div>
+          <div class="addr-autofill-note" id="addrAutofillNote" style="display:none;">
+            ✓ City and Postal Code auto-filled
+          </div>
+        </div>
+
+        <!-- City + Postal Code — side by side, auto-filled from address selection -->
+        <div class="field-group">
+          <label for="fcity">City <span class="required-star">*</span></label>
+          <input type="text" id="fcity" placeholder="Brampton" oninput="updateQuote()" autocomplete="address-level2" name="city">
         </div>
         <div class="field-group">
           <label for="fpostal">Postal Code</label>
           <div class="postal-field-wrap">
-            <input type="text" id="fpostal" placeholder="L6Y 0A1" maxlength="10" oninput="onPostalInput(this)" autocomplete="off">
+            <input type="text" id="fpostal" placeholder="L6Y 0A1" maxlength="10" oninput="onPostalInput(this)" autocomplete="postal-code" name="postal-code">
             <div class="postal-hint" id="postalHint">✓ Address auto-filled from postal code</div>
           </div>
         </div>
@@ -2274,20 +2281,43 @@ function renderDropdown(results) {
 function selectAddress(idx) {
   var r = addrResults[idx]; if (!r) return;
   var p = r.properties || {};
-  var street = [p.housenumber, p.street||p.name].filter(Boolean).join(' ');
-  var city   = p.city||p.town||p.village||p.county||'';
-  var region = p.state||p.county||'';
-  var postal = p.postcode ? p.postcode.toUpperCase() : '';
+  var street      = [p.housenumber, p.street||p.name].filter(Boolean).join(' ');
+  var city        = p.city||p.town||p.village||p.county||'';
+  var region      = p.state||p.county||'';
+  var postal      = p.postcode ? p.postcode.toUpperCase() : '';
   var countryName = p.country||'';
   var countryCode = (p.countrycode||'').toUpperCase();
+
+  // Fill street address
   document.getElementById('fstreet').value = street;
-  var cityEl = document.getElementById('fcity'); if (!cityEl.value.trim()) cityEl.value = city;
-  var postalEl = document.getElementById('fpostal'); if (!postalEl.value.trim() && postal) postalEl.value = postal;
+
+  // Always auto-fill city and postal from suggestion
+  var cityEl   = document.getElementById('fcity');
+  var postalEl = document.getElementById('fpostal');
+  if (city)   cityEl.value   = city;
+  if (postal) postalEl.value = formatPostalCode(postal);
+
   document.getElementById('fregion').value  = region;
   document.getElementById('fcountry').value = countryCode;
-  var formatted = [street, [city,region,postal].filter(Boolean).join(', '), countryName].filter(Boolean).join('\n');
+
+  var formatted = [street, [city, region, postal].filter(Boolean).join(', '), countryName].filter(Boolean).join('\n');
   document.getElementById('faddressFormatted').value = formatted;
-  closeDrop(); updateQuote();
+
+  // Show autofill confirmation
+  var note = document.getElementById('addrAutofillNote');
+  if (note && (city || postal)) {
+    note.style.display = 'block';
+    note.textContent   = '✓ Auto-filled: ' + [city, postal].filter(Boolean).join(', ');
+    setTimeout(function(){ note.style.display = 'none'; }, 4000);
+  }
+
+  closeDrop();
+  updateQuote();
+}
+
+function formatPostalCode(raw) {
+  var clean = raw.toUpperCase().replace(/\s/g, '');
+  return clean.length === 6 ? clean.slice(0,3) + ' ' + clean.slice(3) : raw.toUpperCase();
 }
 function onStreetKeydown(e) {
   var drop = document.getElementById('addrDropdown');
