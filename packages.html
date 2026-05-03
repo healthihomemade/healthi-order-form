@@ -48,54 +48,68 @@
   .pkg-card.pkg-hidden { display:none; }
 
   /* PACKAGE CARDS */
-  .package-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
-  @media(max-width:600px){ .package-grid{grid-template-columns:1fr; gap:10px;} }
+  /* ── PACKAGE GRID — compact 2×2 tiles ── */
+  .package-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 
-  .pkg-card { border:2px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.3s ease; position:relative; overflow:hidden; display:flex; flex-direction:column; user-select:none; background:white; }
-  .pkg-card:hover { border-color:var(--saffron); box-shadow:0 4px 16px rgba(232,137,12,0.15); transform:translateY(-1px); }
-  .pkg-card.selected { border-color:var(--saffron); box-shadow:0 6px 24px rgba(232,137,12,0.25); transform:translateY(-2px); }
+  /* Compact tile — fixed height header, expands on select */
+  .pkg-card {
+    border:2px solid var(--border);
+    border-radius:var(--radius-sm);
+    cursor:pointer;
+    transition:all 0.28s ease;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    user-select:none;
+    background:white;
+  }
+  .pkg-card:hover  { border-color:var(--saffron); box-shadow:0 3px 14px rgba(232,137,12,0.15); }
+  .pkg-card.selected { border-color:var(--saffron); box-shadow:0 5px 20px rgba(232,137,12,0.25); }
 
-  .pkg-header { padding:16px 16px 14px; display:flex; align-items:flex-start; gap:12px; position:relative; transition:background 0.25s; }
-  .pkg-card:hover .pkg-header { background:var(--saffron-light); }
+  /* Compact header — icon + name + price stacked */
+  .pkg-header {
+    padding:12px 12px 10px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:4px;
+    position:relative;
+    transition:background 0.22s;
+  }
+  .pkg-card:hover .pkg-header   { background:var(--saffron-light); }
   .pkg-card.selected .pkg-header { background:var(--saffron-light); }
 
-  .pkg-icon { font-size:2rem; flex-shrink:0; line-height:1; margin-top:2px; }
-  .pkg-info { flex:1; }
-  .pkg-name { font-weight:800; font-size:16px; color:var(--ink); margin-bottom:3px; }
-  .pkg-price { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--saffron-dark); line-height:1; }
-  .pkg-price span { font-size:13px; color:var(--ash); font-family:'Mulish',sans-serif; font-weight:400; }
+  .pkg-icon  { font-size:1.6rem; line-height:1; }
+  .pkg-info  { width:100%; }
+  .pkg-name  { font-weight:800; font-size:14px; color:var(--ink); margin-bottom:2px; }
+  .pkg-price { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--saffron-dark); line-height:1.1; }
+  .pkg-price span { font-size:11px; color:var(--ash); font-family:'Mulish',sans-serif; font-weight:400; }
 
-  .pkg-check { position:absolute; top:12px; right:12px; width:22px; height:22px; border:2px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; background:white; transition:all 0.2s; z-index:1; }
-  /* Expand arrow */
-  .pkg-expand-arrow {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    color: var(--ash);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.2s, color 0.2s;
-    opacity: 0.55;
-    margin-top: 6px;
-    align-self: flex-end;
-    user-select: none;
+  /* Check circle — top-right */
+  .pkg-check {
+    position:absolute; top:8px; right:8px;
+    width:18px; height:18px;
+    border:2px solid var(--border); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:white; transition:all 0.2s; z-index:1;
   }
-  .pkg-expand-arrow::after {
-    content: 'See details';
-    font-size: 10.5px;
-    letter-spacing: 0.04em;
-    font-family: 'Mulish', sans-serif;
-    font-weight: 600;
-  }
-  .pkg-card.selected .pkg-expand-arrow {
-    transform: rotate(180deg);
-    color: var(--saffron-dark);
-    opacity: 1;
-  }
-  .pkg-card.selected .pkg-expand-arrow::after {
-    content: 'Hide details';
-  }
-  .pkg-card:hover .pkg-expand-arrow { opacity: 0.85; }
   .pkg-card.selected .pkg-check { background:var(--saffron); border-color:var(--saffron); }
+
+  /* Expand arrow — small, centered below price */
+  .pkg-expand-arrow {
+    font-size:10px;
+    color:var(--ash);
+    opacity:0.5;
+    transition:transform 0.32s ease, opacity 0.2s, color 0.2s;
+    margin-top:2px;
+    text-align:center;
+  }
+  .pkg-expand-arrow::after { content:'details ▼'; font-size:10px; font-family:'Mulish',sans-serif; font-weight:600; letter-spacing:0.03em; }
+  .pkg-card.selected .pkg-expand-arrow { transform:rotate(180deg); color:var(--saffron-dark); opacity:1; }
+  .pkg-card.selected .pkg-expand-arrow::after { content:'close ▲'; }
+  .pkg-card:hover .pkg-expand-arrow { opacity:0.8; }
   .pkg-check svg { display:none; }
   .pkg-card.selected .pkg-check svg { display:block; }
 
@@ -110,9 +124,9 @@
     padding-bottom:0;
   }
   .pkg-card.selected .pkg-body {
-    max-height:600px;
+    max-height:500px;
     opacity:1;
-    padding:12px 16px 16px;
+    padding:10px 12px 14px;
     border-top-color:rgba(232,137,12,0.25);
     background:var(--saffron-light);
   }
@@ -159,6 +173,34 @@
   .day-shortcuts { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
   .shortcut-btn { font-size:12px; font-weight:600; font-family:'Mulish',sans-serif; padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; background:white; cursor:pointer; color:var(--ash); transition:all 0.18s; }
   .shortcut-btn:hover { border-color:var(--cardamom); color:var(--cardamom); }
+
+  /* Quick schedule buttons */
+  .days-quick-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px; }
+  .days-quick-label { font-size:11.5px; font-weight:700; color:var(--ash); text-transform:uppercase; letter-spacing:0.07em; }
+  .days-quick-btns { display:flex; gap:8px; flex-wrap:wrap; }
+  .days-quick-btn {
+    font-size:13px; font-weight:700; font-family:'Mulish',sans-serif;
+    padding:9px 18px; border:2px solid var(--border);
+    border-radius:24px; background:white; cursor:pointer;
+    color:var(--ash); transition:all 0.2s;
+  }
+  .days-quick-btn:hover { border-color:var(--cardamom); color:var(--cardamom); background:var(--saffron-light); }
+  .days-quick-btn.active {
+    border-color:var(--cardamom); background:var(--cardamom);
+    color:var(--cream); box-shadow:0 2px 10px rgba(45,106,79,0.25);
+  }
+  .days-quick-custom { border-style:dashed; }
+  .days-quick-custom.active { background:var(--saffron-light); border-color:var(--saffron); color:var(--saffron-dark); border-style:solid; }
+
+  /* Collapsible custom day grid */
+  .days-custom-wrap {
+    max-height:0; overflow:hidden; opacity:0;
+    transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
+    margin-top:0;
+  }
+  .days-custom-wrap.open {
+    max-height:200px; opacity:1; margin-top:14px;
+  }
 
   /* FIELDS */
   .fields-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -697,6 +739,22 @@
   .success-et-text { font-size: 13px; color: rgba(253,250,244,0.8); line-height: 1.4; }
   .success-et-text strong { color: var(--cream); display: block; font-size: 13.5px; }
 
+  .days-panel-subtitle {
+    font-size:12px; font-weight:700; color:var(--cardamom);
+    font-style:normal; margin-left:6px;
+  }
+
+  /* Extras panel collapsible */
+  .extras-panel-header { justify-content:space-between; }
+  .extras-panel-arrow {
+    font-size:11px; color:var(--ash);
+    transition:transform 0.35s cubic-bezier(0.4,0,0.2,1), color 0.2s;
+    margin-left:auto; padding-left:8px; flex-shrink:0;
+  }
+  .extras-panel-header.open .extras-panel-arrow {
+    transform:rotate(180deg); color:var(--saffron-dark);
+  }
+
   /* Pay button in quote card (form) */
   .quote-pay-divider { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:16px 0 14px; }
   .quote-pay-label { font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(253,250,244,0.4); margin-bottom:8px; display:block; }
@@ -753,8 +811,8 @@
     .panel-num    { width:24px; height:24px; font-size:11px; }
 
     /* Package cards — 1 column on small screens */
-    .package-grid { grid-template-columns:1fr; gap:8px; }
-    .pkg-header   { padding:12px 12px 10px; gap:10px; }
+    .package-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+    .pkg-header   { padding:10px 10px 8px; gap:4px; }
     .pkg-icon     { font-size:1.5rem; }
     .pkg-name     { font-size:15px; }
     .pkg-price    { font-size:1.25rem; }
@@ -873,6 +931,8 @@
     .page-body    { padding:8px 6px 32px; }
     .panel-body   { padding:12px; }
     .package-grid { gap:6px; }
+    .pkg-name { font-size:13px; }
+    .pkg-price { font-size:1.1rem; }
     .fields-grid  { gap:8px; }
     .days-grid    { grid-template-columns:repeat(2,1fr); gap:5px; }
     .freq-btn     { font-size:11px; padding:7px 4px; }
@@ -1047,10 +1107,15 @@
 
   <!-- ② MONTHLY EXTRAS (shown only when Monthly selected + package chosen) -->
   <div class="form-panel" id="panel-extras" style="display:none; animation-delay:0.07s">
-    <div class="panel-header">
+    <div class="panel-header extras-panel-header" onclick="toggleExtrasPanel()" style="cursor:pointer;">
       <div class="panel-num">2</div>
-      <div class="panel-title">Monthly Extras <span style="font-size:11px;color:var(--ash);font-family:'Mulish',sans-serif;font-weight:400;font-style:italic;">(Optional)</span></div>
+      <div class="panel-title">
+        Extras
+        <span style="font-size:11px;color:var(--ash);font-family:'Mulish',sans-serif;font-weight:400;font-style:italic;"> — Roti, Rice, Curry (Optional)</span>
+      </div>
+      <div class="extras-panel-arrow" id="extrasPanelArrow">▼</div>
     </div>
+    <div class="extras-panel-body" id="extrasPanelBody" style="max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;">
     <div class="panel-body" style="padding:0;">
 
       <!-- Extra Roti -->
@@ -1123,29 +1188,52 @@
 
   <!-- ③ DELIVERY DAYS -->
   <div class="form-panel" id="panel-days">
-    <div class="panel-header">
+    <div class="panel-header days-panel-header" onclick="toggleDaysPanel()" style="cursor:pointer;">
       <div class="panel-num">3</div>
-      <div class="panel-title">Select Delivery Days <span class="required-star">*</span></div>
+      <div class="panel-title">
+        Select Delivery Days <span class="required-star">*</span>
+        <span class="days-panel-subtitle" id="daysPanelSubtitle"></span>
+      </div>
+      <div class="extras-panel-arrow" id="daysPanelArrow">▼</div>
     </div>
-    <div class="panel-body">
-      <div class="days-grid">
-        <div class="day-chip" data-day="MON" onclick="toggleDay(this)"><span class="day-abbr">MON</span><div class="day-dot"></div></div>
-        <div class="day-chip" data-day="TUE" onclick="toggleDay(this)"><span class="day-abbr">TUE</span><div class="day-dot"></div></div>
-        <div class="day-chip" data-day="WED" onclick="toggleDay(this)"><span class="day-abbr">WED</span><div class="day-dot"></div></div>
-        <div class="day-chip" data-day="THU" onclick="toggleDay(this)"><span class="day-abbr">THU</span><div class="day-dot"></div></div>
-        <div class="day-chip" data-day="FRI" onclick="toggleDay(this)"><span class="day-abbr">FRI</span><div class="day-dot"></div></div>
-        <div class="day-chip" data-day="SAT" onclick="toggleDay(this)"><span class="day-abbr">SAT</span><div class="day-dot"></div></div>
-      </div>
-      <div class="day-shortcuts">
-        <button class="shortcut-btn" onclick="setDays(['MON','TUE','WED','THU','FRI'])">MON–FRI</button>
-        <button class="shortcut-btn" onclick="setDays(['MON','TUE','WED','THU','FRI','SAT'])">MON–SAT</button>
-        <button class="shortcut-btn" onclick="setDays([])">Clear</button>
-      </div>
-      <div class="service-notice">
-        <span class="service-notice-icon">📋</span>
-        <div class="service-notice-text">
-          <strong>Service Availability</strong>
-          Deliveries are scheduled Monday through Saturday only. We observe all statutory public holidays and do not operate on Sundays. Customers will be notified in advance of any holiday closures.
+
+    <!-- Collapsible body -->
+    <div class="extras-panel-body" id="daysPanelBody" style="max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;">
+      <div class="panel-body">
+
+        <!-- Three option buttons — always shown inside body -->
+        <div class="days-quick-btns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+          <button class="days-quick-btn" id="qbtn-monfri"
+            onclick="setDaysQuick('MONFRI')">MON–FRI</button>
+          <button class="days-quick-btn" id="qbtn-monsat"
+            onclick="setDaysQuick('MONSAT')">MON–SAT</button>
+          <button class="days-quick-btn days-quick-custom" id="qbtn-custom"
+            onclick="toggleCustomDays()">
+            <span id="customBtnLabel">Custom ▼</span>
+          </button>
+        </div>
+
+        <!-- Individual day chips — hidden, expand only for Custom -->
+        <div class="days-custom-wrap" id="daysCustomWrap">
+          <div class="days-grid" id="daysGrid" style="margin-top:12px;">
+            <div class="day-chip" data-day="MON" onclick="toggleDay(this)"><span class="day-abbr">MON</span><div class="day-dot"></div></div>
+            <div class="day-chip" data-day="TUE" onclick="toggleDay(this)"><span class="day-abbr">TUE</span><div class="day-dot"></div></div>
+            <div class="day-chip" data-day="WED" onclick="toggleDay(this)"><span class="day-abbr">WED</span><div class="day-dot"></div></div>
+            <div class="day-chip" data-day="THU" onclick="toggleDay(this)"><span class="day-abbr">THU</span><div class="day-dot"></div></div>
+            <div class="day-chip" data-day="FRI" onclick="toggleDay(this)"><span class="day-abbr">FRI</span><div class="day-dot"></div></div>
+            <div class="day-chip" data-day="SAT" onclick="toggleDay(this)"><span class="day-abbr">SAT</span><div class="day-dot"></div></div>
+          </div>
+          <div style="margin-top:10px;">
+            <button class="shortcut-btn" onclick="setDays([]);document.getElementById('qbtn-monfri').classList.remove('active');document.getElementById('qbtn-monsat').classList.remove('active');">Clear all</button>
+          </div>
+        </div>
+
+        <div class="service-notice" style="margin-top:12px;">
+          <span class="service-notice-icon">📋</span>
+          <div class="service-notice-text">
+            <strong>Service Availability</strong>
+            Deliveries Mon–Sat only. No Sundays or statutory holidays.
+          </div>
         </div>
       </div>
     </div>
@@ -1347,8 +1435,18 @@
 <!-- STICKY QUOTE -->
 <div class="sticky-quote">
   <div class="quote-card">
-    <div class="quote-title">Your Quote</div>
-    <div class="quote-sub">Updates as you choose options</div>
+    <!-- Quote header — click to collapse/expand -->
+    <div class="quote-card-header" onclick="toggleQuoteCard()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
+      <div>
+        <div class="quote-title" style="margin-bottom:0;">Your Quote</div>
+        <div class="quote-sub" id="quoteHeaderSub">Tap to expand</div>
+      </div>
+      <div id="quoteCardArrow" style="font-size:12px;color:rgba(253,250,244,0.5);transition:transform 0.3s ease;margin-left:12px;transform:rotate(180deg);">▲</div>
+    </div>
+
+    <!-- Collapsible body -->
+    <div id="quoteCardBody" style="overflow:hidden;max-height:0;opacity:0;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease,margin 0.3s ease;margin-top:0;">
+    <div class="quote-sub" style="display:none;">Updates as you choose options</div>
 
     <div class="quote-line"><span class="quote-key">Package</span><span class="quote-val" id="q-pkg"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Curry</span><span class="quote-val" id="q-curry"><em class="empty">—</em></span></div>
@@ -1412,6 +1510,7 @@
       <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled>Confirm &amp; Submit →</button>
       <div class="validation-hint" id="validationHint">Complete all required fields to continue</div>
     </div>
+    </div><!-- /quoteCardBody -->
   </div>
 </div>
 
@@ -1553,6 +1652,8 @@ const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:
 const EXTRAS_PRICES = { rotiPair: 30, rice: 20, curry: 70 };
 
 function toggleExtra(type) {
+  // Auto-open the extras panel if it's closed
+  openExtrasPanel();
   if (state.freq !== 'MONTHLY') return;
   state.extras[type] = !state.extras[type];
 
@@ -1715,8 +1816,16 @@ function selectPackage(cardEl) {
       ch.classList.toggle('chip-selected', ch.dataset.roti == def.roti && ch.dataset.rice === def.rice);
     });
   }
-  // Auto-select default delivery days for this package
-  setDays(PACKAGES[pkg].defaultDays);
+  // Auto-select default delivery days based on package
+  // Junior → MON-FRI (5 days), all others → MON-SAT (6 days)
+  if (pkg === 'JUNIOR') {
+    setDaysQuick('MONFRI');
+  } else {
+    setDaysQuick('MONSAT');
+  }
+
+  // Expand the quote card now that a package has been selected
+  openQuoteCard();
   document.getElementById('panel-package').classList.add('panel-complete');
   showHideExtrasPanel();
   updateQuote();
@@ -1738,6 +1847,8 @@ function selectOption(event, chipEl) {
 }
 
 function toggleDay(el) {
+  // After toggling a day chip, sync the quick buttons
+  setTimeout(function() { syncQuickButtons(state.days); }, 10);
   el.classList.toggle('active');
   var day = el.dataset.day;
   state.days = el.classList.contains('active')
@@ -1748,9 +1859,17 @@ function toggleDay(el) {
 }
 
 function setDays(arr) {
-  document.querySelectorAll('.day-chip').forEach(function(c){ c.classList.toggle('active', arr.includes(c.dataset.day)); });
-  state.days = arr.slice().sort(function(a,b){ return DAY_ORDER.indexOf(a)-DAY_ORDER.indexOf(b); });
-  document.getElementById('panel-days').classList.toggle('panel-complete',state.days.length>0);
+  // Update each day chip visual state
+  document.querySelectorAll('.day-chip').forEach(function(c) {
+    var isActive = arr.indexOf(c.dataset.day) > -1;
+    c.classList.toggle('active', isActive);
+  });
+  // Update state
+  state.days = arr.slice().sort(function(a,b) {
+    return DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b);
+  });
+  document.getElementById('panel-days').classList.toggle('panel-complete', state.days.length > 0);
+  updateDaysPanelSubtitle();
   updateQuote();
 }
 
@@ -1958,6 +2077,166 @@ function submitViaForm(payloadStr) {
   } catch(e) {
     console.log('XHR failed:', e.message);
   }
+}
+
+// ── QUOTE CARD COLLAPSE/EXPAND ───────────────────────────
+var quoteCardOpen = false; // starts collapsed
+
+function openQuoteCard() {
+  if (quoteCardOpen) return;
+  quoteCardOpen = true;
+  var body  = document.getElementById('quoteCardBody');
+  var arrow = document.getElementById('quoteCardArrow');
+  var sub   = document.getElementById('quoteHeaderSub');
+  if (body)  { body.style.maxHeight = '800px'; body.style.opacity = '1'; body.style.marginTop = '14px'; }
+  if (arrow) arrow.style.transform = 'rotate(0deg)';
+  if (sub)   sub.textContent = 'Updates as you choose options';
+}
+
+function toggleQuoteCard() {
+  quoteCardOpen = !quoteCardOpen;
+  var body   = document.getElementById('quoteCardBody');
+  var arrow  = document.getElementById('quoteCardArrow');
+  var sub    = document.getElementById('quoteHeaderSub');
+
+  if (quoteCardOpen) {
+    body.style.maxHeight = '800px';
+    body.style.opacity   = '1';
+    body.style.marginTop = '14px';
+    arrow.style.transform = 'rotate(0deg)';
+    if (sub) sub.textContent = 'Updates as you choose options';
+  } else {
+    body.style.maxHeight = '0';
+    body.style.opacity   = '0';
+    body.style.marginTop = '0';
+    arrow.style.transform = 'rotate(180deg)';
+    // Show summary in subtitle when collapsed
+    var pkg   = state.pkg ? (window.PACKAGES && PACKAGES[state.pkg] ? PACKAGES[state.pkg].label : state.pkg) : null;
+    var price = getPayableAmount();
+    if (sub) sub.textContent = pkg && price ? pkg + ' — $' + price.toFixed(2) : 'Tap to expand';
+  }
+}
+
+// ── DAYS PANEL COLLAPSE/EXPAND ───────────────────────────
+var daysPanelOpen = false;
+
+function toggleDaysPanel() {
+  daysPanelOpen = !daysPanelOpen;
+  var body   = document.getElementById('daysPanelBody');
+  var header = document.querySelector('.days-panel-header');
+
+  if (daysPanelOpen) {
+    body.style.maxHeight = '600px';
+    body.style.opacity   = '1';
+    header.classList.add('open');
+  } else {
+    body.style.maxHeight = '0';
+    body.style.opacity   = '0';
+    header.classList.remove('open');
+    // Close custom picker too
+    daysCustomOpen = false;
+    var wrap = document.getElementById('daysCustomWrap');
+    if (wrap) wrap.classList.remove('open');
+    document.getElementById('customBtnLabel').textContent = 'Custom ▼';
+    document.getElementById('qbtn-custom').classList.remove('active');
+  }
+}
+
+function openDaysPanel() {
+  if (!daysPanelOpen) toggleDaysPanel();
+}
+
+// Update the subtitle in the panel header to show current selection
+function updateDaysPanelSubtitle() {
+  var el = document.getElementById('daysPanelSubtitle');
+  if (!el) return;
+  if (state.days.length === 5 && state.days.indexOf('SAT') === -1) {
+    el.textContent = '— MON–FRI';
+  } else if (state.days.length === 6) {
+    el.textContent = '— MON–SAT';
+  } else if (state.days.length > 0) {
+    el.textContent = '— ' + state.days.join(', ');
+  } else {
+    el.textContent = '';
+  }
+}
+
+// ── EXTRAS PANEL COLLAPSE/EXPAND ─────────────────────────
+var extrasPanelOpen = false;
+
+function toggleExtrasPanel() {
+  extrasPanelOpen = !extrasPanelOpen;
+  var body   = document.getElementById('extrasPanelBody');
+  var arrow  = document.getElementById('extrasPanelArrow');
+  var header = document.querySelector('.extras-panel-header');
+
+  if (extrasPanelOpen) {
+    body.style.maxHeight = '600px';
+    body.style.opacity   = '1';
+    header.classList.add('open');
+  } else {
+    body.style.maxHeight = '0';
+    body.style.opacity   = '0';
+    header.classList.remove('open');
+  }
+}
+
+// Open extras panel automatically when an extra is toggled
+function openExtrasPanel() {
+  if (!extrasPanelOpen) toggleExtrasPanel();
+}
+
+// ── DELIVERY DAYS — quick select + custom expand ─────────
+var daysCustomOpen = false;
+
+function setDaysQuick(preset) {
+  // Open the days panel if closed
+  openDaysPanel();
+
+  // Close custom chip grid
+  daysCustomOpen = false;
+  var wrap = document.getElementById('daysCustomWrap');
+  if (wrap) wrap.classList.remove('open');
+  document.getElementById('customBtnLabel').textContent = 'Custom ▼';
+  document.getElementById('qbtn-custom').classList.remove('active');
+
+  if (preset === 'MONFRI') {
+    setDays(['MON','TUE','WED','THU','FRI']);
+    document.getElementById('qbtn-monfri').classList.add('active');
+    document.getElementById('qbtn-monsat').classList.remove('active');
+  } else if (preset === 'MONSAT') {
+    setDays(['MON','TUE','WED','THU','FRI','SAT']);
+    document.getElementById('qbtn-monsat').classList.add('active');
+    document.getElementById('qbtn-monfri').classList.remove('active');
+  }
+  updateDaysPanelSubtitle();
+}
+
+
+
+function toggleCustomDays() {
+  openDaysPanel();
+  daysCustomOpen = !daysCustomOpen;
+  document.getElementById('daysCustomWrap').classList.toggle('open', daysCustomOpen);
+  document.getElementById('customBtnLabel').textContent = daysCustomOpen ? 'Custom ▲' : 'Custom ▼';
+  document.getElementById('qbtn-custom').classList.toggle('active', daysCustomOpen);
+
+  if (daysCustomOpen) {
+    document.getElementById('qbtn-monfri').classList.remove('active');
+    document.getElementById('qbtn-monsat').classList.remove('active');
+    setDays([]);
+  }
+}
+
+// Quick button sync handled inside setDaysQuick and toggleDay
+
+function syncQuickButtons(arr) {
+  var isMF  = arr.length === 5 && !arr.includes('SAT') && arr.includes('MON') && arr.includes('FRI');
+  var isMS  = arr.length === 6 && arr.includes('SAT');
+  var qMF   = document.getElementById('qbtn-monfri');
+  var qMS   = document.getElementById('qbtn-monsat');
+  if (qMF) qMF.classList.toggle('active', isMF);
+  if (qMS) qMS.classList.toggle('active', isMS);
 }
 
 // ── WIX IFRAME AUTO-HEIGHT ────────────────────────────────
@@ -2583,6 +2862,10 @@ function refreshSuccessAmounts() {
 document.getElementById('fstart').value=new Date().toISOString().split('T')[0];
 updateQuote();
 initCountryList();
+// Default: panel collapsed, MON-FRI pre-selected in state
+setDays(['MON','TUE','WED','THU','FRI']);
+document.getElementById('qbtn-monfri').classList.add('active');
+updateDaysPanelSubtitle();
 </script>
 </body>
 </html>
