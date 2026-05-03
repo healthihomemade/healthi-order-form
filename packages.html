@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Healthi Homemade — Order Your Meal Plan v2.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
+    --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
+    --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
+    --red: #C0392B; --green: #2D6A4F;
+    --shadow-sm: 0 2px 8px rgba(26,22,18,0.08);
+    --shadow-lg: 0 20px 60px rgba(26,22,18,0.18);
+    --radius: 16px; --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--smoke); color: var(--ink); font-family: 'Mulish', sans-serif; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+
+
+
+  .page-body { max-width:1100px; margin:0 auto; padding:20px 16px 60px; display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; }
+  @media(max-width:900px){ .page-body{grid-template-columns:1fr; padding:16px 12px 48px;} .sticky-quote{position:static!important;} }
+
+  .form-panel { background:var(--white); border-radius:var(--radius); border:1.5px solid var(--border); box-shadow:var(--shadow-sm); overflow:hidden; margin-bottom:20px; transition:border-color 0.3s; animation:riseIn 0.45s ease both; }
+  .form-panel:nth-child(1){animation-delay:0s} .form-panel:nth-child(2){animation-delay:.07s} .form-panel:nth-child(3){animation-delay:.14s}
+  .form-panel.panel-complete { border-color:#A8D5B7; }
+  @keyframes riseIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .panel-header { padding:16px 24px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--cream); }
+  .panel-num { width:28px; height:28px; background:var(--cardamom); color:var(--cream); border-radius:50%; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .panel-title { font-family:'Playfair Display',serif; font-size:1.1rem; display:flex; align-items:center; gap:6px; }
+  .panel-title .required-star { font-size:0.85rem; margin-top:2px; }
+  .panel-body { padding:22px 24px; }
+
+  /* FREQUENCY TOGGLE */
+  .freq-toggle-wrap { margin-bottom:20px; }
+  .freq-toggle-label { font-size:11.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--ash); margin-bottom:8px; display:block; }
+  .freq-toggle { display:flex; flex-wrap:wrap; background:var(--smoke); border:1.5px solid var(--border); border-radius:10px; padding:3px; gap:2px; width:100%; }
+  @media(min-width:480px){ .freq-toggle{width:auto; display:inline-flex;} }
+  .freq-btn { padding:8px 12px; border-radius:7px; border:none; background:transparent; font-family:'Mulish',sans-serif; font-size:12.5px; font-weight:600; color:var(--ash); cursor:pointer; transition:all 0.2s; white-space:nowrap; flex:1; text-align:center; }
+  @media(min-width:480px){ .freq-btn{flex:none; padding:8px 18px;} }
+  .freq-btn:hover { color:var(--ink); background:rgba(255,255,255,0.6); }
+  .freq-btn.active { background:var(--cardamom); color:var(--cream); box-shadow:0 2px 8px rgba(45,74,62,0.25); }
+  .freq-note { margin-top:8px; font-size:12px; color:var(--ash); line-height:1.5; }
+  .freq-note strong { color:var(--saffron-dark); }
+  .pkg-card.pkg-hidden { display:none; }
+
+  /* PACKAGE CARDS */
+  .package-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  @media(max-width:600px){ .package-grid{grid-template-columns:1fr; gap:10px;} }
+
+  .pkg-card { border:2px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.22s ease; position:relative; overflow:hidden; display:flex; flex-direction:column; user-select:none; }
+  .pkg-card:hover { border-color:var(--saffron); box-shadow:0 4px 16px rgba(232,137,12,0.15); }
+  .pkg-card.selected { border-color:var(--saffron); box-shadow:0 4px 20px rgba(232,137,12,0.2); }
+
+  .pkg-header { padding:16px 16px 12px; display:flex; align-items:flex-start; gap:12px; position:relative; }
+  .pkg-card.selected .pkg-header { background:var(--saffron-light); }
+
+  .pkg-icon { font-size:2rem; flex-shrink:0; line-height:1; margin-top:2px; }
+  .pkg-info { flex:1; }
+  .pkg-name { font-weight:800; font-size:16px; color:var(--ink); margin-bottom:3px; }
+  .pkg-price { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--saffron-dark); line-height:1; }
+  .pkg-price span { font-size:13px; color:var(--ash); font-family:'Mulish',sans-serif; font-weight:400; }
+
+  .pkg-check { position:absolute; top:12px; right:12px; width:22px; height:22px; border:2px solid var(--border); border-radius:50%; display:flex; align-items:center; justify-content:center; background:white; transition:all 0.2s; z-index:1; }
+  .pkg-card.selected .pkg-check { background:var(--saffron); border-color:var(--saffron); }
+  .pkg-check svg { display:none; }
+  .pkg-card.selected .pkg-check svg { display:block; }
+
+  .pkg-body { padding:0 16px 16px; border-top:1px solid var(--border); }
+  .pkg-card.selected .pkg-body { border-top-color:rgba(232,137,12,0.25); background:var(--saffron-light); }
+
+  .pkg-section { padding-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .pkg-detail-row { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:var(--ink); line-height:1.4; }
+  .pkg-detail-icon { font-size:13px; flex-shrink:0; margin-top:1px; }
+  .pkg-detail-label { color:var(--ash); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:block; margin-bottom:1px; }
+
+  .pkg-options { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
+  .pkg-option-label { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--ash); margin-bottom:7px; }
+  .pkg-option-chips { display:flex; flex-wrap:wrap; gap:6px; }
+
+  .option-chip { font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:20px; border:1.5px solid var(--border); background:white; cursor:pointer; transition:all 0.18s; white-space:nowrap; }
+  .option-chip:hover { border-color:var(--saffron); background:var(--saffron-light); color:var(--saffron-dark); }
+  .option-chip.chip-selected { background:var(--cardamom); border-color:var(--cardamom); color:white; }
+
+  /* DAYS */
+  .days-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+  @media(max-width:520px){ .days-grid{grid-template-columns:repeat(3,1fr); gap:6px;} }
+  @media(max-width:340px){ .days-grid{grid-template-columns:repeat(2,1fr);} }
+  .service-notice { display:flex; align-items:flex-start; gap:10px; margin-top:16px; padding:12px 14px; background:#F7F3EC; border:1px solid #DDD5C2; border-radius:8px; }
+  .service-notice-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+  .service-notice-text { font-size:12px; color:var(--ash); line-height:1.6; }
+  .service-notice-text strong { color:var(--ink); font-weight:700; display:block; margin-bottom:2px; font-size:12px; letter-spacing:0.02em; }
+
+  .days-notice {
+    display:flex; align-items:flex-start; gap:10px;
+    margin-top:16px; padding:12px 16px;
+    background:#F7F3EC; border:1.5px solid #DDD5C0;
+    border-left:4px solid var(--saffron-dark);
+    border-radius:var(--radius-sm);
+    font-size:12.5px; line-height:1.6; color:#5C5448;
+  }
+  .days-notice-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
+  .days-notice strong { display:block; font-size:11px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--saffron-dark); margin-bottom:3px; }
+  .day-chip { display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; padding:10px 4px; border:2px solid var(--border); border-radius:var(--radius-sm); transition:all 0.18s; user-select:none; background:white; }
+  .day-chip:hover { border-color:var(--saffron); background:var(--saffron-light); }
+  .day-chip.active { border-color:var(--cardamom); background:var(--cardamom); }
+  .day-abbr { font-size:11px; font-weight:700; letter-spacing:0.04em; color:var(--ash); }
+  .day-chip.active .day-abbr { color:var(--cream); }
+  .day-dot { width:7px; height:7px; border-radius:50%; border:2px solid var(--border); transition:all 0.18s; }
+  .day-chip.active .day-dot { background:var(--saffron); border-color:var(--saffron); }
+  .day-shortcuts { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .shortcut-btn { font-size:12px; font-weight:600; font-family:'Mulish',sans-serif; padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; background:white; cursor:pointer; color:var(--ash); transition:all 0.18s; }
+  .shortcut-btn:hover { border-color:var(--cardamom); color:var(--cardamom); }
+
+  /* FIELDS */
+  .fields-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:520px){ .fields-grid{grid-template-columns:1fr; gap:12px;} }
+  .field-group { display:flex; flex-direction:column; gap:6px; }
+  .field-group.full { grid-column:1/-1; }
+  label { font-size:11.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--ash); }
+  input, textarea { padding:11px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-family:'Mulish',sans-serif; font-size:14px; color:var(--ink); background:white; outline:none; transition:border-color 0.18s,box-shadow 0.18s; width:100%; }
+  input:focus, textarea:focus, select:focus { border-color:var(--saffron); box-shadow:0 0 0 3px rgba(232,137,12,0.1); }
+  /* ADDRESS AUTOCOMPLETE */
+  .addr-wrap { position:relative; width:100%; }
+  .addr-dropdown {
+    position:absolute; top:calc(100% + 4px); left:0; right:0;
+    background:white; border:1.5px solid var(--saffron);
+    border-radius:var(--radius-sm); box-shadow:0 8px 24px rgba(26,22,18,0.13);
+    z-index:999; overflow:hidden; display:none; max-height:220px; overflow-y:auto;
+  }
+  .addr-dropdown.open { display:block; }
+  .addr-item {
+    padding:10px 14px; font-size:13px; cursor:pointer;
+    border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px;
+    transition:background 0.15s; line-height:1.4;
+  }
+  .addr-item:last-child { border-bottom:none; }
+  .addr-item:hover, .addr-item.highlighted { background:var(--saffron-light); }
+  .addr-item-icon { font-size:14px; flex-shrink:0; margin-top:1px; }
+  .addr-item-main { font-weight:600; color:var(--ink); display:block; }
+  .addr-item-sub  { font-size:11.5px; color:var(--ash); display:block; margin-top:1px; }
+  .addr-loading {
+    padding:12px 14px; font-size:12.5px; color:var(--ash);
+    display:flex; align-items:center; gap:8px;
+  }
+  .addr-spinner {
+    width:14px; height:14px; border:2px solid var(--border);
+    border-top-color:var(--saffron); border-radius:50%;
+    animation:spin 0.7s linear infinite; flex-shrink:0;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .addr-empty { padding:12px 14px; font-size:12.5px; color:var(--ash); }
+  .postal-hint { font-size:11px; color:var(--saffron-dark); margin-top:4px; display:none; font-style:italic; }
+  /* COUNTRY + PHONE SPLIT */
+  .country-phone-wrap { display:flex; gap:0; position:relative; }
+  .country-select-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .country-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 10px 11px 12px;
+    border: 1.5px solid var(--border);
+    border-right: none;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+    background: var(--smoke);
+    cursor: pointer;
+    min-width: 110px;
+    transition: border-color 0.18s, background 0.18s;
+    user-select: none;
+    height: 100%;
+  }
+  .country-trigger:hover { background: var(--saffron-light); border-color: var(--saffron); }
+  .country-trigger.open  { border-color: var(--saffron); background: var(--saffron-light); }
+  .country-trigger-flag  { font-size: 18px; line-height: 1; flex-shrink: 0; }
+  .country-trigger-code  { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .country-trigger-arrow { font-size: 9px; color: var(--ash); margin-left: auto; transition: transform 0.2s; }
+  .country-trigger.open .country-trigger-arrow { transform: rotate(180deg); }
+
+  .country-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 320px;
+    max-height: 280px;
+    background: white;
+    border: 1.5px solid var(--saffron);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 8px 28px rgba(26,22,18,0.15);
+    z-index: 999;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .country-dropdown.open { display: flex; }
+
+  .country-search-wrap {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .country-search {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: 'Mulish', sans-serif;
+    outline: none;
+  }
+  .country-search:focus { border-color: var(--saffron); }
+
+  .country-list {
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .country-list::-webkit-scrollbar { width: 4px; }
+  .country-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .country-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(224,217,204,0.5);
+    transition: background 0.15s;
+  }
+  .country-item:hover, .country-item.highlighted { background: var(--saffron-light); }
+  .country-item.selected { background: var(--cardamom-light, #EAF0EE); font-weight: 600; }
+  .country-item-flag { font-size: 18px; flex-shrink: 0; }
+  .country-item-name { flex: 1; color: var(--ink); }
+  .country-item-code { font-weight: 700; color: var(--ash); font-size: 12px; flex-shrink: 0; }
+
+  .phone-number-input {
+    flex: 1;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
+    border-left: none !important;
+  }
+  .phone-number-input:focus { border-color: var(--saffron) !important; border-left: none !important; }
+
+  .phone-hint { font-size:11px; margin-top:4px; display:none; }
+  .phone-hint.valid   { color:var(--green); display:block; }
+  .phone-hint.invalid { color:var(--red);   display:block; }
+  .phone-formatted { font-size:11px; color:var(--ash); margin-top:3px; display:none; font-family:'Courier New',monospace; }
+  .phone-formatted.show { display:block; }
+  .postal-hint.show { display:block; }
+  .postal-field-wrap { position:relative; }
+
+  select { appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%238A8278' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px; cursor:pointer; }
+  textarea { resize:vertical; min-height:78px; }
+
+  /* DELIVERY PREFERENCE */
+  .delivery-options { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+  @media(max-width:520px){ .delivery-options{grid-template-columns:1fr; gap:8px;} }
+  .delivery-opt { display:flex; align-items:center; gap:10px; padding:11px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.18s; user-select:none; background:white; }
+  .delivery-opt:hover { border-color:var(--saffron); background:var(--saffron-light); }
+  .delivery-opt.selected { border-color:var(--cardamom); background:#EAF0EE; }
+  .delivery-opt-radio { width:18px; height:18px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.18s; background:white; }
+  .delivery-opt.selected .delivery-opt-radio { border-color:var(--cardamom); background:var(--cardamom); }
+  .delivery-opt-radio::after { content:''; width:6px; height:6px; border-radius:50%; background:white; display:none; }
+  .delivery-opt.selected .delivery-opt-radio::after { display:block; }
+  .delivery-opt-icon { font-size:16px; flex-shrink:0; }
+  .delivery-opt-label { font-size:13px; font-weight:600; color:var(--ink); }
+  .user-defined-wrap { margin-top:10px; display:none; }
+  .user-defined-wrap.visible { display:block; }
+
+  /* PHOTO UPLOAD */
+  .photo-upload-area { border:2px dashed var(--border); border-radius:var(--radius-sm); padding:24px 16px; text-align:center; cursor:pointer; transition:all 0.22s; background:white; position:relative; overflow:hidden; }
+  .photo-upload-area:hover { border-color:var(--saffron); background:var(--saffron-light); }
+  .photo-upload-area.has-image { border-style:solid; border-color:#A8D5B7; background:#EAF4EE; padding:14px; }
+  .photo-upload-area input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-icon { font-size:2rem; margin-bottom:8px; display:block; }
+  .upload-label { font-size:13px; font-weight:600; color:var(--ash); display:block; margin-bottom:3px; }
+  .upload-sub { font-size:11.5px; color:#bbb; }
+  .photo-preview-wrap { display:none; align-items:center; gap:14px; }
+  .photo-upload-area.has-image .upload-prompt { display:none; }
+  .photo-upload-area.has-image .photo-preview-wrap { display:flex; }
+  .photo-preview { width:60px; height:75px; object-fit:cover; border-radius:5px; border:2px solid #A8D5B7; flex-shrink:0; }
+  .photo-preview-info { text-align:left; }
+  .photo-preview-name { font-size:12.5px; font-weight:600; color:var(--green); display:block; margin-bottom:3px; word-break:break-all; }
+  .photo-preview-size { font-size:11px; color:var(--ash); display:block; margin-bottom:8px; }
+  .photo-remove-btn { font-size:11px; font-weight:700; color:var(--red); background:none; border:1px solid #f0c0bc; border-radius:4px; padding:3px 10px; cursor:pointer; font-family:'Mulish',sans-serif; transition:all 0.18s; }
+  .photo-remove-btn:hover { background:#fde8e8; }
+  .photo-spec { margin-top:10px; font-size:11.5px; color:var(--ash); display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .photo-spec-chip { background:var(--smoke); padding:3px 9px; border-radius:4px; font-weight:600; border:1px solid var(--border); }
+
+  /* TERMS */
+  .terms-wrap { margin-top:4px; background:#FDFAF4; border:1.5px solid var(--border); border-radius:var(--radius-sm); overflow:hidden; }
+  .terms-body { padding:16px 18px; max-height:140px; overflow-y:auto; font-size:12.5px; line-height:1.75; color:#5a5248; border-bottom:1px solid var(--border); scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+  .terms-body::-webkit-scrollbar { width:4px; }
+  .terms-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+  .terms-body p { margin-bottom:10px; }
+  .terms-body p:last-child { margin-bottom:0; }
+  .terms-body strong { color:var(--ink); font-weight:700; }
+  .terms-scroll-hint { text-align:center; font-size:10.5px; color:var(--ash); letter-spacing:0.06em; padding:5px 0 2px; opacity:1; transition:opacity 0.4s; }
+  .terms-scroll-hint.hidden { opacity:0; pointer-events:none; }
+  .terms-check-row { display:flex; align-items:flex-start; gap:12px; padding:14px 18px; cursor:pointer; user-select:none; transition:background 0.18s; }
+  .terms-check-row:hover { background:#F5F0E8; }
+  .terms-checkbox { width:20px; height:20px; border:2px solid var(--border); border-radius:5px; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all 0.2s; background:white; margin-top:1px; }
+  .terms-check-row.checked .terms-checkbox { background:var(--cardamom); border-color:var(--cardamom); }
+  .terms-checkbox svg { display:none; }
+  .terms-check-row.checked .terms-checkbox svg { display:block; }
+  .terms-check-label { font-size:12.5px; font-weight:600; color:var(--ink); line-height:1.55; }
+  .terms-check-label span { color:var(--ash); font-weight:400; }
+
+  /* QUOTE */
+  .sticky-quote { position:sticky; top:24px; }
+  .quote-card { background:var(--cardamom); border-radius:var(--radius); padding:28px 24px; color:var(--cream); box-shadow:var(--shadow-lg); animation:riseIn 0.5s 0.12s ease both; }
+  .quote-title { font-family:'Playfair Display',serif; font-size:1.2rem; margin-bottom:3px; }
+  .quote-sub { font-size:12px; color:rgba(253,250,244,0.4); margin-bottom:22px; }
+  .quote-line { display:flex; justify-content:space-between; align-items:flex-start; padding:9px 0; border-bottom:1px solid rgba(255,255,255,0.08); font-size:13px; gap:10px; }
+  .quote-line:last-of-type { border-bottom:none; }
+  .quote-key { color:rgba(253,250,244,0.55); flex-shrink:0; }
+  .quote-val { font-weight:600; text-align:right; }
+  .quote-val em.empty { color:rgba(253,250,244,0.25); font-style:italic; font-weight:400; }
+  .quote-divider { border:none; border-top:1px solid rgba(255,255,255,0.12); margin:16px 0; }
+  .quote-total-label { font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(253,250,244,0.45); margin-bottom:6px; }
+  .quote-price { font-family:'Playfair Display',serif; font-size:3rem; color:var(--saffron); line-height:1; }
+  .quote-price-sub { font-size:13px; color:rgba(253,250,244,0.4); margin-top:4px; }
+
+  .quote-what { margin-top:16px; background:rgba(255,255,255,0.06); border-radius:10px; padding:14px 16px; font-size:12.5px; line-height:1.8; color:rgba(253,250,244,0.7); }
+  .quote-what-title { font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--saffron); font-weight:700; margin-bottom:8px; display:block; }
+  .quote-what li { display:flex; align-items:flex-start; gap:8px; }
+  .quote-what li::before { content:'·'; color:var(--saffron); flex-shrink:0; }
+
+  /* E-TRANSFER TAX CHECKBOX */
+  .etransfer-row {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.18s;
+  }
+  .etransfer-row.visible { display: flex; }
+  .etransfer-row:hover { background: rgba(255,255,255,0.1); }
+  .etransfer-box {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 4px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .etransfer-row.checked .etransfer-box {
+    background: var(--saffron);
+    border-color: var(--saffron);
+  }
+  .etransfer-box svg { display: none; }
+  .etransfer-row.checked .etransfer-box svg { display: block; }
+  .etransfer-text { font-size: 12.5px; color: rgba(253,250,244,0.75); line-height: 1.4; }
+  .etransfer-text strong { color: var(--cream); font-size: 13px; display: block; }
+  .tax-line {
+    display: none;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 6px 0 0;
+    color: rgba(253,250,244,0.55);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 6px;
+  }
+  .tax-line.visible { display: flex; }
+  .tax-line .tax-val { color: rgba(253,250,244,0.8); font-weight: 600; }
+  .price-total-final {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--saffron);
+    line-height: 1;
+    margin-top: 4px;
+  }
+  .price-total-final.with-tax { color: #f0c060; }
+
+  .notes-preview { margin-top:14px; background:rgba(0,0,0,0.22); border-radius:8px; padding:12px 14px; }
+  .notes-preview strong { font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(253,250,244,0.35); display:block; margin-bottom:5px; }
+  .notes-code { font-family:'Courier New',monospace; font-size:12px; color:var(--saffron-light); word-break:break-all; line-height:1.5; }
+
+  /* EXTRAS FORM PANEL (light, inside form-left) */
+  .form-extra-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.18s;
+    gap: 12px;
+    user-select: none;
+  }
+  .form-extra-row:hover { background: var(--saffron-light); }
+  .form-extra-row.selected { background: #F0F8F3; }
+  .form-extra-left { display: flex; align-items: center; gap: 12px; flex: 1; }
+  .form-extra-toggle {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s;
+    background: white;
+  }
+  .form-extra-row.selected .form-extra-toggle { background: var(--green); border-color: var(--green); }
+  .form-extra-toggle svg { display: none; }
+  .form-extra-row.selected .form-extra-toggle svg { display: block; }
+  .form-extra-info { flex: 1; }
+  .form-extra-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .form-extra-desc { font-size: 12px; color: var(--ash); margin-top: 2px; line-height: 1.4; }
+  .form-extra-price-col { text-align: right; flex-shrink: 0; }
+  .form-extra-price { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--saffron-dark); display: block; }
+  .form-extra-per { font-size: 11px; color: var(--ash); }
+
+  /* Form roti stepper */
+  .form-roti-stepper {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px 12px 58px;
+    background: #f9f6f0;
+    border-bottom: 1px solid var(--border);
+  }
+  .form-roti-stepper.show { display: flex; }
+  .form-stepper-label { font-size: 12px; color: var(--ash); font-weight: 600; flex-shrink: 0; }
+  .form-stepper-btn {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: white;
+    color: var(--ink);
+    font-size: 16px; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    font-family: 'Mulish', sans-serif;
+    flex-shrink: 0;
+  }
+  .form-stepper-btn:hover:not(:disabled) { background: var(--saffron); border-color: var(--saffron); color: white; }
+  .form-stepper-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .form-stepper-count { font-size: 13px; font-weight: 700; color: var(--ink); min-width: 56px; text-align: center; }
+  .form-stepper-total { font-size: 12.5px; color: var(--green); font-weight: 700; }
+
+  /* Extras subtotal bar */
+  .form-extras-total {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    background: var(--cardamom-light);
+    border-top: 1px solid #b8d5c8;
+    font-size: 13px;
+    color: var(--cardamom);
+    font-weight: 600;
+  }
+  .form-extras-total.show { display: flex; }
+  .form-extras-total-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--cardamom);
+  }
+
+  .submit-wrap { margin-top:20px; }
+  .submit-btn { width:100%; padding:16px; background:var(--saffron); color:white; border:none; border-radius:var(--radius-sm); font-family:'Mulish',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.03em; cursor:pointer; transition:all 0.22s; box-shadow:0 4px 18px rgba(232,137,12,0.4); }
+  .submit-btn:hover:not(:disabled) { background:var(--saffron-dark); transform:translateY(-1px); box-shadow:0 6px 24px rgba(232,137,12,0.5); }
+  .submit-btn:disabled { background:#6a6560; box-shadow:none; cursor:not-allowed; }
+  .validation-hint { margin-top:10px; font-size:11.5px; color:rgba(253,250,244,0.55); text-align:left; display:none; line-height:1.6; background:rgba(255,255,255,0.06); border-radius:6px; padding:8px 12px; }
+
+  .success-overlay { display:none; position:fixed; inset:0; background:rgba(45,74,62,0.97); z-index:100; align-items:center; justify-content:center; flex-direction:column; text-align:center; padding:40px; }
+  .success-overlay.show { display:flex; }
+  .success-icon { font-size:4rem; margin-bottom:18px; animation:pop 0.5s ease; }
+  @keyframes pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+  .success-overlay h2 { font-family:'Playfair Display',serif; color:var(--cream); font-size:2rem; margin-bottom:10px; }
+  .success-overlay p { color:rgba(253,250,244,0.65); font-size:15px; max-width:420px; line-height:1.65; }
+  .success-note { margin-top:22px; background:rgba(232,137,12,0.12); border:1px solid rgba(232,137,12,0.3); border-radius:10px; padding:16px 20px; color:var(--saffron-light); font-size:13px; font-family:'Courier New',monospace; max-width:460px; word-break:break-all; text-align:left; line-height:1.6; }
+  .success-note strong { display:block; font-size:11px; letter-spacing:0.1em; margin-bottom:6px; color:rgba(253,250,244,0.4); font-family:'Mulish',sans-serif; }
+  .new-order-btn { margin-top:26px; padding:12px 32px; background:transparent; border:2px solid rgba(253,250,244,0.25); border-radius:30px; color:var(--cream); font-family:'Mulish',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .new-order-btn:hover { border-color:var(--saffron); color:var(--saffron); }
+
+  /* INTERAC PAYMENT CARD */
+  .interac-pay-block {
+    margin-top: 20px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 14px;
+    padding: 22px 24px;
+    text-align: center;
+    max-width: 420px;
+    width: 100%;
+  }
+  .payment-card {
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0 0;
+    text-align: left;
+  }
+  .payment-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    gap: 10px;
+  }
+  .payment-row:last-child { border-bottom: none; }
+  .payment-row-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(253,250,244,0.4);
+    flex-shrink: 0;
+    min-width: 65px;
+  }
+  .payment-row-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: flex-end;
+  }
+  .payment-row-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream);
+    text-align: right;
+    word-break: break-all;
+  }
+  .payment-row-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--saffron);
+  }
+  .copy-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    background: rgba(232,137,12,0.18);
+    border: 1px solid rgba(232,137,12,0.35);
+    border-radius: 6px;
+    color: var(--saffron-light);
+    font-size: 11.5px;
+    font-weight: 700;
+    font-family: 'Mulish', sans-serif;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.18s;
+    flex-shrink: 0;
+  }
+  .copy-chip:hover { background: rgba(232,137,12,0.32); border-color: var(--saffron); }
+  .copy-chip.copied { background: rgba(45,106,79,0.3); border-color: var(--green); color: #a8d5b7; }
+  .interac-label {
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(253,250,244,0.4);
+    margin-bottom: 10px;
+    display: block;
+  }
+  .interac-amount {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    color: var(--saffron);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .interac-amount-note {
+    font-size: 12px;
+    color: rgba(253,250,244,0.4);
+    margin-bottom: 16px;
+  }
+  .interac-email-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+  }
+  .interac-email-val {
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.02em;
+  }
+  .interac-copy-btn {
+    font-size: 11px;
+    font-family: 'Mulish', sans-serif;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    color: var(--cream);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .interac-copy-btn:hover { background: rgba(255,255,255,0.2); }
+
+
+  .interac-note {
+    font-size: 11px;
+    color: rgba(253,250,244,0.35);
+    line-height: 1.6;
+  }
+  /* E-transfer toggle on success screen */
+  .success-etransfer-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 14px;
+    transition: background 0.18s;
+    width: 100%;
+    text-align: left;
+  }
+  .success-etransfer-row:hover { background: rgba(255,255,255,0.12); }
+  .success-et-box {
+    width: 20px; height: 20px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.18s;
+    background: transparent;
+  }
+  .success-etransfer-row.checked .success-et-box {
+    background: var(--saffron);
+    border-color: var(--saffron);
+  }
+  .success-et-box svg { display: none; }
+  .success-etransfer-row.checked .success-et-box svg { display: block; }
+  .success-et-text { font-size: 13px; color: rgba(253,250,244,0.8); line-height: 1.4; }
+  .success-et-text strong { color: var(--cream); display: block; font-size: 13.5px; }
+
+  /* Pay button in quote card (form) */
+  .quote-pay-divider { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:16px 0 14px; }
+  .quote-pay-label { font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(253,250,244,0.4); margin-bottom:8px; display:block; }
+  .quote-pay-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(232,137,12,0.15);
+    color: var(--saffron-light);
+    border: 1.5px solid rgba(232,137,12,0.35);
+    border-radius: 8px;
+    font-family: 'Mulish', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    margin-top: 0;
+    display: none;
+  }
+  .quote-pay-btn.show { display: flex; }
+  .quote-pay-btn:hover { background: rgba(232,137,12,0.25); border-color: var(--saffron); color: white; }
+  .required-star { color:#E07070; }
+
+  /* ════════════════════════════════════════════
+     MOBILE-FIRST RESPONSIVE — full overrides
+     ════════════════════════════════════════════ */
+
+
+
+  /* Form panels */
+  @media(max-width:600px){
+    .panel-header { padding:14px 16px 12px; gap:10px; }
+    .panel-body { padding:16px; }
+    .panel-title { font-size:1rem; }
+    .panel-num { width:24px; height:24px; font-size:11px; }
+  }
+
+  /* Package cards */
+  @media(max-width:600px){
+    .pkg-header { padding:14px 14px 10px; gap:10px; }
+    .pkg-icon { font-size:1.6rem; }
+    .pkg-name { font-size:15px; }
+    .pkg-price { font-size:1.3rem; }
+    .pkg-body { padding:0 14px 14px; }
+    .pkg-detail-row { font-size:12px; }
+    .pkg-detail-label { font-size:10px; }
+    .option-chip { font-size:11px; padding:4px 9px; }
+    .pkg-check { width:20px; height:20px; top:10px; right:10px; }
+  }
+
+  /* Freq toggle */
+  @media(max-width:480px){
+    .freq-toggle-wrap { margin-bottom:16px; }
+    .freq-note { font-size:11.5px; }
+  }
+
+  /* Day chips */
+  @media(max-width:520px){
+    .day-chip { padding:8px 2px; }
+    .day-abbr { font-size:10px; }
+    .day-dot { width:6px; height:6px; }
+    .shortcut-btn { font-size:11px; padding:5px 10px; }
+  }
+
+  /* Extras form panel */
+  @media(max-width:600px){
+    .form-extra-row { padding:12px 16px; gap:10px; }
+    .form-extra-name { font-size:13px; }
+    .form-extra-desc { font-size:11px; }
+    .form-extra-price { font-size:1.1rem; }
+    .form-roti-stepper { padding:8px 16px 10px 46px; gap:8px; }
+    .form-stepper-btn { width:26px; height:26px; font-size:15px; }
+    .form-stepper-count { font-size:12px; min-width:48px; }
+    .form-stepper-total { font-size:11.5px; }
+    .form-extras-total { padding:10px 16px; font-size:12.5px; }
+    .form-extras-total-val { font-size:1rem; }
+  }
+
+  /* Fields */
+  @media(max-width:520px){
+    input, textarea, select { padding:10px 12px; font-size:14px; }
+    label { font-size:11px; }
+  }
+
+  /* Delivery place options */
+  @media(max-width:520px){
+    .delivery-opt { padding:10px 12px; font-size:13px; gap:8px; }
+  }
+
+  /* Photo upload */
+  @media(max-width:520px){
+    .photo-upload-area { padding:20px 12px; }
+    .photo-upload-icon { font-size:2rem; }
+    .photo-upload-text { font-size:13px; }
+    .photo-spec { gap:4px; }
+    .photo-spec-chip { font-size:10px; padding:2px 7px; }
+  }
+
+  /* Terms */
+  @media(max-width:520px){
+    .terms-body { font-size:12px; padding:12px 14px; }
+    .terms-check-row { padding:12px 14px; }
+    .terms-check-label { font-size:12px; }
+    .terms-checkbox { width:18px; height:18px; }
+  }
+
+  /* Quote card */
+  @media(max-width:900px){
+    .quote-card { padding:22px 18px; border-radius:12px; }
+    .quote-title { font-size:1.1rem; }
+    .quote-price { font-size:2.4rem; }
+    .quote-line { font-size:12.5px; padding:8px 0; }
+  }
+  @media(max-width:480px){
+    .quote-card { padding:18px 14px; }
+    .quote-price { font-size:2rem; }
+    .quote-what { font-size:12px; }
+    .etransfer-text { font-size:12px; }
+    .etransfer-text strong { font-size:12.5px; }
+  }
+
+  /* E-transfer + tax */
+  @media(max-width:520px){
+    .etransfer-row { padding:9px 12px; gap:8px; }
+    .tax-line { font-size:11.5px; }
+    .price-total-final { font-size:1.7rem; }
+  }
+
+  /* Submit button */
+  @media(max-width:520px){
+    .submit-btn { font-size:14px; padding:14px; }
+  }
+
+  /* Service notice */
+  @media(max-width:520px){
+    .service-notice { padding:10px 12px; }
+    .service-notice-text { font-size:11.5px; }
+  }
+
+  /* Success overlay */
+  @media(max-width:480px){
+    .success-overlay { padding:24px 16px; }
+    .success-overlay h2 { font-size:1.6rem; }
+    .success-overlay p { font-size:13.5px; }
+    .success-note { padding:12px 14px; font-size:12px; }
+    .new-order-btn { padding:10px 24px; font-size:13px; }
+  }
+
+  /* Addr dropdown */
+  @media(max-width:520px){
+    .addr-item { padding:9px 12px; font-size:12.5px; }
+    .addr-item-sub { font-size:11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-body">
+<div class="form-left">
+
+  <!-- ① PACKAGE -->
+  <div class="form-panel" id="panel-package">
+    <div class="panel-header">
+      <div class="panel-num">1</div>
+      <div class="panel-title">Choose Your Package <span class="required-star">*</span></div>
+    </div>
+    <div class="panel-body">
+
+      <!-- FREQUENCY TOGGLE -->
+      <div class="freq-toggle-wrap">
+        <span class="freq-toggle-label">Billing Frequency</span>
+        <div class="freq-toggle">
+          <button class="freq-btn" data-freq="TRIAL" onclick="selectFrequency(this)">Trial / Single</button>
+          <button class="freq-btn" data-freq="WEEKLY" onclick="selectFrequency(this)">Weekly</button>
+          <button class="freq-btn" data-freq="BIWEEKLY" onclick="selectFrequency(this)">Bi-Weekly</button>
+          <button class="freq-btn active" data-freq="MONTHLY" onclick="selectFrequency(this)">Monthly</button>
+        </div>
+        <div class="freq-note" id="freqNote">Standard monthly plan — best value over time.</div>
+      </div>
+
+      <div class="package-grid" id="packageGrid">
+
+        <!-- JUNIOR (Monthly only) -->
+        <div class="pkg-card" id="card-JUNIOR" data-pkg="JUNIOR" onclick="selectPackage(this)">
+          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pkg-header">
+            <div class="pkg-icon">🌱</div>
+            <div class="pkg-info">
+              <div class="pkg-name">Junior</div>
+              <div class="pkg-price" id="price-JUNIOR">$180 <span>/ month</span></div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-section">
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🥣</span>
+                <div><span class="pkg-detail-label">Curry</span>12 Oz — Choice of 1 Gravy <em>or</em> 1 Dry</div>
+              </div>
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🍽️</span>
+                <div><span class="pkg-detail-label">Serving</span>4 Roti <em>or</em> Rice (one choice)</div>
+              </div>
+            </div>
+            <div class="pkg-options">
+              <div class="pkg-option-label">Pick your serving</div>
+              <div class="pkg-option-chips" id="chips-JUNIOR">
+                <div class="option-chip" data-pkg="JUNIOR" data-roti="4" data-rice="NO-RICE" onclick="selectOption(event,this)">4 Roti · No Rice</div>
+                <div class="option-chip" data-pkg="JUNIOR" data-roti="0" data-rice="RICE" onclick="selectOption(event,this)">Rice Only</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REGULAR -->
+        <div class="pkg-card" id="card-REGULAR" data-pkg="REGULAR" onclick="selectPackage(this)">
+          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pkg-header">
+            <div class="pkg-icon">🍽️</div>
+            <div class="pkg-info">
+              <div class="pkg-name">Regular</div>
+              <div class="pkg-price" id="price-REGULAR">$240 <span>/ month</span></div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-section">
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🥣</span>
+                <div><span class="pkg-detail-label">Curry</span>8 Oz — 1 Gravy + 1 Dry</div>
+              </div>
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🍽️</span>
+                <div><span class="pkg-detail-label">Serving options</span>4 Roti + Rice <em>or</em> 6 Roti (No Rice)</div>
+              </div>
+            </div>
+            <div class="pkg-options">
+              <div class="pkg-option-label">Pick your serving</div>
+              <div class="pkg-option-chips" id="chips-REGULAR">
+                <div class="option-chip" data-pkg="REGULAR" data-roti="4" data-rice="RICE" onclick="selectOption(event,this)">4 Roti + Rice</div>
+                <div class="option-chip" data-pkg="REGULAR" data-roti="6" data-rice="NO-RICE" onclick="selectOption(event,this)">6 Roti · No Rice</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LARGE -->
+        <div class="pkg-card" id="card-LARGE" data-pkg="LARGE" onclick="selectPackage(this)">
+          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pkg-header">
+            <div class="pkg-icon">🥘</div>
+            <div class="pkg-info">
+              <div class="pkg-name">Large</div>
+              <div class="pkg-price" id="price-LARGE">$270 <span>/ month</span></div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-section">
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🥣</span>
+                <div><span class="pkg-detail-label">Curry</span>12 Oz — 1 Gravy + 1 Dry</div>
+              </div>
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🍽️</span>
+                <div><span class="pkg-detail-label">Serving options</span>4 Roti + Rice <em>or</em> 6 Roti (No Rice)</div>
+              </div>
+            </div>
+            <div class="pkg-options">
+              <div class="pkg-option-label">Pick your serving</div>
+              <div class="pkg-option-chips" id="chips-LARGE">
+                <div class="option-chip" data-pkg="LARGE" data-roti="4" data-rice="RICE" onclick="selectOption(event,this)">4 Roti + Rice</div>
+                <div class="option-chip" data-pkg="LARGE" data-roti="6" data-rice="NO-RICE" onclick="selectOption(event,this)">6 Roti · No Rice</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAMILY -->
+        <div class="pkg-card" id="card-FAMILY" data-pkg="FAMILY" onclick="selectPackage(this)">
+          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pkg-header">
+            <div class="pkg-icon">👨‍👩‍👧‍👦</div>
+            <div class="pkg-info">
+              <div class="pkg-name">Family</div>
+              <div class="pkg-price" id="price-FAMILY">$450 <span>/ month</span></div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-section">
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🥣</span>
+                <div><span class="pkg-detail-label">Curry</span>24 Oz — 1 Gravy + 1 Dry</div>
+              </div>
+              <div class="pkg-detail-row">
+                <span class="pkg-detail-icon">🍽️</span>
+                <div><span class="pkg-detail-label">Serving options</span>8 Roti + 2× Rice <em>or</em> 12 Roti (No Rice)</div>
+              </div>
+            </div>
+            <div class="pkg-options">
+              <div class="pkg-option-label">Pick your serving</div>
+              <div class="pkg-option-chips" id="chips-FAMILY">
+                <div class="option-chip" data-pkg="FAMILY" data-roti="8" data-rice="RICE" onclick="selectOption(event,this)">8 Roti + 2× Rice</div>
+                <div class="option-chip" data-pkg="FAMILY" data-roti="12" data-rice="NO-RICE" onclick="selectOption(event,this)">12 Roti · No Rice</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ② MONTHLY EXTRAS (shown only when Monthly selected + package chosen) -->
+  <div class="form-panel" id="panel-extras" style="display:none; animation-delay:0.07s">
+    <div class="panel-header">
+      <div class="panel-num">2</div>
+      <div class="panel-title">Monthly Extras <span style="font-size:11px;color:var(--ash);font-family:'Mulish',sans-serif;font-weight:400;font-style:italic;">(Optional)</span></div>
+    </div>
+    <div class="panel-body" style="padding:0;">
+
+      <!-- Extra Roti -->
+      <div class="form-extra-row" id="extraRotiRow" onclick="toggleExtra('roti')">
+        <div class="form-extra-left">
+          <div class="form-extra-toggle" id="formExtraToggle-roti">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="form-extra-info">
+            <div class="form-extra-name">🫓 Extra Roti</div>
+            <div class="form-extra-desc">Sold in pairs of 2 · $30 per pair / month</div>
+          </div>
+        </div>
+        <div class="form-extra-price-col">
+          <span class="form-extra-price" id="extraRotiPrice">$30</span>
+          <span class="form-extra-per">/ month</span>
+        </div>
+      </div>
+      <!-- Roti Stepper (inline, light) -->
+      <div class="form-roti-stepper" id="rotiStepper">
+        <span class="form-stepper-label">Quantity</span>
+        <button class="form-stepper-btn" onclick="stepRoti(event,-1)" id="rotiMinus" disabled>−</button>
+        <span class="form-stepper-count" id="rotiCount">2 rotis</span>
+        <button class="form-stepper-btn" onclick="stepRoti(event,1)" id="rotiPlus">+</button>
+        <span class="form-stepper-total" id="rotiStepTotal">= $30 / mo</span>
+      </div>
+
+      <!-- Extra Rice -->
+      <div class="form-extra-row" id="extraRiceRow" onclick="toggleExtra('rice')">
+        <div class="form-extra-left">
+          <div class="form-extra-toggle" id="formExtraToggle-rice">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="form-extra-info">
+            <div class="form-extra-name">🍚 Extra Rice</div>
+            <div class="form-extra-desc">Additional rice serving per delivery</div>
+          </div>
+        </div>
+        <div class="form-extra-price-col">
+          <span class="form-extra-price">$20</span>
+          <span class="form-extra-per">/ month</span>
+        </div>
+      </div>
+
+      <!-- Extra Curry -->
+      <div class="form-extra-row" id="extraCurryRow" onclick="toggleExtra('curry')">
+        <div class="form-extra-left">
+          <div class="form-extra-toggle" id="formExtraToggle-curry">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="form-extra-info">
+            <div class="form-extra-name">🥣 Extra Curry</div>
+            <div class="form-extra-desc">Additional curry serving per delivery</div>
+          </div>
+        </div>
+        <div class="form-extra-price-col">
+          <span class="form-extra-price">$70</span>
+          <span class="form-extra-per">/ month</span>
+        </div>
+      </div>
+
+      <!-- Extras subtotal bar -->
+      <div class="form-extras-total" id="extrasTotalLine">
+        <span>Extras added to your monthly total</span>
+        <span class="form-extras-total-val" id="extrasTotalVal">$0 / mo</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ③ DELIVERY DAYS -->
+  <div class="form-panel" id="panel-days">
+    <div class="panel-header">
+      <div class="panel-num">3</div>
+      <div class="panel-title">Select Delivery Days <span class="required-star">*</span></div>
+    </div>
+    <div class="panel-body">
+      <div class="days-grid">
+        <div class="day-chip" data-day="MON" onclick="toggleDay(this)"><span class="day-abbr">MON</span><div class="day-dot"></div></div>
+        <div class="day-chip" data-day="TUE" onclick="toggleDay(this)"><span class="day-abbr">TUE</span><div class="day-dot"></div></div>
+        <div class="day-chip" data-day="WED" onclick="toggleDay(this)"><span class="day-abbr">WED</span><div class="day-dot"></div></div>
+        <div class="day-chip" data-day="THU" onclick="toggleDay(this)"><span class="day-abbr">THU</span><div class="day-dot"></div></div>
+        <div class="day-chip" data-day="FRI" onclick="toggleDay(this)"><span class="day-abbr">FRI</span><div class="day-dot"></div></div>
+        <div class="day-chip" data-day="SAT" onclick="toggleDay(this)"><span class="day-abbr">SAT</span><div class="day-dot"></div></div>
+      </div>
+      <div class="day-shortcuts">
+        <button class="shortcut-btn" onclick="setDays(['MON','TUE','WED','THU','FRI'])">MON–FRI</button>
+        <button class="shortcut-btn" onclick="setDays(['MON','TUE','WED','THU','FRI','SAT'])">MON–SAT</button>
+        <button class="shortcut-btn" onclick="setDays([])">Clear</button>
+      </div>
+      <div class="service-notice">
+        <span class="service-notice-icon">📋</span>
+        <div class="service-notice-text">
+          <strong>Service Availability</strong>
+          Deliveries are scheduled Monday through Saturday only. We observe all statutory public holidays and do not operate on Sundays. Customers will be notified in advance of any holiday closures.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ DETAILS -->
+  <div class="form-panel" id="panel-details">
+    <div class="panel-header">
+      <div class="panel-num">4</div>
+      <div class="panel-title">Your Details</div>
+    </div>
+    <div class="panel-body">
+      <div class="fields-grid">
+        <div class="field-group">
+          <label for="fname">Full Name <span class="required-star">*</span></label>
+          <input type="text" id="fname" placeholder="e.g. Priya Sharma" oninput="updateQuote()">
+        </div>
+        <!-- COUNTRY CODE + PHONE — full width row -->
+        <div class="field-group full">
+          <label>Phone <span class="required-star">*</span></label>
+          <div class="country-phone-wrap">
+
+            <!-- Country selector -->
+            <div class="country-select-wrap" id="countrySelectWrap">
+              <div class="country-trigger" id="countryTrigger" onclick="toggleCountryDropdown()">
+                <span class="country-trigger-flag" id="triggerFlag">🌐</span>
+                <span class="country-trigger-code" id="triggerCode">+1</span>
+                <span class="country-trigger-arrow">▼</span>
+              </div>
+              <div class="country-dropdown" id="countryDropdown">
+                <div class="country-search-wrap">
+                  <input type="text" class="country-search" id="countrySearch"
+                    placeholder="Search country…"
+                    oninput="filterCountries(this.value)"
+                    onkeydown="countrySearchKeydown(event)">
+                </div>
+                <div class="country-list" id="countryList"></div>
+              </div>
+            </div>
+
+            <!-- Phone number input -->
+            <input type="tel" id="fphone" class="phone-number-input"
+              placeholder="416 555 0100"
+              oninput="onPhoneInput(this)"
+              autocomplete="tel">
+          </div>
+          <div class="phone-hint" id="phoneHint"></div>
+          <div class="phone-formatted" id="phoneFormatted"></div>
+        </div>
+        <div class="field-group">
+          <label for="femail">Email <span class="required-star">*</span></label>
+          <input type="email" id="femail" placeholder="you@example.com" oninput="updateQuote()">
+        </div>
+        <div class="field-group">
+          <label for="fcity">City <span class="required-star">*</span></label>
+          <input type="text" id="fcity" placeholder="Brampton">
+        </div>
+        <div class="field-group full">
+          <label for="fstreet">Street Address <span class="required-star">*</span></label>
+          <div class="addr-wrap">
+            <input type="text" id="fstreet" placeholder="Start typing your address…"
+              autocomplete="off" oninput="onStreetInput(this)" onkeydown="onStreetKeydown(event)"
+              onfocus="if(this.value.length>2)openDrop()" onblur="setTimeout(closeDrop,180)">
+            <div class="addr-dropdown" id="addrDropdown"></div>
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="fpostal">Postal Code</label>
+          <div class="postal-field-wrap">
+            <input type="text" id="fpostal" placeholder="L6Y 0A1" maxlength="10" oninput="onPostalInput(this)" autocomplete="off">
+            <div class="postal-hint" id="postalHint">✓ Address auto-filled from postal code</div>
+          </div>
+        </div>
+        <div class="field-group full">
+          <label for="fstart">Service Start Date <span class="required-star">*</span></label>
+          <input type="date" id="fstart">
+        </div>
+        <div class="field-group full">
+          <label for="fsubscribers">Number of Subscribers <span class="required-star">*</span></label>
+          <select id="fsubscribers" onchange="updateQuote()">
+            <option value="" disabled selected>— Please select —</option>
+            <option value="Just me">Just me</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="More than 3">More than 3</option>
+          </select>
+        </div>
+
+        <!-- Hidden address components for Google Contacts -->
+        <input type="hidden" id="fregion">
+        <input type="hidden" id="fcountry">
+        <input type="hidden" id="faddressFormatted">
+
+        <!-- DELIVERY PREFERENCE -->
+        <div class="field-group full">
+          <label>Preferred Place of Delivery <span style="font-size:11px;color:var(--ash);font-weight:400;font-style:italic;">(Optional)</span></label>
+          <div class="delivery-options" id="deliveryOptions">
+            <div class="delivery-opt" data-place="Porch" onclick="selectDeliveryPlace(this)">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">🏠</span>
+              <span class="delivery-opt-label">Porch</span>
+            </div>
+            <div class="delivery-opt" data-place="Front Door" onclick="selectDeliveryPlace(this)">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">🚪</span>
+              <span class="delivery-opt-label">Front Door</span>
+            </div>
+            <div class="delivery-opt" data-place="Window Base" onclick="selectDeliveryPlace(this)">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">🪟</span>
+              <span class="delivery-opt-label">Window Base</span>
+            </div>
+            <div class="delivery-opt" data-place="Reception" onclick="selectDeliveryPlace(this)">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">🛎️</span>
+              <span class="delivery-opt-label">Reception</span>
+            </div>
+            <div class="delivery-opt" data-place="User Defined" onclick="selectDeliveryPlace(this)">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">✏️</span>
+              <span class="delivery-opt-label">User Defined</span>
+            </div>
+          </div>
+          <div class="user-defined-wrap" id="userDefinedWrap">
+            <input type="text" id="userDefinedPlace" placeholder="Please describe your preferred delivery location…" oninput="updateQuote()">
+          </div>
+        </div>
+
+        <!-- PHOTO UPLOAD -->
+        <div class="field-group full">
+          <label>Place of Delivery Photo <span style="font-size:11px;color:var(--ash);font-weight:400;font-style:italic;">(Optional)</span></label>
+          <div class="photo-upload-area" id="photoUploadArea">
+            <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" onchange="handlePhotoUpload(this)">
+            <div class="upload-prompt">
+              <span class="upload-icon">📷</span>
+              <span class="upload-label">Click to upload a delivery location photo</span>
+              <span class="upload-sub">Help us identify the right spot to leave your delivery</span>
+            </div>
+            <div class="photo-preview-wrap">
+              <img class="photo-preview" id="photoPreview" src="" alt="Preview">
+              <div class="photo-preview-info">
+                <span class="photo-preview-name" id="photoName"></span>
+                <span class="photo-preview-size" id="photoSize"></span>
+                <button class="photo-remove-btn" onclick="removePhoto(event)">✕ Remove</button>
+              </div>
+            </div>
+          </div>
+          <div class="photo-spec">
+            <span>Accepted:</span>
+            <span class="photo-spec-chip">JPG / PNG / WEBP</span>
+            <span class="photo-spec-chip">Max 2 MB</span>
+            <span class="photo-spec-chip">Clear image</span>
+          </div>
+        </div>
+
+        <!-- TERMS & CONDITIONS -->
+        <div class="field-group full">
+          <label>Terms &amp; Conditions <span class="required-star">*</span></label>
+          <div class="terms-wrap">
+            <div class="terms-body" id="termsBody" onscroll="onTermsScroll()">
+              <p><strong>Data &amp; Privacy Consent</strong><br>
+              By submitting this form, you acknowledge and consent to Healthi Homemade collecting, storing, and using the personal information provided herein — including your name, contact details, address, and photograph — solely for the purpose of delivering our meal services. Your information will not be shared with any third party without your explicit consent, except where required by applicable law.</p>
+
+              <p><strong>Service Availability</strong><br>
+              Deliveries are subject to availability within your area. Healthi Homemade reserves the right to contact you via the phone number or email address provided to confirm service eligibility, discuss your order, or communicate any changes to your delivery schedule.</p>
+
+              <p><strong>Nature of Food &amp; Dietary Considerations</strong><br>
+              Healthi Homemade is a home-style meal service committed to wholesome, health-conscious cooking. Our meals are prepared with reduced levels of oil, salt, and spice in order to accommodate the diverse dietary needs and health considerations of our clientele, which spans all age groups — from young children aged three (3) years to senior citizens aged eighty-four (84) years and beyond. Meals may therefore differ in taste, texture, and seasoning from restaurant-style or commercially prepared food. By placing an order, you acknowledge and accept this characteristic of our service.</p>
+
+              <p><strong>Acknowledgement</strong><br>
+              You confirm that all information provided is accurate and complete to the best of your knowledge, and that you have read, understood, and agree to be bound by these terms and conditions.</p>
+            </div>
+            <div class="terms-scroll-hint" id="termsScrollHint">↓ Scroll to read full terms</div>
+            <div class="terms-check-row" id="termsCheckRow" onclick="toggleTerms()">
+              <div class="terms-checkbox">
+                <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div class="terms-check-label">
+                I have read and agree to the Terms &amp; Conditions<br>
+                <span>Including the data consent, service availability notice, and dietary acknowledgement above.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /form-left -->
+
+<!-- STICKY QUOTE -->
+<div class="sticky-quote">
+  <div class="quote-card">
+    <div class="quote-title">Your Quote</div>
+    <div class="quote-sub">Updates as you choose options</div>
+
+    <div class="quote-line"><span class="quote-key">Package</span><span class="quote-val" id="q-pkg"><em class="empty">—</em></span></div>
+    <div class="quote-line"><span class="quote-key">Curry</span><span class="quote-val" id="q-curry"><em class="empty">—</em></span></div>
+    <div class="quote-line"><span class="quote-key">Serving</span><span class="quote-val" id="q-serving"><em class="empty">—</em></span></div>
+    <div class="quote-line"><span class="quote-key">Delivery days</span><span class="quote-val" id="q-days"><em class="empty">—</em></span></div>
+
+    <hr class="quote-divider">
+
+    <div class="quote-total-label" id="q-price-label">Fixed Price</div>
+
+    <!-- Base price -->
+    <div class="quote-price" id="q-price">$—</div>
+    <div class="quote-price-sub" id="q-pricesub">Select a package to see pricing</div>
+
+    <!-- E-transfer checkbox (Monthly only) -->
+    <div class="etransfer-row" id="etransferRow" onclick="toggleEtransfer()">
+      <div class="etransfer-box">
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="etransfer-text">
+        <strong>Paying via Interac e-Transfer?</strong>
+        13% HST will be added to your total
+      </div>
+    </div>
+
+    <!-- Tax breakdown (shown when e-transfer checked) -->
+    <div style="margin-top:10px;" id="taxBlock" style="display:none">
+      <div class="tax-line" id="taxSubtotalLine">
+        <span id="taxSubtotalLabel">Subtotal</span><span class="tax-val" id="taxSubtotal">—</span>
+      </div>
+      <div class="tax-line" id="taxAmountLine">
+        <span>HST (13%)</span><span class="tax-val" id="taxAmount">—</span>
+      </div>
+      <div style="padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); margin-top:6px;">
+        <div class="quote-total-label" id="totalFinalLabel" style="margin-bottom:4px;">Monthly Total</div>
+        <div class="price-total-final with-tax" id="q-price-total">$—</div>
+      </div>
+    </div>
+
+    <div class="quote-what" id="q-what" style="display:none">
+      <span class="quote-what-title">What's included</span>
+      <ul id="q-what-list" style="list-style:none;padding:0;"></ul>
+    </div>
+
+    <div class="notes-preview" id="q-notes-preview" style="display:none">
+      <strong>Notes String → Google Contacts</strong>
+      <div class="notes-code" id="q-notes-code"></div>
+    </div>
+
+    <!-- Quick Pay (shows once package+price selected) -->
+    <hr class="quote-pay-divider" id="quotePayDivider" style="display:none">
+    <span class="quote-pay-label" id="quotePaylabel" style="display:none">Pay via Interac e-Transfer</span>
+    <button class="quote-pay-btn" id="quotePay" onclick="openBankingApp()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+      </svg>
+      Pay <span id="quotePayAmount"></span> — healthihomemade@gmail.com
+    </button>
+
+    <div class="submit-wrap">
+      <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled>Confirm &amp; Submit →</button>
+      <div class="validation-hint" id="validationHint">Complete all required fields to continue</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page-body -->
+
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✅</div>
+  <h2>Order Confirmed!</h2>
+  <p>Your meal plan has been submitted. We'll be in touch within 24 hours to confirm your first delivery.</p>
+
+  <!-- INTERAC PAYMENT CARD -->
+  <div class="interac-pay-block">
+    <span class="interac-label">Complete Your Payment via Interac e-Transfer</span>
+
+    <!-- E-transfer checkbox on success screen (Monthly only) -->
+    <div class="success-etransfer-row" id="successEtRow" onclick="toggleSuccessEtransfer()" style="display:none;">
+      <div class="success-et-box" id="successEtBox">
+        <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="success-et-text">
+        <strong>Paying via Interac e-Transfer?</strong>
+        Check to add 13% HST to your total
+      </div>
+    </div>
+
+    <!-- Amount -->
+    <div class="interac-amount" id="successPayAmount">$—</div>
+    <div class="interac-amount-note" id="successPayNote">Total amount due</div>
+
+    <!-- Payment details card -->
+    <div class="payment-card">
+      <div class="payment-row">
+        <span class="payment-row-label">Send To</span>
+        <div class="payment-row-right">
+          <span class="payment-row-val" id="payEmail">healthihomemade@gmail.com</span>
+          <button class="copy-chip" id="copyEmailBtn" onclick="copyInteracEmail()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+      <!-- Tax breakdown row — shown only when e-transfer checked -->
+      <div class="payment-row" id="taxBreakdownRow" style="display:none;">
+        <span class="payment-row-label">Breakdown</span>
+        <div class="payment-row-right" style="flex-direction:column;align-items:flex-end;gap:2px;">
+          <span style="font-size:12px;color:rgba(253,250,244,0.5);" id="payBaseAmt"></span>
+          <span style="font-size:12px;color:rgba(253,250,244,0.5);" id="payTaxAmt"></span>
+        </div>
+      </div>
+      <div class="payment-row">
+        <span class="payment-row-label">Amount</span>
+        <div class="payment-row-right">
+          <span class="payment-row-val payment-row-amount" id="successPayAmountCopy">$—</span>
+          <button class="copy-chip" id="copyAmountBtn" onclick="copyPayAmount()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+      <div class="payment-row">
+        <span class="payment-row-label">Message</span>
+        <div class="payment-row-right">
+          <span class="payment-row-val" id="stepName">Healthi Homemade</span>
+          <button class="copy-chip" id="copyNameBtn" onclick="copyCustomerName()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instruction note -->
+    <div class="interac-note" style="margin-top:14px;text-align:left;font-size:12.5px;color:rgba(253,250,244,0.6);line-height:1.7;">
+      <strong style="color:var(--cream);display:block;margin-bottom:6px;">How to pay:</strong>
+      Open your banking app → Interac e-Transfer → Send Money<br>
+      Enter the email and amount above, add your name as the message.
+    </div>
+  </div>
+
+  <div class="success-note" style="display:none">
+    <strong>Notes String (saved to Google Contacts)</strong>
+    <span id="successNotesCode"></span>
+  </div>
+  <button class="new-order-btn" onclick="resetForm()">← Place Another Order</button>
+</div>
+
+<script>
+console.log("Healthi Homemade Form v2.1 loaded — " + new Date().toISOString());
+// ── PRICING TABLE ──────────────────────────────────────────
+// prices[freq][pkg]
+const PRICING = {
+  TRIAL:    { JUNIOR:12,  REGULAR:18,  LARGE:20,  FAMILY:30  },
+  WEEKLY:   { REGULAR:90,  LARGE:105, FAMILY:180 },
+  BIWEEKLY: { REGULAR:165, LARGE:175, FAMILY:280 },
+  MONTHLY:  { JUNIOR:180, REGULAR:240, LARGE:270, FAMILY:450 }
+};
+
+const FREQ_LABELS = {
+  TRIAL:    '/ single serve',
+  WEEKLY:   '/ week',
+  BIWEEKLY: '/ 2 weeks',
+  MONTHLY:  '/ month'
+};
+
+const FREQ_NOTES = {
+  TRIAL:    'Trial / Single Serve — try us once with no commitment. Perfect for first-time customers.',
+  WEEKLY:   'Weekly plan — ideal for flexible, short-term commitments.',
+  BIWEEKLY: 'Bi-Weekly plan — great balance of commitment and savings.',
+  MONTHLY:  'Monthly plan — best value, billed once per month.'
+};
+
+const PACKAGES = {
+  JUNIOR:  { label:'Junior',  currySize:'12 Oz', curryType:'1 Gravy OR 1 Dry',
+    defaultDays:['MON','TUE','WED','THU','FRI'],
+    freqs: ['TRIAL','MONTHLY'],
+    options:[ {label:'4 Roti · No Rice', roti:4,  rice:'NO-RICE', isDefault:true},
+              {label:'Rice Only',        roti:0,  rice:'RICE',    isDefault:false} ] },
+  REGULAR: { label:'Regular', currySize:'8 Oz',  curryType:'1 Gravy + 1 Dry',
+    defaultDays:['MON','TUE','WED','THU','FRI','SAT'],
+    freqs: ['TRIAL','WEEKLY','BIWEEKLY','MONTHLY'],
+    options:[ {label:'4 Roti + Rice',    roti:4,  rice:'RICE',    isDefault:true},
+              {label:'6 Roti · No Rice', roti:6,  rice:'NO-RICE', isDefault:false} ] },
+  LARGE:   { label:'Large',   currySize:'12 Oz', curryType:'1 Gravy + 1 Dry',
+    defaultDays:['MON','TUE','WED','THU','FRI','SAT'],
+    freqs: ['TRIAL','WEEKLY','BIWEEKLY','MONTHLY'],
+    options:[ {label:'4 Roti + Rice',    roti:4,  rice:'RICE',    isDefault:true},
+              {label:'6 Roti · No Rice', roti:6,  rice:'NO-RICE', isDefault:false} ] },
+  FAMILY:  { label:'Family',  currySize:'24 Oz', curryType:'1 Gravy + 1 Dry',
+    defaultDays:['MON','TUE','WED','THU','FRI','SAT'],
+    freqs: ['TRIAL','WEEKLY','BIWEEKLY','MONTHLY'],
+    options:[ {label:'8 Roti + 2× Rice',  roti:8,  rice:'RICE',   isDefault:true},
+              {label:'12 Roti · No Rice', roti:12, rice:'NO-RICE', isDefault:false} ] }
+};
+
+const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
+const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:'MONTHLY', etransfer:false, extras:{ roti:false, rotiPairs:1, rice:false, curry:false }, deliveryPlace:null, photoData:null, photoFileName:null, termsAccepted:false };
+
+// ── EXTRAS ─────────────────────────────────────────────────
+const EXTRAS_PRICES = { rotiPair: 30, rice: 20, curry: 70 };
+
+function toggleExtra(type) {
+  if (state.freq !== 'MONTHLY') return;
+  state.extras[type] = !state.extras[type];
+
+  var rowId = { roti:'extraRotiRow', rice:'extraRiceRow', curry:'extraCurryRow' }[type];
+  document.getElementById(rowId).classList.toggle('selected', state.extras[type]);
+
+  // Update green checkbox toggle icon
+  var toggleEl = document.getElementById('formExtraToggle-' + type);
+  if (toggleEl) toggleEl.parentElement && null; // already handled by .selected class
+
+  // Show/hide roti stepper
+  if (type === 'roti') {
+    var stepper = document.getElementById('rotiStepper');
+    stepper.classList.toggle('show', state.extras.roti);
+    if (state.extras.roti) {
+      state.extras.rotiPairs = 1;
+      updateRotiStepper();
+    } else {
+      state.extras.rotiPairs = 1;
+    }
+  }
+
+  updateExtrasTotal();
+  updateQuote();
+}
+
+function stepRoti(event, dir) {
+  event.stopPropagation();
+  var next = state.extras.rotiPairs + dir;
+  if (next < 1 || next > 6) return;
+  state.extras.rotiPairs = next;
+  updateRotiStepper();
+  updateExtrasTotal();
+  updateQuote();
+}
+
+function updateRotiStepper() {
+  var pairs  = state.extras.rotiPairs;
+  var rotis  = pairs * 2;
+  var total  = pairs * EXTRAS_PRICES.rotiPair;
+  document.getElementById('rotiCount').textContent     = rotis + ' roti' + (rotis > 1 ? 's' : '');
+  document.getElementById('rotiStepTotal').textContent = '= $' + total + ' / mo';
+  document.getElementById('rotiMinus').disabled        = (pairs <= 1);
+  document.getElementById('rotiPlus').disabled         = (pairs >= 6);
+  document.getElementById('extraRotiPrice').textContent = '$' + total;
+}
+
+function calcExtrasTotal() {
+  var total = 0;
+  if (state.extras.roti)  total += state.extras.rotiPairs * EXTRAS_PRICES.rotiPair;
+  if (state.extras.rice)  total += EXTRAS_PRICES.rice;
+  if (state.extras.curry) total += EXTRAS_PRICES.curry;
+  return total;
+}
+
+function updateExtrasTotal() {
+  var total    = calcExtrasTotal();
+  var anyExtra = state.extras.roti || state.extras.rice || state.extras.curry;
+  var totalLine = document.getElementById('extrasTotalLine');
+  totalLine.classList.toggle('show', anyExtra);
+  document.getElementById('extrasTotalVal').textContent = '$' + total + ' / mo';
+}
+
+function showHideExtrasPanel() {
+  var panel = document.getElementById('panel-extras');
+  if (!panel) return;
+  var show = state.freq === 'MONTHLY' && !!state.pkg;
+  panel.style.display = show ? 'block' : 'none';
+  // Renumber panels visually
+  updatePanelNumbers();
+}
+
+function updatePanelNumbers() {
+  var isMonthly = state.freq === 'MONTHLY' && !!state.pkg;
+  // panel-extras is num 2, days becomes 3 or 2, details 4 or 3
+  var daysNum    = isMonthly ? 3 : 2;
+  var detailsNum = isMonthly ? 4 : 3;
+  var daysNumEl    = document.querySelector('#panel-days .panel-num');
+  var detailsNumEl = document.querySelector('#panel-details .panel-num');
+  if (daysNumEl)    daysNumEl.textContent    = daysNum;
+  if (detailsNumEl) detailsNumEl.textContent = detailsNum;
+}
+
+// ── E-TRANSFER TAX ─────────────────────────────────────────
+function toggleEtransfer() {
+  state.etransfer = !state.etransfer;
+  document.getElementById('etransferRow').classList.toggle('checked', state.etransfer);
+  updateQuote();
+}
+
+// ── FREQUENCY TOGGLE ──────────────────────────────────────
+function selectFrequency(btn) {
+  document.querySelectorAll('.freq-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  state.freq = btn.dataset.freq;
+
+  // Update note
+  document.getElementById('freqNote').textContent = FREQ_NOTES[state.freq];
+
+  // Show/hide Junior (available on Trial + Monthly, NOT Weekly/Bi-Weekly)
+  var juniorCard = document.getElementById('card-JUNIOR');
+  var juniorAvail = ['TRIAL','MONTHLY'].includes(state.freq);
+  if (!juniorAvail) {
+    juniorCard.classList.add('pkg-hidden');
+    if (state.pkg === 'JUNIOR') {
+      juniorCard.classList.remove('selected');
+      state.pkg = null; state.roti = null; state.rice = null; state.optionLabel = null;
+    }
+  } else {
+    juniorCard.classList.remove('pkg-hidden');
+  }
+
+  // Update all visible price tags
+  ['JUNIOR','REGULAR','LARGE','FAMILY'].forEach(function(pkg) {
+    var priceEl = document.getElementById('price-' + pkg);
+    if (!priceEl) return;
+    var price = PRICING[state.freq] ? PRICING[state.freq][pkg] : null;
+    if (price) {
+      priceEl.innerHTML = '$' + price + ' <span>' + FREQ_LABELS[state.freq] + '</span>';
+    }
+  });
+
+  // E-transfer + Extras: Monthly only
+  if (state.freq !== 'MONTHLY') {
+    state.etransfer = false;
+    document.getElementById('etransferRow').classList.remove('checked','visible');
+    state.extras = { roti:false, rotiPairs:1, rice:false, curry:false };
+    ['extraRotiRow','extraRiceRow','extraCurryRow'].forEach(function(id){
+      document.getElementById(id).classList.remove('selected');
+    });
+    document.getElementById('rotiStepper').classList.remove('show');
+    document.getElementById('extrasTotalLine').classList.remove('show');
+    document.getElementById('extrasPanel').classList.remove('visible');
+  } else {
+    document.getElementById('etransferRow').classList.add('visible');
+    if (state.pkg) document.getElementById('extrasPanel').classList.add('visible');
+  }
+
+  
+  // If currently selected package not available in new freq, reset
+  if (state.pkg && !PACKAGES[state.pkg].freqs.includes(state.freq)) {
+    document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
+    document.querySelectorAll('.option-chip').forEach(function(c){ c.classList.remove('chip-selected'); });
+    state.pkg = null; state.roti = null; state.rice = null; state.optionLabel = null;
+  }
+
+  updateQuote();
+}
+
+function selectPackage(cardEl) {
+  var pkg = cardEl.dataset.pkg;
+  document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
+  cardEl.classList.add('selected');
+  state.pkg = pkg;
+  // Auto-select default serving option
+  var def = PACKAGES[pkg].options.find(function(o){ return o.isDefault; });
+  if (def) {
+    state.roti = def.roti; state.rice = def.rice; state.optionLabel = def.label;
+    document.querySelectorAll('#chips-' + pkg + ' .option-chip').forEach(function(ch) {
+      ch.classList.toggle('chip-selected', ch.dataset.roti == def.roti && ch.dataset.rice === def.rice);
+    });
+  }
+  // Auto-select default delivery days for this package
+  setDays(PACKAGES[pkg].defaultDays);
+  document.getElementById('panel-package').classList.add('panel-complete');
+  showHideExtrasPanel();
+  updateQuote();
+}
+
+function selectOption(event, chipEl) {
+  event.stopPropagation();
+  var pkg = chipEl.dataset.pkg;
+  document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
+  document.querySelector('.pkg-card[data-pkg="' + pkg + '"]').classList.add('selected');
+  state.pkg = pkg;
+  document.querySelectorAll('#chips-' + pkg + ' .option-chip').forEach(function(c){ c.classList.remove('chip-selected'); });
+  chipEl.classList.add('chip-selected');
+  state.roti = parseInt(chipEl.dataset.roti);
+  state.rice = chipEl.dataset.rice;
+  state.optionLabel = chipEl.textContent.trim();
+  document.getElementById('panel-package').classList.add('panel-complete');
+  updateQuote();
+}
+
+function toggleDay(el) {
+  el.classList.toggle('active');
+  var day = el.dataset.day;
+  state.days = el.classList.contains('active')
+    ? (function(){ var s=[]; state.days.concat([day]).forEach(function(x){ if(s.indexOf(x)===-1) s.push(x); }); return s; })().sort(function(a,b){ return DAY_ORDER.indexOf(a)-DAY_ORDER.indexOf(b); })
+    : state.days.filter(function(d){ return d!==day; });
+  document.getElementById('panel-days').classList.toggle('panel-complete', state.days.length>0);
+  updateQuote();
+}
+
+function setDays(arr) {
+  document.querySelectorAll('.day-chip').forEach(function(c){ c.classList.toggle('active', arr.includes(c.dataset.day)); });
+  state.days = arr.slice().sort(function(a,b){ return DAY_ORDER.indexOf(a)-DAY_ORDER.indexOf(b); });
+  document.getElementById('panel-days').classList.toggle('panel-complete',state.days.length>0);
+  updateQuote();
+}
+
+// ══ DELIVERY PLACE ══
+function selectDeliveryPlace(el) {
+  document.querySelectorAll('.delivery-opt').forEach(function(o){ o.classList.remove('selected'); });
+  el.classList.add('selected');
+  state.deliveryPlace = el.dataset.place;
+  var wrap = document.getElementById('userDefinedWrap');
+  if (state.deliveryPlace === 'User Defined') {
+    wrap.classList.add('visible');
+    document.getElementById('userDefinedPlace').focus();
+  } else {
+    wrap.classList.remove('visible');
+    document.getElementById('userDefinedPlace').value = '';
+  }
+  updateQuote();
+}
+
+// ══ PHOTO UPLOAD ══
+function handlePhotoUpload(input) {
+  var file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Photo must be under 2 MB. Please choose a smaller file.');
+    input.value = '';
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    state.photoData = e.target.result;
+    state.photoFileName = file.name;
+    document.getElementById('photoPreview').src = e.target.result;
+    document.getElementById('photoName').textContent = file.name;
+    document.getElementById('photoSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+    document.getElementById('photoUploadArea').classList.add('has-image');
+    updateQuote();
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(event) {
+  event.stopPropagation();
+  state.photoData = null;
+  state.photoFileName = null;
+  document.getElementById('photoInput').value = '';
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('photoName').textContent = '';
+  document.getElementById('photoSize').textContent = '';
+  document.getElementById('photoUploadArea').classList.remove('has-image');
+  updateQuote();
+}
+
+function normaliseDays(days) {
+  function eq(a,b){ return a.length===b.length&&a.every(function(v,i){ return v===b[i]; }); }
+  if(eq(days,['MON','TUE','WED','THU','FRI']))return'MON-FRI';
+  if(eq(days,['MON','TUE','WED','THU','FRI','SAT']))return'MON-SAT';
+  return days.join('-');
+}
+
+function buildNotesString() {
+  if(!state.pkg||state.roti===null||!state.rice||state.days.length===0) return null;
+  var pkg=PACKAGES[state.pkg];
+  var price = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : (PRICING.MONTHLY[state.pkg]||'');
+  // Each selected day listed individually — e.g. LARGE,4,MON,TUE,WED,THU,FRI,$270,RICE,MONTHLY
+  var dayList = state.days.join(',');
+  return [state.pkg, state.roti, dayList, '$'+price, state.rice, state.freq].join(',');
+}
+
+function updateQuote() {
+  var pkg = state.pkg ? PACKAGES[state.pkg] : null;
+  var freqLabel = {TRIAL:'Trial / Single',WEEKLY:'Weekly',BIWEEKLY:'Bi-Weekly',MONTHLY:'Monthly'};
+  document.getElementById('q-pkg').innerHTML = pkg
+    ? '<strong>' + pkg.label + '</strong> <span style="font-size:11px;font-weight:400;color:rgba(253,250,244,0.5);margin-left:4px">' + (freqLabel[state.freq]||'') + '</span>'
+    : '<em class="empty">—</em>';
+  document.getElementById('q-curry').innerHTML   = pkg ? (pkg.currySize + ' · ' + pkg.curryType) : '<em class="empty">—</em>';
+  document.getElementById('q-serving').innerHTML = state.optionLabel ? state.optionLabel : '<em class="empty">—</em>';
+  document.getElementById('q-days').innerHTML    = state.days.length>0
+    ? normaliseDays(state.days) + ' <span style="color:rgba(253,250,244,0.4);font-weight:400">(' + state.days.length + 'd/wk)</span>'
+    : '<em class="empty">—</em>';
+
+  if(pkg){
+    var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+    var extrasTotal = calcExtrasTotal();
+    var combined    = basePrice + extrasTotal;
+    var freqLabel   = FREQ_LABELS[state.freq] || '/ month';
+
+    // ── Show/hide e-transfer row (Monthly only) ──
+    var etRow = document.getElementById('etransferRow');
+    if (state.freq === 'MONTHLY' && basePrice) {
+      etRow.classList.add('visible');
+    } else {
+      etRow.classList.remove('visible');
+      state.etransfer = false;
+      etRow.classList.remove('checked');
+    }
+
+    // ── Price label ──
+    document.getElementById('q-price-label').textContent =
+      (state.etransfer || extrasTotal > 0) ? 'Base Package Price' : 'Fixed Price';
+
+    // ── Base price line ──
+    document.getElementById('q-price').textContent = basePrice ? '$' + basePrice.toFixed(2) : '$—';
+    document.getElementById('q-pricesub').textContent = basePrice
+      ? freqLabel + ' · fixed rate'
+      : 'Select a package above';
+
+    // ── Tax / extras breakdown ──
+    var taxBlock = document.getElementById('taxBlock');
+    var showBreakdown = (extrasTotal > 0 || state.etransfer) && basePrice;
+
+    if (showBreakdown) {
+      taxBlock.style.display = 'block';
+      var tax, grand;
+      if (extrasTotal > 0 && state.etransfer) {
+        tax   = +(combined * 0.13).toFixed(2);
+        grand = +(combined + tax).toFixed(2);
+        document.getElementById('taxSubtotalLine').classList.add('visible');
+        document.getElementById('taxAmountLine').classList.add('visible');
+        document.getElementById('taxSubtotal').textContent = '$' + combined.toFixed(2) + ' (incl. $' + extrasTotal + ' extras)';
+        document.getElementById('taxAmount').textContent   = '+$' + tax.toFixed(2);
+        document.getElementById('q-price-total').textContent = '$' + grand.toFixed(2);
+      } else if (extrasTotal > 0 && !state.etransfer) {
+        document.getElementById('taxSubtotalLine').classList.add('visible');
+        document.getElementById('taxAmountLine').classList.remove('visible');
+        document.getElementById('taxSubtotal').textContent = '+ $' + extrasTotal.toFixed(2) + ' extras';
+        document.getElementById('q-price-total').textContent = '$' + combined.toFixed(2);
+      } else if (state.etransfer) {
+        tax   = +(basePrice * 0.13).toFixed(2);
+        grand = +(basePrice + tax).toFixed(2);
+        document.getElementById('taxSubtotalLine').classList.add('visible');
+        document.getElementById('taxAmountLine').classList.add('visible');
+        document.getElementById('taxSubtotal').textContent = '$' + basePrice.toFixed(2);
+        document.getElementById('taxAmount').textContent   = '+$' + tax.toFixed(2);
+        document.getElementById('q-price-total').textContent = '$' + grand.toFixed(2);
+      }
+      var lbl = document.getElementById('totalFinalLabel');
+      if (lbl) lbl.textContent = state.etransfer ? 'Total with HST (13%)' : 'Monthly Total';
+    } else {
+      taxBlock.style.display = 'none';
+      document.getElementById('taxSubtotalLine').classList.remove('visible');
+      document.getElementById('taxAmountLine').classList.remove('visible');
+    }
+
+    // ── What's included ──
+    var qWhat = document.getElementById('q-what');
+    var qList = document.getElementById('q-what-list');
+    var _opt0label = (pkg.options && pkg.options[0]) ? pkg.options[0].label : '';
+    var _items = [
+      pkg.currySize + ' curry (' + pkg.curryType + ')',
+      state.optionLabel || _opt0label,
+      state.days.length > 0 ? 'Delivered ' + normaliseDays(state.days) : 'Choose delivery days'
+    ];
+    qList.innerHTML = _items.map(function(t){ return '<li><span>' + t + '</span></li>'; }).join('');
+    qWhat.style.display = 'block';
+
+    // ── Notes string ──
+    var notes = buildNotesString();
+    var np    = document.getElementById('q-notes-preview');
+    if (notes) { document.getElementById('q-notes-code').textContent = notes; np.style.display = 'block'; }
+    else { np.style.display = 'none'; }
+
+    // ── Pay button ──
+    updatePayButtons(getPayableAmount());
+
+  } else {
+    document.getElementById('q-price').textContent = '$—';
+    document.getElementById('q-pricesub').textContent = 'Select a package above';
+    document.getElementById('q-price-label').textContent = 'Fixed Price';
+    document.getElementById('etransferRow').classList.remove('visible');
+    document.getElementById('taxBlock').style.display = 'none';
+    document.getElementById('q-what').style.display = 'none';
+    document.getElementById('q-notes-preview').style.display = 'none';
+    updatePayButtons(null);
+  }
+
+  validateAndToggleSubmit();
+}
+
+// ── WIX IFRAME AUTO-HEIGHT ────────────────────────────────
+// ── SHEET WEBAPP URL ──────────────────────────────────────
+var SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPjTgdC6Q3BGy2JGxNN32me2xs35vcibUiKY2EHW8Xw0OAoLRMgJE/exec';
+var INTERAC_EMAIL = 'healthihomemade@gmail.com';
+var INTERAC_MESSAGE_PREFIX = 'Healthi Homemade Order';
+
+// ── PAY BUTTON UPDATE ────────────────────────────────────
+function updatePayButtons(amount) {
+  var quotePayBtn   = document.getElementById('quotePay');
+  var quotePayAmt   = document.getElementById('quotePayAmount');
+  var quotePayDiv   = document.getElementById('quotePayDivider');
+  var quotePayLabel = document.getElementById('quotePaylabel');
+  if (amount && state.pkg) {
+    var amtStr = '$' + amount.toFixed(2);
+    if (quotePayBtn)   quotePayBtn.classList.add('show');
+    if (quotePayDiv)   quotePayDiv.style.display  = 'block';
+    if (quotePayLabel) quotePayLabel.style.display = 'block';
+    if (quotePayAmt)   quotePayAmt.textContent = amtStr;
+  } else {
+    if (quotePayBtn)   quotePayBtn.classList.remove('show');
+    if (quotePayDiv)   quotePayDiv.style.display  = 'none';
+    if (quotePayLabel) quotePayLabel.style.display = 'none';
+  }
+}
+
+// ── VALIDATION ────────────────────────────────────────────
+function isPhoneValid() {
+  var inp  = document.getElementById('fphone');
+  var hint = document.getElementById('phoneHint');
+  return (inp && inp.dataset.e164) || (hint && hint.classList.contains('valid'));
+}
+
+function validateAndToggleSubmit() {
+  var name        = document.getElementById('fname').value.trim();
+  var phone       = document.getElementById('fphone').value.trim();
+  var email       = document.getElementById('femail').value.trim();
+  var city        = document.getElementById('fcity').value.trim();
+  var street      = document.getElementById('fstreet').value.trim();
+  var startDate   = document.getElementById('fstart').value;
+  var subscribers = document.getElementById('fsubscribers').value;
+
+  var checks = [
+    { ok: !!state.pkg,              label: 'Choose a package' },
+    { ok: state.days.length > 0,   label: 'Select at least one delivery day' },
+    { ok: !!name,                   label: 'Enter your full name' },
+    { ok: !!phone,                  label: 'Enter your phone number' },
+    { ok: isPhoneValid(),           label: 'Enter a valid phone number with country code' },
+    { ok: !!email,                  label: 'Enter your email address' },
+    { ok: !!city,                   label: 'Enter your city' },
+    { ok: !!street,                 label: 'Enter your street address' },
+    { ok: !!startDate,              label: 'Select a service start date' },
+    { ok: !!subscribers,            label: 'Select number of subscribers' },
+    { ok: state.termsAccepted,      label: 'Accept the terms & conditions' }
+  ];
+
+  var missing = checks.filter(function(c){ return !c.ok; });
+  var ready   = missing.length === 0;
+
+  document.getElementById('submitBtn').disabled = !ready;
+  var hint = document.getElementById('validationHint');
+  if (!ready) {
+    hint.style.display  = 'block';
+    hint.textContent    = '⚠ Still needed: ' + missing.map(function(c){ return c.label; }).join(' · ');
+  } else {
+    hint.style.display  = 'none';
+    hint.textContent    = '';
+  }
+}
+
+// ── TERMS ─────────────────────────────────────────────────
+function toggleTerms() {
+  state.termsAccepted = !state.termsAccepted;
+  document.getElementById('termsCheckRow').classList.toggle('checked', state.termsAccepted);
+  validateAndToggleSubmit();
+}
+function onTermsScroll() {
+  var el = document.getElementById('termsBody');
+  var hint = document.getElementById('termsScrollHint');
+  if (el && hint && el.scrollTop + el.clientHeight >= el.scrollHeight - 10) {
+    hint.classList.add('hidden');
+  }
+}
+
+// ── SUBMIT ────────────────────────────────────────────────
+function getValidatedPhone() {
+  var inp = document.getElementById('fphone');
+  if (inp && inp.dataset.e164) return inp.dataset.e164;
+  var raw    = inp ? inp.value.trim() : '';
+  var digits = raw.replace(/[^0-9]/g, '');
+  return digits ? (raw.charAt(0) === '+' ? '+' + digits : digits) : '';
+}
+
+function getPayableAmount() {
+  if (!state.pkg) return null;
+  var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var extrasTotal = calcExtrasTotal();
+  var combined    = basePrice + extrasTotal;
+  var total       = state.etransfer ? +(combined * 1.13).toFixed(2) : combined;
+  return total > 0 ? total : null;
+}
+
+function submitOrder() {
+  var btn  = document.getElementById('submitBtn');
+  btn.disabled    = true;
+  btn.textContent = 'Submitting…';
+
+  var notes = buildNotesString();
+  var pkg   = PACKAGES[state.pkg];
+
+  var rawPhone    = document.getElementById('fphone').value.trim();
+  var cleanPhone  = getValidatedPhone();
+  var rawPostal   = document.getElementById('fpostal').value.trim().toUpperCase().replace(/\s/g, '');
+  var fmtPostal   = rawPostal.length === 6 ? rawPostal.slice(0,3) + ' ' + rawPostal.slice(3) : rawPostal;
+  var rawStart    = document.getElementById('fstart').value;
+  var fmtStart    = '';
+  if (rawStart) {
+    var parts = rawStart.split('-');
+    fmtStart = parts[2] + '/' + parts[1] + '/' + parts[0];
+  }
+  var deliveryPlace = state.deliveryPlace === 'User Defined'
+    ? document.getElementById('userDefinedPlace').value.trim()
+    : (state.deliveryPlace || '');
+
+  var basePrice2   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var extrasTotal2 = calcExtrasTotal();
+  var combined2    = +(basePrice2 + extrasTotal2).toFixed(2);
+  var totalWithTax = state.etransfer ? +(combined2 * 1.13).toFixed(2) : combined2;
+
+  var extrasArr = [];
+  if (state.extras.roti)  extrasArr.push((state.extras.rotiPairs*2)+' Extra Rotis ($'+(state.extras.rotiPairs*30)+')');
+  if (state.extras.rice)  extrasArr.push('Extra Rice ($20)');
+  if (state.extras.curry) extrasArr.push('Extra Curry ($70)');
+
+  var payload = {
+    'Timestamp': new Date().toLocaleString('en-CA', {timeZone:'America/Toronto', hour12:true, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'}),
+    'Name':      document.getElementById('fname').value.trim(),
+    'Preferred Place': deliveryPlace,
+    'Whatsapp number': cleanPhone,
+    'Street Address':  document.getElementById('fstreet').value.trim(),
+    'Size':            notes,
+    'POSTAL CODE':     fmtPostal,
+    'City':            document.getElementById('fcity').value.trim(),
+    'Email Address':   document.getElementById('femail').value.trim(),
+    'Number of Subscribers': document.getElementById('fsubscribers').value,
+    'Terms': state.termsAccepted ? 'I understand and agree to the terms and conditions of Healthi Homemade.' : 'Not agreed',
+    'When do you want to start?': fmtStart,
+    'Photo':     state.photoFileName || '',
+    'Photo Data':state.photoData     || '',
+    'Package':   pkg ? pkg.label : '',
+    'Frequency': state.freq,
+    'Rotis':     state.roti,
+    'Days':      normaliseDays(state.days),
+    'Rice':      state.rice,
+    'Base Price ($)':   basePrice2,
+    'Extras':           extrasArr.length ? extrasArr.join(', ') : 'None',
+    'Extras Total ($)': extrasTotal2,
+    'E-transfer (HST 13%)': state.etransfer ? 'Yes' : 'No',
+    'Total Amount ($)': totalWithTax,
+    'combinedBeforeTax': combined2,
+    'totalWithTax': state.etransfer ? totalWithTax : null
+  };
+
+  // ── Show success immediately — data sends in background ──
+  showSuccessScreen(notes, pkg);
+  btn.textContent = 'Confirm & Submit →';
+
+  var payloadStr = JSON.stringify(payload);
+
+  // ── Method 1: Wix Backend HTTP function (most reliable) ──
+  // POST to /_functions/submitOrder — same domain as Wix, no CORS.
+  // Replace YOUR-SITE and YOUR-PAGE with your actual Wix site values.
+  // e.g. https://myname.wixsite.com/mysite/_functions/submitOrder
+  var WIX_BACKEND_URL = 'https://www.healthihomemade.com/_functions/submitOrder';
+
+  fetch(WIX_BACKEND_URL, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    payloadStr
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(result){
+    console.log('Backend response:', JSON.stringify(result));
+  })
+  .catch(function(err){
+    console.log('Backend fetch failed, trying postMessage:', err.message);
+    // ── Method 2: postMessage to Velo (fallback) ──
+    try {
+      window.parent.postMessage({ type: 'HEALTHI_SUBMIT', payload: payloadStr }, '*');
+      console.log('postMessage sent to Velo');
+    } catch(e) {
+      console.error('postMessage failed:', e.message);
+    }
+  });
+}
+
+// ── SUCCESS SCREEN ────────────────────────────────────────
+function showSuccessScreen(notes, pkg) {
+  document.getElementById('successNotesCode').textContent = notes || '';
+  var custName = document.getElementById('fname').value.trim() || 'Customer';
+  showSuccessScreen._pkg      = pkg;
+  showSuccessScreen._custName = custName;
+
+  var etRow = document.getElementById('successEtRow');
+  if (etRow) {
+    if (state.freq === 'MONTHLY') {
+      etRow.style.display  = 'flex';
+      successEtChecked     = state.etransfer;
+      var row = document.getElementById('successEtRow');
+      if (row) row.classList.toggle('checked', successEtChecked);
+    } else {
+      etRow.style.display = 'none';
+      successEtChecked    = false;
+    }
+  }
+  var el = document.getElementById('stepName');
+  if (el) el.textContent = 'Healthi Homemade';
+
+  refreshSuccessAmounts();
+  document.getElementById('successOverlay').classList.add('show');
+}
+
+// ── RESET ─────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('successOverlay').classList.remove('show');
+  Object.assign ? Object.assign(state, {pkg:null,roti:null,rice:null,optionLabel:null,days:[],freq:'MONTHLY',etransfer:false,extras:{roti:false,rotiPairs:1,rice:false,curry:false},deliveryPlace:null,photoData:null,photoFileName:null,termsAccepted:false}) : (function(){state.pkg=null;state.roti=null;state.rice=null;state.optionLabel=null;state.days=[];state.freq='MONTHLY';state.etransfer=false;state.extras={roti:false,rotiPairs:1,rice:false,curry:false};state.deliveryPlace=null;state.photoData=null;state.photoFileName=null;state.termsAccepted=false;})();
+
+  document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
+  document.querySelectorAll('.option-chip').forEach(function(c){ c.classList.remove('chip-selected'); });
+  document.querySelectorAll('.day-chip').forEach(function(c){ c.classList.remove('active'); });
+  document.querySelectorAll('.form-panel').forEach(function(p){ p.classList.remove('panel-complete'); });
+  document.querySelectorAll('input').forEach(function(el){ el.value=''; });
+  document.querySelectorAll('textarea').forEach(function(el){ el.value=''; });
+  document.querySelectorAll('.delivery-opt').forEach(function(o){ o.classList.remove('selected'); });
+
+  document.getElementById('etransferRow').classList.remove('checked','visible');
+  document.getElementById('taxBlock').style.display='none';
+  successEtChecked = false;
+  var ser = document.getElementById('successEtRow');
+  if (ser){ ser.style.display='none'; ser.classList.remove('checked'); }
+
+  document.querySelectorAll('.freq-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.freq==='MONTHLY'); });
+  document.getElementById('freqNote').textContent = FREQ_NOTES.MONTHLY;
+  document.getElementById('card-JUNIOR').classList.remove('pkg-hidden');
+  ['JUNIOR','REGULAR','LARGE','FAMILY'].forEach(function(p){ var el=document.getElementById('price-'+p); if(el&&PRICING.MONTHLY[p]) el.innerHTML='$'+PRICING.MONTHLY[p]+' <span>/ month</span>'; });
+
+  document.getElementById('termsCheckRow').classList.remove('checked');
+  var ep = document.getElementById('panel-extras'); if(ep) ep.style.display='none';
+  ['extraRotiRow','extraRiceRow','extraCurryRow'].forEach(function(id){ document.getElementById(id).classList.remove('selected'); });
+  document.getElementById('rotiStepper').classList.remove('show');
+  document.getElementById('extrasTotalLine').classList.remove('show');
+  document.getElementById('extraRotiPrice').textContent='$30';
+  document.getElementById('fstart').value = new Date().toISOString().split('T')[0];
+  updateQuote();
+}
+
+// ── COPY HELPERS ──────────────────────────────────────────
+function copyToClipboard(text, btnId) {
+  var btn = document.getElementById(btnId);
+  function markCopied() {
+    if (btn) {
+      btn.classList.add('copied');
+      btn.textContent = 'Copied!';
+      setTimeout(function(){
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+      }, 2000);
+    }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(markCopied).catch(function(){ fallbackCopy(text); markCopied(); });
+  } else {
+    fallbackCopy(text); markCopied();
+  }
+}
+function fallbackCopy(text) {
+  var el = document.createElement('textarea');
+  el.value = text; el.style.position='fixed'; el.style.opacity='0';
+  document.body.appendChild(el); el.select();
+  try { document.execCommand('copy'); } catch(e) {}
+  document.body.removeChild(el);
+}
+function copyInteracEmail()  { copyToClipboard(INTERAC_EMAIL, 'copyEmailBtn'); }
+function copyPayAmount() {
+  var el = document.getElementById('successPayAmountCopy');
+  var val = el ? el.textContent.replace('$','') : '0.00';
+  copyToClipboard(val, 'copyAmountBtn');
+}
+function copyCustomerName() {
+  copyToClipboard('Healthi Homemade', 'copyNameBtn');
+}
+function openBankingApp() {
+  var amount = getPayableAmount();
+  var name   = document.getElementById('fname').value.trim() || 'Customer';
+  if (!amount) { alert('Please select a package first.'); return; }
+  var amtStr  = amount.toFixed(2);
+  var subject = 'Interac e-Transfer - $' + amtStr + ' CAD - Healthi Homemade';
+  var body    = 'Hi Healthi Homemade,\n\nInterac e-Transfer: $' + amtStr + ' CAD\nCustomer: ' + name + '\nPackage: ' + (state.pkg||'') + ' ' + (state.freq||'') + '\n\nThank you!';
+  window.location.href = 'mailto:' + INTERAC_EMAIL + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
+// ── ADDRESS AUTOCOMPLETE ──────────────────────────────────
+var addrTimer = null, addrHighlight = -1, addrResults = [];
+
+function onStreetInput(inp) {
+  updateQuote();
+  clearTimeout(addrTimer);
+  var q = inp.value.trim();
+  if (q.length < 3) { closeDrop(); return; }
+  showLoading();
+  addrTimer = setTimeout(function(){ fetchAddresses(q); }, 400);
+}
+function fetchAddresses(q) {
+  var url = 'https://photon.komoot.io/api/?q=' + encodeURIComponent(q) + '&limit=7&lang=en&lat=43.73&lon=-79.76&bbox=-141,41,-52,84';
+  fetch(url).then(function(r){ return r.json(); }).then(function(data){
+    addrResults = (data.features || []).filter(function(f){ return f.properties && (f.properties.street || f.properties.name); });
+    if (!addrResults.length) { showEmpty(); return; }
+    renderDropdown(addrResults);
+  }).catch(function(){ showError(); });
+}
+function renderDropdown(results) {
+  var drop = document.getElementById('addrDropdown');
+  addrHighlight = -1;
+  drop.innerHTML = results.map(function(r, i) {
+    var p    = r.properties || {};
+    var main = [p.housenumber, p.street || p.name].filter(Boolean).join(' ');
+    var sub  = [p.suburb||p.district||p.neighbourhood, p.city||p.town||p.village||p.county, p.postcode, p.state||p.county].filter(Boolean).join(', ');
+    return '<div class="addr-item" data-idx="' + i + '" onmousedown="selectAddress(' + i + ')">' +
+           '<span class="addr-item-icon">📍</span>' +
+           '<div><span class="addr-item-main">' + escHtml(main||p.name) + '</span>' +
+           '<span class="addr-item-sub">' + escHtml(sub) + '</span></div></div>';
+  }).join('');
+  openDrop();
+}
+function selectAddress(idx) {
+  var r = addrResults[idx]; if (!r) return;
+  var p = r.properties || {};
+  var street = [p.housenumber, p.street||p.name].filter(Boolean).join(' ');
+  var city   = p.city||p.town||p.village||p.county||'';
+  var region = p.state||p.county||'';
+  var postal = p.postcode ? p.postcode.toUpperCase() : '';
+  var countryName = p.country||'';
+  var countryCode = (p.countrycode||'').toUpperCase();
+  document.getElementById('fstreet').value = street;
+  var cityEl = document.getElementById('fcity'); if (!cityEl.value.trim()) cityEl.value = city;
+  var postalEl = document.getElementById('fpostal'); if (!postalEl.value.trim() && postal) postalEl.value = postal;
+  document.getElementById('fregion').value  = region;
+  document.getElementById('fcountry').value = countryCode;
+  var formatted = [street, [city,region,postal].filter(Boolean).join(', '), countryName].filter(Boolean).join('\n');
+  document.getElementById('faddressFormatted').value = formatted;
+  closeDrop(); updateQuote();
+}
+function onStreetKeydown(e) {
+  var drop = document.getElementById('addrDropdown');
+  var items = drop.querySelectorAll('.addr-item');
+  if (!drop.classList.contains('open') || !items.length) return;
+  if (e.key==='ArrowDown'){ e.preventDefault(); addrHighlight=Math.min(addrHighlight+1,items.length-1); highlightItem(items); }
+  else if (e.key==='ArrowUp'){ e.preventDefault(); addrHighlight=Math.max(addrHighlight-1,0); highlightItem(items); }
+  else if (e.key==='Enter'&&addrHighlight>=0){ e.preventDefault(); selectAddress(addrHighlight); }
+  else if (e.key==='Escape') closeDrop();
+}
+function highlightItem(items) {
+  items.forEach(function(el,i){ el.classList.toggle('highlighted', i===addrHighlight); });
+  if (items[addrHighlight]) items[addrHighlight].scrollIntoView({ block:'nearest' });
+}
+function showLoading() { var d=document.getElementById('addrDropdown'); d.innerHTML='<div class="addr-loading"><div class="addr-spinner"></div>Searching addresses…</div>'; openDrop(); }
+function showEmpty()   { var d=document.getElementById('addrDropdown'); d.innerHTML='<div class="addr-empty">No matching addresses found.</div>'; openDrop(); }
+function showError()   { var d=document.getElementById('addrDropdown'); d.innerHTML='<div class="addr-empty">Address lookup unavailable. Type manually.</div>'; openDrop(); }
+function openDrop()    { document.getElementById('addrDropdown').classList.add('open'); }
+function closeDrop()   { document.getElementById('addrDropdown').classList.remove('open'); addrHighlight=-1; }
+function escHtml(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── POSTAL LOOKUP ─────────────────────────────────────────
+var postalTimer=null;
+function onPostalInput(inp) {
+  updateQuote();
+  clearTimeout(postalTimer);
+  var raw  = inp.value.trim();
+  var hint = document.getElementById('postalHint');
+  if (hint) hint.classList.remove('show');
+  if (raw.length < 5) return;
+  var isCA = /^[A-Za-z]\d[A-Za-z][\s-]?\d[A-Za-z]\d$/.test(raw);
+  var isUS = /^\d{5}(-\d{4})?$/.test(raw);
+  if (!isCA && !isUS) return;
+  postalTimer = setTimeout(function(){ fetchByPostal(raw, isCA); }, 500);
+}
+function fetchByPostal(postal, isCA) {
+  var cc  = isCA ? 'ca' : 'us';
+  var url = 'https://nominatim.openstreetmap.org/search?postalcode=' + encodeURIComponent(postal) + '&countrycodes=' + cc + '&format=json&addressdetails=1&limit=1&accept-language=en';
+  fetch(url, { headers: { 'User-Agent': 'HealthiHomemade-OrderForm/1.0' } })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data||!data.length) return;
+      var addr = data[0].address||{};
+      var city   = addr.city||addr.town||addr.village||addr.municipality||addr.county||'';
+      var region = addr.state||addr.province||'';
+      var country= (addr.country_code||'').toUpperCase();
+      var postclean = postal.toUpperCase().replace(/\s/g,'');
+      var postalFmt = isCA && postclean.length===6 ? postclean.slice(0,3)+' '+postclean.slice(3) : postal.toUpperCase();
+      var cityEl = document.getElementById('fcity'); if (!cityEl.value.trim()&&city) cityEl.value=city;
+      document.getElementById('fpostal').value = postalFmt;
+      document.getElementById('fregion').value  = region;
+      document.getElementById('fcountry').value = country;
+      var streetEl = document.getElementById('fstreet');
+      if (!streetEl.value.trim()&&city) streetEl.placeholder='Type your street — '+city+', '+region;
+      var street    = streetEl.value.trim();
+      var formatted = [street,[city,region,postalFmt].filter(Boolean).join(', '),country==='CA'?'Canada':country==='US'?'United States':(addr.country||country)].filter(Boolean).join('\n');
+      document.getElementById('faddressFormatted').value=formatted;
+      var hint = document.getElementById('postalHint'); if (hint&&(city||region)) hint.classList.add('show');
+      updateQuote();
+    }).catch(function(){});
+}
+function rebuildFormattedAddress() {
+  var street=document.getElementById('fstreet').value.trim();
+  var city=document.getElementById('fcity').value.trim();
+  var region=document.getElementById('fregion').value.trim();
+  var postal=document.getElementById('fpostal').value.trim();
+  var country=document.getElementById('fcountry').value.trim();
+  var countryName=country==='CA'?'Canada':country==='US'?'United States':country;
+  var formatted=[street,[city,region,postal].filter(Boolean).join(', '),countryName].filter(Boolean).join('\n');
+  document.getElementById('faddressFormatted').value=formatted;
+}
+document.addEventListener('DOMContentLoaded', function(){
+  var streetEl=document.getElementById('fstreet');
+  if (streetEl) streetEl.addEventListener('change', function(){ rebuildFormattedAddress(); });
+});
+
+// ── COUNTRY + PHONE ───────────────────────────────────────
+var ALL_COUNTRIES = [
+  {name:'Canada',flag:'🇨🇦',code:'+1',prefix:'1',min:10,max:10},
+  {name:'United States',flag:'🇺🇸',code:'+1',prefix:'1',min:10,max:10},
+  {name:'India',flag:'🇮🇳',code:'+91',prefix:'91',min:10,max:10},
+  {name:'United Kingdom',flag:'🇬🇧',code:'+44',prefix:'44',min:10,max:10},
+  {name:'Pakistan',flag:'🇵🇰',code:'+92',prefix:'92',min:10,max:10},
+  {name:'Bangladesh',flag:'🇧🇩',code:'+880',prefix:'880',min:10,max:10},
+  {name:'Sri Lanka',flag:'🇱🇰',code:'+94',prefix:'94',min:9,max:9},
+  {name:'UAE',flag:'🇦🇪',code:'+971',prefix:'971',min:9,max:9},
+  {name:'Saudi Arabia',flag:'🇸🇦',code:'+966',prefix:'966',min:9,max:9},
+  {name:'Philippines',flag:'🇵🇭',code:'+63',prefix:'63',min:10,max:10},
+  {name:'Nigeria',flag:'🇳🇬',code:'+234',prefix:'234',min:10,max:10},
+  {name:'Australia',flag:'🇦🇺',code:'+61',prefix:'61',min:9,max:9},
+  {name:'Germany',flag:'🇩🇪',code:'+49',prefix:'49',min:10,max:11},
+  {name:'France',flag:'🇫🇷',code:'+33',prefix:'33',min:9,max:9},
+  {name:'Italy',flag:'🇮🇹',code:'+39',prefix:'39',min:9,max:10},
+  {name:'Brazil',flag:'🇧🇷',code:'+55',prefix:'55',min:10,max:11},
+  {name:'China',flag:'🇨🇳',code:'+86',prefix:'86',min:11,max:11},
+  {name:'Japan',flag:'🇯🇵',code:'+81',prefix:'81',min:10,max:11},
+  {name:'South Korea',flag:'🇰🇷',code:'+82',prefix:'82',min:9,max:10},
+  {name:'Egypt',flag:'🇪🇬',code:'+20',prefix:'20',min:10,max:10},
+  {name:'South Africa',flag:'🇿🇦',code:'+27',prefix:'27',min:9,max:9},
+  {name:'New Zealand',flag:'🇳🇿',code:'+64',prefix:'64',min:8,max:9},
+  {name:'Netherlands',flag:'🇳🇱',code:'+31',prefix:'31',min:9,max:9},
+  {name:'Spain',flag:'🇪🇸',code:'+34',prefix:'34',min:9,max:9},
+  {name:'Russia',flag:'🇷🇺',code:'+7',prefix:'7',min:10,max:10},
+  {name:'Mexico',flag:'🇲🇽',code:'+52',prefix:'52',min:10,max:10},
+  {name:'Malaysia',flag:'🇲🇾',code:'+60',prefix:'60',min:9,max:10},
+  {name:'Singapore',flag:'🇸🇬',code:'+65',prefix:'65',min:8,max:8},
+  {name:'Thailand',flag:'🇹🇭',code:'+66',prefix:'66',min:9,max:9},
+  {name:'Indonesia',flag:'🇮🇩',code:'+62',prefix:'62',min:9,max:12},
+  {name:'Iran',flag:'🇮🇷',code:'+98',prefix:'98',min:10,max:10},
+  {name:'Turkey',flag:'🇹🇷',code:'+90',prefix:'90',min:10,max:10},
+  {name:'Kenya',flag:'🇰🇪',code:'+254',prefix:'254',min:9,max:9},
+  {name:'Ghana',flag:'🇬🇭',code:'+233',prefix:'233',min:9,max:9},
+  {name:'Nepal',flag:'🇳🇵',code:'+977',prefix:'977',min:10,max:10},
+  {name:'Jamaica',flag:'🇯🇲',code:'+1876',prefix:'1876',min:7,max:7},
+  {name:'Trinidad & Tobago',flag:'🇹🇹',code:'+1868',prefix:'1868',min:7,max:7},
+  {name:'Guyana',flag:'🇬🇾',code:'+592',prefix:'592',min:7,max:7}
+];
+var selectedCountry=ALL_COUNTRIES[0], filteredCountries=ALL_COUNTRIES.slice(), countryHighlight=-1;
+
+function initCountryList(){ renderCountryList(ALL_COUNTRIES); setCountry(ALL_COUNTRIES[0]); }
+function renderCountryList(list){
+  var ul=document.getElementById('countryList');
+  if(!ul) return;
+  ul.innerHTML=list.map(function(c,i){
+    var sel=c.name===selectedCountry.name;
+    return '<div class="country-item'+(sel?' selected':'')+'" data-idx="'+i+'" onmousedown="pickCountry(event,'+ALL_COUNTRIES.indexOf(c)+')">'+
+           '<span class="country-item-flag">'+c.flag+'</span>'+
+           '<span class="country-item-name">'+c.name+'</span>'+
+           '<span class="country-item-code">'+c.code+'</span></div>';
+  }).join('');
+  filteredCountries=list; countryHighlight=-1;
+}
+function filterCountries(q){
+  var term=q.trim().toLowerCase();
+  var filtered=term?ALL_COUNTRIES.filter(function(c){ return c.name.toLowerCase().indexOf(term)>-1||c.code.indexOf(term)>-1||c.prefix.indexOf(term)>-1; }):ALL_COUNTRIES;
+  renderCountryList(filtered);
+}
+function countrySearchKeydown(e){
+  var items=document.querySelectorAll('.country-item');
+  if(e.key==='ArrowDown'){e.preventDefault();countryHighlight=Math.min(countryHighlight+1,items.length-1);highlightCountryItem(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();countryHighlight=Math.max(countryHighlight-1,0);highlightCountryItem(items);}
+  else if(e.key==='Enter'&&countryHighlight>=0){e.preventDefault();var idx=parseInt(items[countryHighlight].dataset.idx);pickCountry(null,ALL_COUNTRIES.indexOf(filteredCountries[idx]));}
+  else if(e.key==='Escape') closeCountryDropdown();
+}
+function highlightCountryItem(items){
+  items.forEach(function(el,i){el.classList.toggle('highlighted',i===countryHighlight);});
+  if(items[countryHighlight]) items[countryHighlight].scrollIntoView({block:'nearest'});
+}
+function toggleCountryDropdown(){
+  var drop=document.getElementById('countryDropdown');
+  var trigger=document.getElementById('countryTrigger');
+  var isOpen=drop.classList.contains('open');
+  if(isOpen){closeCountryDropdown();}
+  else{drop.classList.add('open');trigger.classList.add('open');document.getElementById('countrySearch').value='';renderCountryList(ALL_COUNTRIES);setTimeout(function(){document.getElementById('countrySearch').focus();},50);}
+}
+function closeCountryDropdown(){
+  document.getElementById('countryDropdown').classList.remove('open');
+  document.getElementById('countryTrigger').classList.remove('open');
+}
+function pickCountry(event,idx){
+  if(event) event.preventDefault();
+  setCountry(ALL_COUNTRIES[idx]);
+  closeCountryDropdown();
+  document.getElementById('fphone').focus();
+  onPhoneInput(document.getElementById('fphone'));
+}
+function setCountry(country){
+  selectedCountry=country;
+  document.getElementById('triggerFlag').textContent=country.flag;
+  document.getElementById('triggerCode').textContent=country.code;
+  renderCountryList(filteredCountries.length?filteredCountries:ALL_COUNTRIES);
+}
+document.addEventListener('click',function(e){
+  var wrap=document.getElementById('countrySelectWrap');
+  if(wrap&&!wrap.contains(e.target)) closeCountryDropdown();
+});
+function onPhoneInput(inp){
+  var raw=inp.value.trim();
+  var hint=document.getElementById('phoneHint');
+  var fmt=document.getElementById('phoneFormatted');
+  hint.className='phone-hint'; hint.textContent='';
+  fmt.className='phone-formatted'; fmt.textContent='';
+  delete inp.dataset.e164;
+  if(!raw){inp.style.borderColor='';updateQuote();return;}
+  var digits=raw.replace(/[^0-9]/g,'');
+  var c=selectedCountry||ALL_COUNTRIES[0];
+  if(!c){updateQuote();return;}
+  if(digits.length<c.min){
+    hint.className='phone-hint invalid';
+    hint.textContent=c.flag+' '+c.name+' — enter '+c.min+' digits (you have '+digits.length+')';
+    inp.style.borderColor='var(--red)';updateQuote();return;
+  }
+  if(digits.length>c.max){
+    hint.className='phone-hint invalid';
+    hint.textContent=c.flag+' '+c.name+' — too many digits (max '+c.max+')';
+    inp.style.borderColor='var(--red)';updateQuote();return;
+  }
+  var e164='+'+c.prefix+digits;
+  inp.dataset.e164=e164;
+  inp.style.borderColor='var(--green)';
+  hint.className='phone-hint valid';
+  hint.textContent=c.flag+' '+c.name+' — valid';
+  fmt.className='phone-formatted show';
+  fmt.textContent='Google Contacts format: '+e164;
+  updateQuote();
+}
+function isPhoneValid(){
+  var inp=document.getElementById('fphone');
+  return !!(inp&&inp.dataset.e164);
+}
+
+
+function reportHeight() {
+  var h = document.body.scrollHeight || document.documentElement.scrollHeight;
+  window.parent.postMessage({ type: 'wix-iframe-height', height: h }, '*');
+}
+reportHeight();
+window.addEventListener('resize', reportHeight);
+if (window.MutationObserver) {
+  var mo = new MutationObserver(function(){ setTimeout(reportHeight, 120); });
+  mo.observe(document.body, { childList: true, subtree: true, attributes: true });
+}
+
+// ── SUCCESS SCREEN E-TRANSFER TOGGLE ─────────────────────
+var successEtChecked = false;
+
+function toggleSuccessEtransfer() {
+  successEtChecked = !successEtChecked;
+  var row = document.getElementById('successEtRow');
+  if (row) row.classList.toggle('checked', successEtChecked);
+  refreshSuccessAmounts();
+}
+
+function refreshSuccessAmounts() {
+  var pkg         = showSuccessScreen._pkg;
+  var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var extrasTotal = calcExtrasTotal();
+  var combined    = basePrice + extrasTotal;
+  var tax         = successEtChecked ? +(combined * 0.13).toFixed(2) : 0;
+  var total       = successEtChecked ? +(combined + tax).toFixed(2) : combined;
+  var amtStr      = '$' + total.toFixed(2);
+  var noteText    = successEtChecked
+    ? 'Incl. 13% HST — ' + (pkg ? pkg.label : '') + ' ' + state.freq
+    : 'Total amount due — ' + (pkg ? pkg.label : '') + ' ' + state.freq;
+
+  var el;
+  el = document.getElementById('successPayAmount');     if (el) el.textContent = amtStr;
+  el = document.getElementById('successPayAmountCopy'); if (el) el.textContent = amtStr;
+  el = document.getElementById('successPayNote');       if (el) el.textContent = noteText;
+
+  var taxRow = document.getElementById('taxBreakdownRow');
+  if (taxRow) {
+    if (successEtChecked) {
+      document.getElementById('payBaseAmt').textContent = 'Subtotal: $' + combined.toFixed(2);
+      document.getElementById('payTaxAmt').textContent  = '+ HST 13%: $' + tax.toFixed(2);
+      taxRow.style.display = 'flex';
+    } else {
+      taxRow.style.display = 'none';
+    }
+  }
+}
+
+document.getElementById('fstart').value=new Date().toISOString().split('T')[0];
+updateQuote();
+initCountryList();
+</script>
+</body>
+</html>
