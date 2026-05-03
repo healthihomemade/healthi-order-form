@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Healthi Homemade — Order Your Meal Plan v2.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -16,7 +16,7 @@
     --radius: 16px; --radius-sm: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--smoke); color: var(--ink); font-family: 'Mulish', sans-serif; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+  body { background: var(--smoke); color: var(--ink); font-family: 'Mulish', sans-serif; overflow-x: hidden; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 
 
@@ -471,7 +471,7 @@
   }
 
   .submit-wrap { margin-top:20px; }
-  .submit-btn { width:100%; padding:16px; background:var(--saffron); color:white; border:none; border-radius:var(--radius-sm); font-family:'Mulish',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.03em; cursor:pointer; transition:all 0.22s; box-shadow:0 4px 18px rgba(232,137,12,0.4); }
+  .submit-btn { width:100%; padding:16px; min-height:48px; background:var(--saffron); color:white; border:none; border-radius:var(--radius-sm); font-family:'Mulish',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.03em; cursor:pointer; transition:all 0.22s; box-shadow:0 4px 18px rgba(232,137,12,0.4); }
   .submit-btn:hover:not(:disabled) { background:var(--saffron-dark); transform:translateY(-1px); box-shadow:0 6px 24px rgba(232,137,12,0.5); }
   .submit-btn:disabled { background:#6a6560; box-shadow:none; cursor:not-allowed; }
   .validation-hint { margin-top:10px; font-size:11.5px; color:rgba(253,250,244,0.55); text-align:left; display:none; line-height:1.6; background:rgba(255,255,255,0.06); border-radius:6px; padding:8px 12px; }
@@ -679,134 +679,164 @@
   .required-star { color:#E07070; }
 
   /* ════════════════════════════════════════════
-     MOBILE-FIRST RESPONSIVE — full overrides
+     MOBILE-FIRST RESPONSIVE
      ════════════════════════════════════════════ */
 
-
-
-  /* Form panels */
-  @media(max-width:600px){
-    .panel-header { padding:14px 16px 12px; gap:10px; }
-    .panel-body { padding:16px; }
-    .panel-title { font-size:1rem; }
-    .panel-num { width:24px; height:24px; font-size:11px; }
-  }
-
-  /* Package cards */
-  @media(max-width:600px){
-    .pkg-header { padding:14px 14px 10px; gap:10px; }
-    .pkg-icon { font-size:1.6rem; }
-    .pkg-name { font-size:15px; }
-    .pkg-price { font-size:1.3rem; }
-    .pkg-body { padding:0 14px 14px; }
-    .pkg-detail-row { font-size:12px; }
-    .pkg-detail-label { font-size:10px; }
-    .option-chip { font-size:11px; padding:4px 9px; }
-    .pkg-check { width:20px; height:20px; top:10px; right:10px; }
-  }
-
-  /* Freq toggle */
-  @media(max-width:480px){
-    .freq-toggle-wrap { margin-bottom:16px; }
-    .freq-note { font-size:11.5px; }
-  }
-
-  /* Day chips */
-  @media(max-width:520px){
-    .day-chip { padding:8px 2px; }
-    .day-abbr { font-size:10px; }
-    .day-dot { width:6px; height:6px; }
-    .shortcut-btn { font-size:11px; padding:5px 10px; }
-  }
-
-  /* Extras form panel */
-  @media(max-width:600px){
-    .form-extra-row { padding:12px 16px; gap:10px; }
-    .form-extra-name { font-size:13px; }
-    .form-extra-desc { font-size:11px; }
-    .form-extra-price { font-size:1.1rem; }
-    .form-roti-stepper { padding:8px 16px 10px 46px; gap:8px; }
-    .form-stepper-btn { width:26px; height:26px; font-size:15px; }
-    .form-stepper-count { font-size:12px; min-width:48px; }
-    .form-stepper-total { font-size:11.5px; }
-    .form-extras-total { padding:10px 16px; font-size:12.5px; }
-    .form-extras-total-val { font-size:1rem; }
-  }
-
-  /* Fields */
-  @media(max-width:520px){
-    input, textarea, select { padding:10px 12px; font-size:14px; }
-    label { font-size:11px; }
-  }
-
-  /* Delivery place options */
-  @media(max-width:520px){
-    .delivery-opt { padding:10px 12px; font-size:13px; gap:8px; }
-  }
-
-  /* Photo upload */
-  @media(max-width:520px){
-    .photo-upload-area { padding:20px 12px; }
-    .photo-upload-icon { font-size:2rem; }
-    .photo-upload-text { font-size:13px; }
-    .photo-spec { gap:4px; }
-    .photo-spec-chip { font-size:10px; padding:2px 7px; }
-  }
-
-  /* Terms */
-  @media(max-width:520px){
-    .terms-body { font-size:12px; padding:12px 14px; }
-    .terms-check-row { padding:12px 14px; }
-    .terms-check-label { font-size:12px; }
-    .terms-checkbox { width:18px; height:18px; }
-  }
-
-  /* Quote card */
+  /* Base: stack layout on anything under 900px */
   @media(max-width:900px){
-    .quote-card { padding:22px 18px; border-radius:12px; }
-    .quote-title { font-size:1.1rem; }
-    .quote-price { font-size:2.4rem; }
-    .quote-line { font-size:12.5px; padding:8px 0; }
+    .page-body { grid-template-columns:1fr; padding:12px 10px 48px; gap:16px; }
+    .sticky-quote { position:static !important; }
   }
-  @media(max-width:480px){
-    .quote-card { padding:18px 14px; }
-    .quote-price { font-size:2rem; }
-    .quote-what { font-size:12px; }
-    .etransfer-text { font-size:12px; }
+
+  /* Tablet (600-900px) */
+  @media(max-width:860px){
+    .package-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+    .fields-grid  { grid-template-columns:1fr 1fr; }
+    .days-grid    { grid-template-columns:repeat(6,1fr); }
+  }
+
+  /* Large phone (480-600px) */
+  @media(max-width:600px){
+    /* Page */
+    .page-body { padding:10px 8px 40px; gap:12px; }
+
+    /* Panels */
+    .panel-header { padding:12px 14px 10px; gap:8px; }
+    .panel-body   { padding:14px; }
+    .panel-title  { font-size:1rem; }
+    .panel-num    { width:24px; height:24px; font-size:11px; }
+
+    /* Package cards — 1 column on small screens */
+    .package-grid { grid-template-columns:1fr; gap:8px; }
+    .pkg-header   { padding:12px 12px 10px; gap:10px; }
+    .pkg-icon     { font-size:1.5rem; }
+    .pkg-name     { font-size:15px; }
+    .pkg-price    { font-size:1.25rem; }
+    .pkg-body     { padding:0 12px 12px; }
+    .pkg-detail-row { font-size:12px; }
+    .option-chip  { font-size:11px; padding:4px 9px; }
+    .pkg-check    { width:20px; height:20px; top:10px; right:10px; }
+
+    /* Frequency toggle — full width pills */
+    .freq-toggle  { display:flex; flex-wrap:wrap; width:100%; }
+    .freq-btn     { flex:1; min-width:70px; padding:8px 6px; font-size:11.5px; text-align:center; }
+    .freq-note    { font-size:11.5px; }
+
+    /* Days */
+    .days-grid    { grid-template-columns:repeat(3,1fr); gap:6px; }
+    .day-chip     { padding:9px 4px; }
+    .day-abbr     { font-size:10.5px; }
+    .shortcut-btn { font-size:11px; padding:5px 10px; }
+    .day-shortcuts { gap:6px; margin-top:10px; }
+
+    /* Extras form panel */
+    .form-extra-row     { padding:12px 14px; gap:8px; }
+    .form-extra-name    { font-size:13px; }
+    .form-extra-desc    { font-size:11px; }
+    .form-extra-price   { font-size:1.05rem; }
+    .form-roti-stepper  { padding:8px 14px 10px 42px; gap:8px; }
+    .form-stepper-btn   { width:26px; height:26px; }
+    .form-stepper-count { font-size:12px; min-width:44px; }
+    .form-extras-total  { padding:10px 14px; font-size:12.5px; }
+
+    /* Fields — full width */
+    .fields-grid  { grid-template-columns:1fr; gap:10px; }
+    .field-group.full { grid-column:1; }
+    input, textarea, select { padding:10px 12px; font-size:15px; }
+    label { font-size:11px; }
+
+    /* Country + phone */
+    .country-phone-wrap { flex-direction:column; gap:0; }
+    .country-trigger    { border-radius:var(--radius-sm) var(--radius-sm) 0 0; border-right:1.5px solid var(--border); border-bottom:none; min-width:unset; width:100%; }
+    .phone-number-input { border-radius:0 0 var(--radius-sm) var(--radius-sm) !important; border-top:none !important; border-left:1.5px solid var(--border) !important; }
+    .country-dropdown   { width:100%; }
+
+    /* Delivery options */
+    .delivery-options { grid-template-columns:1fr; }
+    .delivery-opt     { padding:10px 12px; font-size:13px; }
+
+    /* Photo */
+    .photo-upload-area { padding:18px 12px; }
+    .photo-upload-icon { font-size:1.8rem; }
+    .photo-upload-text { font-size:13px; }
+    .photo-spec        { gap:4px; }
+    .photo-spec-chip   { font-size:10px; padding:2px 7px; }
+
+    /* Terms */
+    .terms-body       { font-size:12px; padding:12px; }
+    .terms-check-row  { padding:12px; }
+    .terms-check-label { font-size:12px; }
+    .terms-checkbox   { width:18px; height:18px; }
+
+    /* Quote card */
+    .quote-card       { padding:18px 14px; border-radius:12px; }
+    .quote-title      { font-size:1.05rem; }
+    .quote-price      { font-size:2rem; }
+    .quote-line       { font-size:12px; padding:7px 0; }
+    .quote-what       { font-size:12px; }
+
+    /* E-transfer */
+    .etransfer-row    { padding:9px 12px; gap:8px; }
+    .etransfer-text   { font-size:12px; }
     .etransfer-text strong { font-size:12.5px; }
-  }
+    .tax-line         { font-size:11.5px; }
+    .price-total-final { font-size:1.6rem; }
 
-  /* E-transfer + tax */
-  @media(max-width:520px){
-    .etransfer-row { padding:9px 12px; gap:8px; }
-    .tax-line { font-size:11.5px; }
-    .price-total-final { font-size:1.7rem; }
-  }
+    /* Quote pay button */
+    .quote-pay-btn    { font-size:12.5px; padding:10px 12px; }
 
-  /* Submit button */
-  @media(max-width:520px){
-    .submit-btn { font-size:14px; padding:14px; }
-  }
+    /* Submit button */
+    .submit-btn       { font-size:14px; padding:14px; }
+    .validation-hint  { font-size:11px; }
 
-  /* Service notice */
-  @media(max-width:520px){
+    /* Interac payment card */
+    .interac-pay-block  { padding:18px 16px; }
+    .interac-amount     { font-size:2rem; }
+    .payment-card       { border-radius:8px; }
+    .payment-row        { padding:10px 12px; gap:6px; }
+    .payment-row-label  { font-size:10px; min-width:55px; }
+    .payment-row-val    { font-size:12.5px; }
+    .payment-row-amount { font-size:1.15rem; }
+    .copy-chip          { padding:4px 8px; font-size:11px; }
+    .interac-note       { font-size:11.5px; }
+
+    /* Success overlay */
+    .success-overlay  { padding:20px 14px; }
+    .success-overlay h2 { font-size:1.5rem; }
+    .success-overlay p  { font-size:13.5px; }
+    .success-note       { padding:12px; font-size:12px; }
+    .new-order-btn      { padding:10px 22px; font-size:13px; }
+
+    /* Success e-transfer toggle */
+    .success-etransfer-row { padding:10px 12px; }
+    .success-et-text       { font-size:12px; }
+    .success-et-text strong { font-size:12.5px; }
+
+    /* Address dropdown */
+    .addr-item      { padding:9px 12px; font-size:12.5px; }
+    .addr-item-sub  { font-size:11px; }
+    .addr-dropdown  { max-height:200px; }
+
+    /* Service notice */
     .service-notice { padding:10px 12px; }
     .service-notice-text { font-size:11.5px; }
   }
 
-  /* Success overlay */
-  @media(max-width:480px){
-    .success-overlay { padding:24px 16px; }
-    .success-overlay h2 { font-size:1.6rem; }
-    .success-overlay p { font-size:13.5px; }
-    .success-note { padding:12px 14px; font-size:12px; }
-    .new-order-btn { padding:10px 24px; font-size:13px; }
+  /* Small phone (max 400px) */
+  @media(max-width:400px){
+    .page-body    { padding:8px 6px 32px; }
+    .panel-body   { padding:12px; }
+    .package-grid { gap:6px; }
+    .fields-grid  { gap:8px; }
+    .days-grid    { grid-template-columns:repeat(2,1fr); gap:5px; }
+    .freq-btn     { font-size:11px; padding:7px 4px; }
+    .quote-price  { font-size:1.8rem; }
+    input, textarea, select { font-size:16px; } /* prevents iOS zoom */
   }
 
-  /* Addr dropdown */
-  @media(max-width:520px){
-    .addr-item { padding:9px 12px; font-size:12.5px; }
-    .addr-item-sub { font-size:11px; }
+  /* Prevent iOS auto-zoom on input focus */
+  @media(max-width:480px){
+    input, select, textarea { font-size:16px !important; }
   }
 </style>
 </head>
