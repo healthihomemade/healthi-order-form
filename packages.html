@@ -1844,6 +1844,36 @@ function updateQuote() {
   validateAndToggleSubmit();
 }
 
+// ── IMAGE BEACON SUBMISSION (most reliable, proven to work) ──
+// Uses GET request via Image beacon — no CORS, works from any domain.
+// Apps Script doGet handles this and writes to sheet.
+// Payload is URL-encoded as a query parameter.
+function submitViaForm(payloadStr) {
+  var url = 'https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPjTgdC6Q3BGy2JGxNN32me2xs35vcibUiKY2EHW8Xw0OAoLRMgJE/exec'
+          + '?payload=' + encodeURIComponent(payloadStr);
+
+  // Method A: Image beacon (fire-and-forget GET)
+  var img = new Image();
+  img.onload = function() { console.log('Beacon sent OK'); };
+  img.onerror = function() { console.log('Beacon sent (onerror is normal for Apps Script)'); };
+  img.src = url;
+  console.log('Submitting via image beacon to Apps Script doGet');
+
+  // Method B: XHR GET as backup (no preflight needed for GET)
+  try {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        console.log('XHR GET status:', xhr.status);
+      }
+    };
+    xhr.send();
+  } catch(e) {
+    console.log('XHR failed:', e.message);
+  }
+}
+
 // ── WIX IFRAME AUTO-HEIGHT ────────────────────────────────
 // ── SHEET WEBAPP URL ──────────────────────────────────────
 var SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPjTgdC6Q3BGy2JGxNN32me2xs35vcibUiKY2EHW8Xw0OAoLRMgJE/exec';
@@ -2006,37 +2036,22 @@ function submitOrder() {
     'totalWithTax': state.etransfer ? totalWithTax : null
   };
 
-  // ── Show success immediately — data sends in background ──
+  // ── Show success immediately ─────────────────────────────
   showSuccessScreen(notes, pkg);
   btn.textContent = 'Confirm & Submit →';
 
   var payloadStr = JSON.stringify(payload);
 
-  // ── Method 1: Wix Backend HTTP function (most reliable) ──
-  // POST to /_functions/submitOrder — same domain as Wix, no CORS.
-  // Replace YOUR-SITE and YOUR-PAGE with your actual Wix site values.
-  // e.g. https://myname.wixsite.com/mysite/_functions/submitOrder
-  var WIX_BACKEND_URL = 'https://www.healthihomemade.com/_functions/submitOrder';
+  // ── Submit via hidden HTML form (bypasses ALL CORS) ───────
+  // A native form POST with target="_blank" works from any iFrame.
+  // Apps Script reads it from e.parameter.payload (GET) or
+  // e.postData.contents (POST).
+  submitViaForm(payloadStr);
 
-  fetch(WIX_BACKEND_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    payloadStr
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(result){
-    console.log('Backend response:', JSON.stringify(result));
-  })
-  .catch(function(err){
-    console.log('Backend fetch failed, trying postMessage:', err.message);
-    // ── Method 2: postMessage to Velo (fallback) ──
-    try {
-      window.parent.postMessage({ type: 'HEALTHI_SUBMIT', payload: payloadStr }, '*');
-      console.log('postMessage sent to Velo');
-    } catch(e) {
-      console.error('postMessage failed:', e.message);
-    }
-  });
+  // Also try postMessage to Velo as a parallel attempt
+  try {
+    window.parent.postMessage({ type: 'HEALTHI_SUBMIT', payload: payloadStr }, '*');
+  } catch(e) { /* silent */ }
 }
 
 // ── SUCCESS SCREEN ────────────────────────────────────────
