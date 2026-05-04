@@ -489,10 +489,17 @@
   .tax-line .tax-val { color: rgba(253,250,244,0.8); font-weight: 600; }
   .price-total-final {
     font-family: 'Playfair Display', serif;
-    font-size: 2rem;
+    font-size: 1.75rem;
     color: var(--saffron);
-    line-height: 1;
-    margin-top: 4px;
+    line-height: 1.1;
+    display: block;
+    position: static;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    margin: 2px 0 0 0;
+    box-shadow: none;
   }
   .price-total-final.with-tax { color: #f0c060; }
 
@@ -780,30 +787,27 @@
   }
 
   /* Pay button in quote card (form) */
-  .quote-pay-divider { border:none; border-top:1px solid rgba(255,255,255,0.08); margin:16px 0 14px; }
-  .quote-pay-label { font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(253,250,244,0.4); margin-bottom:8px; display:block; }
-  .quote-pay-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+  /* quote-pay-btn removed */
+
+  /* ── TOTAL PILL — sticky bottom bar ── */
+  .total-pill-bar {
+    position: sticky;
+    bottom: 0;
     width: 100%;
-    padding: 12px 16px;
-    background: rgba(232,137,12,0.15);
-    color: var(--saffron-light);
-    border: 1.5px solid rgba(232,137,12,0.35);
-    border-radius: 8px;
-    font-family: 'Mulish', sans-serif;
-    font-size: 13.5px;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.2s;
-    margin-top: 0;
+    background: var(--cardamom);
+    padding: 12px 20px;
     display: none;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 99;
+    box-shadow: 0 -4px 20px rgba(26,22,18,0.25);
   }
-  .quote-pay-btn.show { display: flex; }
-  .quote-pay-btn:hover { background: rgba(232,137,12,0.25); border-color: var(--saffron); color: white; }
+  .total-pill-bar.show { display: flex; }
+  .total-pill-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:rgba(253,250,244,0.6); }
+  .total-pill-amount { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--saffron-light); line-height:1; }
+
+
+
   .required-star { color:#E07070; }
 
   /* ════════════════════════════════════════════
@@ -908,7 +912,6 @@
     .price-total-final { font-size:1.6rem; }
 
     /* Quote pay button */
-    .quote-pay-btn    { font-size:12.5px; padding:10px 12px; }
 
     /* Submit button */
     .submit-btn       { font-size:14px; padding:14px; }
@@ -1501,9 +1504,9 @@
       <div class="tax-line" id="taxAmountLine">
         <span>HST (13%)</span><span class="tax-val" id="taxAmount">—</span>
       </div>
-      <div style="padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); margin-top:6px;">
-        <div class="quote-total-label" id="totalFinalLabel" style="margin-bottom:4px;">Monthly Total</div>
-        <div class="price-total-final with-tax" id="q-price-total">$—</div>
+      <div style="padding-top:8px; border-top:1px solid rgba(255,255,255,0.12); margin-top:6px; display:flex; align-items:center; justify-content:space-between;">
+        <div class="quote-total-label" id="totalFinalLabel" style="margin-bottom:0;">Monthly Total</div>
+        <div class="price-total-final with-tax" id="q-price-total" style="margin:0;">$—</div>
       </div>
     </div>
 
@@ -1517,15 +1520,7 @@
       <div class="notes-code" id="q-notes-code"></div>
     </div>
 
-    <!-- Quick Pay (shows once package+price selected) -->
-    <hr class="quote-pay-divider" id="quotePayDivider" style="display:none">
-    <span class="quote-pay-label" id="quotePaylabel" style="display:none">Pay via Interac e-Transfer</span>
-    <button class="quote-pay-btn" id="quotePay" onclick="openBankingApp()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-      </svg>
-      Pay <span id="quotePayAmount"></span> — healthihomemade@gmail.com
-    </button>
+    <!-- Pay button removed — total shown in quote card above -->
 
     <div class="submit-wrap">
       <button class="submit-btn" id="submitBtn" onclick="submitOrder()" disabled>Confirm &amp; Submit →</button>
@@ -2083,7 +2078,6 @@ function updateQuote() {
     else { np.style.display = 'none'; }
 
     // ── Pay button ──
-    updatePayButtons(getPayableAmount());
 
   } else {
     document.getElementById('q-price').textContent = '$—';
@@ -2093,10 +2087,10 @@ function updateQuote() {
     document.getElementById('taxBlock').style.display = 'none';
     document.getElementById('q-what').style.display = 'none';
     document.getElementById('q-notes-preview').style.display = 'none';
-    updatePayButtons(null);
   }
 
   validateAndToggleSubmit();
+  updateFloatingPill();
 }
 
 // ── IMAGE BEACON SUBMISSION (most reliable, proven to work) ──
@@ -2281,24 +2275,7 @@ var SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPj
 var INTERAC_EMAIL = 'healthihomemade@gmail.com';
 var INTERAC_MESSAGE_PREFIX = 'Healthi Homemade Order';
 
-// ── PAY BUTTON UPDATE ────────────────────────────────────
-function updatePayButtons(amount) {
-  var quotePayBtn   = document.getElementById('quotePay');
-  var quotePayAmt   = document.getElementById('quotePayAmount');
-  var quotePayDiv   = document.getElementById('quotePayDivider');
-  var quotePayLabel = document.getElementById('quotePaylabel');
-  if (amount && state.pkg) {
-    var amtStr = '$' + amount.toFixed(2);
-    if (quotePayBtn)   quotePayBtn.classList.add('show');
-    if (quotePayDiv)   quotePayDiv.style.display  = 'block';
-    if (quotePayLabel) quotePayLabel.style.display = 'block';
-    if (quotePayAmt)   quotePayAmt.textContent = amtStr;
-  } else {
-    if (quotePayBtn)   quotePayBtn.classList.remove('show');
-    if (quotePayDiv)   quotePayDiv.style.display  = 'none';
-    if (quotePayLabel) quotePayLabel.style.display = 'none';
-  }
-}
+// updatePayButtons removed — total shown in quote card
 
 // ── VALIDATION ────────────────────────────────────────────
 function isPhoneValid() {
@@ -2474,6 +2451,7 @@ function showSuccessScreen(notes, pkg) {
 
   refreshSuccessAmounts();
   document.getElementById('successOverlay').classList.add('show');
+  var fp=document.getElementById('totalPillBar'); if(fp) fp.classList.remove('show');
 }
 
 // ── RESET ─────────────────────────────────────────────────
@@ -2860,6 +2838,21 @@ if (window.MutationObserver) {
   mo.observe(document.body, { childList: true, subtree: true, attributes: true });
 }
 
+// ── FLOATING TOTAL PILL ──────────────────────────────────
+function updateFloatingPill() {
+  var bar    = document.getElementById('totalPillBar');
+  var amount = document.getElementById('totalPillAmount');
+  if (!bar || !amount) return;
+  var totalEl = document.getElementById('q-price-total');
+  var total   = totalEl ? totalEl.textContent.trim() : '';
+  if (total && total !== '$—' && state.pkg) {
+    amount.textContent = total;
+    bar.classList.add('show');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
 // ── SUCCESS SCREEN E-TRANSFER TOGGLE ─────────────────────
 var successEtChecked = false;
 
@@ -2913,5 +2906,11 @@ setDays(['MON','TUE','WED','THU','FRI']);
 document.getElementById('qbtn-monfri').classList.add('active');
 updateDaysPanelSubtitle();
 </script>
+  <!-- TOTAL PILL BAR — sticky bottom -->
+  <div class="total-pill-bar" id="totalPillBar">
+    <span class="total-pill-label">Total Amount</span>
+    <span class="total-pill-amount" id="totalPillAmount">$—</span>
+  </div>
+
 </body>
 </html>
