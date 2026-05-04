@@ -1302,7 +1302,7 @@
         <p class="quote-note">* Estimate based on selected items &amp; guest count. Final pricing confirmed on order.</p>
       </div>
       <div class="quote-actions">
-        <button class="quote-copy-btn" onclick="copyQuote()">📋 Copy Quote</button>
+        <button class="quote-copy-btn" onclick="placeOrderWhatsApp()">📲 Place This Order</button>
         <button class="quote-clear-btn" onclick="clearAll()">Clear All</button>
       </div>
     </div>
@@ -1506,8 +1506,10 @@ function updateQuote() {
   document.getElementById('floatingTotal').style.display = '';
 }
 
-function copyQuote() {
-  let text = `🌿 Catering Quote — Healthy Homemade\nGuests: ${guests}\n\n`;
+function placeOrderWhatsApp() {
+  let text = `🌿 *Catering Order — Healthy Homemade*\n`;
+  text += `👥 Guests: ${guests}\n\n`;
+
   const groups = {};
   selected.forEach(id => {
     const parts = id.split('-');
@@ -1516,9 +1518,10 @@ function copyQuote() {
     if (!groups[section]) groups[section] = [];
     groups[section].push(menuData[section].items[idx]);
   });
+
   let total = 0;
   Object.keys(groups).forEach(section => {
-    text += `${menuData[section].label}:\n`;
+    text += `*${menuData[section].label}:*\n`;
     groups[section].forEach(item => {
       const qty = item.unit === 'person' ? guests : item.unit === 'roti' ? Math.ceil(guests * 1.5) : 1;
       const lineTotal = item.rate * qty;
@@ -1527,16 +1530,17 @@ function copyQuote() {
     });
     text += '\n';
   });
+
   const surcharge = guests < 25 ? 50 : 0;
-  if (surcharge) text += `  ⚠️ Small Group Surcharge (under 25 guests) — +$50.00\n\n`;
+  if (surcharge) text += `⚠️ Small Group Surcharge — +$50.00\n\n`;
   const grandTotal = total + surcharge;
-  text += `─────────────────────\nEstimated Total: $${grandTotal.toFixed(2)}\nPrice per Person: $${(grandTotal / guests).toFixed(2)}\n\nDM to confirm your order!`;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.quote-copy-btn');
-    const orig = btn.textContent;
-    btn.textContent = '✅ Copied!';
-    setTimeout(() => btn.textContent = orig, 2000);
-  });
+  text += `─────────────────────\n`;
+  text += `💰 *Total: $${grandTotal.toFixed(2)}*\n`;
+  text += `👤 *Per Person: $${(grandTotal / guests).toFixed(2)}*`;
+
+  const phone = '16476073961';
+  const encoded = encodeURIComponent(text);
+  window.open(`https://wa.me/${phone}?text=${encoded}`, '_blank');
 }
 
 function renderGrid(section, gridId) {
