@@ -2442,15 +2442,13 @@ function submitOrder() {
       '. We will review your area and contact you within 2 business days.');
   }
 
-  showSuccessScreen(notes, pkg);
+  // ── Show success immediately — reset button first ─────────
+  btn.disabled    = false;
   btn.textContent = 'Confirm & Submit →';
+  showSuccessScreen(notes, pkg);
 
+  // ── Send data in background ───────────────────────────────
   var payloadStr = JSON.stringify(payload);
-
-  // ── Single submission method — image beacon only ─────────
-  // postMessage is intentionally NOT fired here to prevent
-  // duplicate entries in Google Sheet (beacon + Velo = 2 rows).
-  // If Velo is needed, disable submitViaForm and re-enable postMessage.
   submitViaForm(payloadStr);
 }
 
