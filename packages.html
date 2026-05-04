@@ -1315,7 +1315,7 @@
         </div>
         <div class="field-group full">
           <label for="fstart">Service Start Date <span class="required-star">*</span></label>
-          <input type="date" id="fstart">
+          <input type="date" id="fstart" id="fstart">
         </div>
         <div class="field-group full">
           <label for="fsubscribers">Number of Subscribers <span class="required-star">*</span></label>
@@ -1373,7 +1373,7 @@
         <div class="field-group full">
           <label>Place of Delivery Photo <span style="font-size:11px;color:var(--ash);font-weight:400;font-style:italic;">(Optional)</span></label>
           <div class="photo-upload-area" id="photoUploadArea">
-            <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" onchange="handlePhotoUpload(this)">
+            <input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp" capture="environment" onchange="handlePhotoUpload(this)">
             <div class="upload-prompt">
               <span class="upload-icon">📷</span>
               <span class="upload-label">Click to upload a delivery location photo</span>
@@ -1391,7 +1391,7 @@
           <div class="photo-spec">
             <span>Accepted:</span>
             <span class="photo-spec-chip">JPG / PNG / WEBP</span>
-            <span class="photo-spec-chip">Max 2 MB</span>
+            <span class="photo-spec-chip">Auto-compressed</span>
             <span class="photo-spec-chip">Clear image</span>
           </div>
         </div>
@@ -1893,20 +1893,49 @@ function selectDeliveryPlace(el) {
 function handlePhotoUpload(input) {
   var file = input.files[0];
   if (!file) return;
-  if (file.size > 2 * 1024 * 1024) {
-    alert('Photo must be under 2 MB. Please choose a smaller file.');
-    input.value = '';
-    return;
-  }
+
   var reader = new FileReader();
   reader.onload = function(e) {
-    state.photoData = e.target.result;
-    state.photoFileName = file.name;
-    document.getElementById('photoPreview').src = e.target.result;
-    document.getElementById('photoName').textContent = file.name;
-    document.getElementById('photoSize').textContent = (file.size / 1024).toFixed(1) + ' KB';
-    document.getElementById('photoUploadArea').classList.add('has-image');
-    updateQuote();
+    var img = new Image();
+    img.onload = function() {
+      // ── Compress via canvas ──────────────────────────────
+      // Target: max 1024px on longest side, JPEG quality 0.72
+      // Typical output: 150–400 KB — well under 2 MB
+      var MAX_DIM  = 1024;
+      var QUALITY  = 0.72;
+      var canvas   = document.createElement('canvas');
+      var w = img.naturalWidth;
+      var h = img.naturalHeight;
+
+      // Scale down if larger than MAX_DIM
+      if (w > MAX_DIM || h > MAX_DIM) {
+        if (w >= h) { h = Math.round(h * MAX_DIM / w); w = MAX_DIM; }
+        else        { w = Math.round(w * MAX_DIM / h); h = MAX_DIM; }
+      }
+
+      canvas.width  = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+      var compressed = canvas.toDataURL('image/jpeg', QUALITY);
+      var sizeKB     = Math.round((compressed.length * 3) / 4 / 1024);
+
+      // If still somehow over 2MB, compress harder
+      if (sizeKB > 1800) {
+        compressed = canvas.toDataURL('image/jpeg', 0.5);
+        sizeKB     = Math.round((compressed.length * 3) / 4 / 1024);
+      }
+
+      state.photoData     = compressed;
+      state.photoFileName = file.name.replace(/\.[^.]+$/, '') + '_compressed.jpg';
+
+      document.getElementById('photoPreview').src                 = compressed;
+      document.getElementById('photoName').textContent            = state.photoFileName;
+      document.getElementById('photoSize').textContent            = sizeKB + ' KB';
+      document.getElementById('photoUploadArea').classList.add('has-image');
+      updateQuote();
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -2475,7 +2504,11 @@ function resetForm() {
   document.getElementById('rotiStepper').classList.remove('show');
   document.getElementById('extrasTotalLine').classList.remove('show');
   document.getElementById('extraRotiPrice').textContent='$30';
-  document.getElementById('fstart').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fstart').value = (function(){
+  var d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+})();
   updateQuote();
 }
 
@@ -2859,7 +2892,13 @@ function refreshSuccessAmounts() {
   }
 }
 
-document.getElementById('fstart').value=new Date().toISOString().split('T')[0];
+(function(){
+  var d=new Date(); d.setDate(d.getDate()+1);
+  var s=d.toISOString().split('T')[0];
+  var el=document.getElementById('fstart');
+  el.value=s;
+  el.min=s;
+})();
 updateQuote();
 initCountryList();
 // Default: panel collapsed, MON-FRI pre-selected in state
