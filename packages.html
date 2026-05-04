@@ -265,6 +265,21 @@
   @keyframes spin { to { transform:rotate(360deg); } }
   .addr-empty { padding:12px 14px; font-size:12.5px; color:var(--ash); }
   .postal-hint { font-size:11px; color:var(--saffron-dark); margin-top:4px; display:none; font-style:italic; }
+  .area-check-msg {
+    margin-top: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+  }
+  .area-check-msg.checking { display:flex; background:rgba(232,137,12,0.08); color:var(--ash); border:1px solid rgba(232,137,12,0.2); }
+  .area-check-msg.served   { display:flex; background:rgba(45,106,79,0.1);  color:#2D6A4F;    border:1px solid rgba(45,106,79,0.25); }
+  .area-check-msg.unserved { display:flex; background:rgba(180,60,60,0.08); color:#b43c3c;    border:1px solid rgba(180,60,60,0.2); }
+  .area-check-icon { font-size:16px; flex-shrink:0; }
   .addr-autofill-note { font-size:11px; color:var(--green,#2D6A4F); margin-top:5px; font-weight:600; font-style:italic; }
   /* COUNTRY + PHONE SPLIT */
   .country-phone-wrap { display:flex; gap:0; position:relative; }
@@ -1335,6 +1350,10 @@
           <div class="postal-field-wrap">
             <input type="text" id="fpostal" placeholder="L6Y 0A1" maxlength="10" oninput="onPostalInput(this)" autocomplete="postal-code" name="postal-code">
             <div class="postal-hint" id="postalHint">✓ Address auto-filled from postal code</div>
+            <div class="area-check-msg" id="areaCheckMsg">
+              <span class="area-check-icon" id="areaCheckIcon">⏳</span>
+              <span id="areaCheckText">Checking delivery availability…</span>
+            </div>
           </div>
         </div>
         <div class="field-group full">
@@ -2415,6 +2434,14 @@ function submitOrder() {
   };
 
   // ── Show success immediately ─────────────────────────────
+  // Warn if area not served — but still allow submission
+  if (areaServed === false) {
+    var postal3 = (document.getElementById('fpostal').value.trim().toUpperCase().replace(/\s/g, '')).slice(0,3);
+    showAreaMsg('unserved', '⚠️',
+      'Note: We do not currently have active deliveries in ' + postal3 +
+      '. We will review your area and contact you within 2 business days.');
+  }
+
   showSuccessScreen(notes, pkg);
   btn.textContent = 'Confirm & Submit →';
 
