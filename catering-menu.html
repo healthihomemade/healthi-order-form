@@ -767,7 +767,7 @@
     padding: 8px 14px;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     position: relative;
     overflow: hidden;
@@ -785,36 +785,23 @@
   .promo-badge {
     background: var(--gold);
     color: var(--dark);
-    font-size: 12px;
+    font-size: 9px;
     font-weight: 900;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-radius: 20px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .promo-min-guests {
-    background: rgba(139,58,26,0.85);
-    border: 1px solid rgba(200,100,50,0.5);
-    color: #ffd9b0;
-    font-size: 12px;
-    font-weight: 700;
     letter-spacing: 1px;
-    padding: 4px 10px;
+    text-transform: uppercase;
+    padding: 3px 7px;
     border-radius: 20px;
     white-space: nowrap;
     flex-shrink: 0;
   }
 
   .promo-inline-items {
-    font-size: 14px;
-    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    color: rgba(255,255,255,0.9);
     flex: 1;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    min-width: 0;
   }
 
   .promo-price {
@@ -1155,10 +1142,10 @@
     .container { padding: 0 10px 8px; }
 
     /* Promo */
-    .promo-banner { padding: 8px 12px; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
-    .promo-badge, .promo-min-guests { font-size: 11px; padding: 3px 8px; }
-    .promo-inline-items { font-size: 13px; }
-    .promo-price { font-size: 18px; }
+    .promo-banner { padding: 7px 10px; gap: 6px; margin-top: 10px; flex-wrap: nowrap; }
+    .promo-badge { font-size: 8px; padding: 2px 6px; }
+    .promo-inline-items { font-size: 12px; }
+    .promo-price { font-size: 16px; }
 
     /* Category grid */
     .category-grid { gap: 10px; margin-top: 16px; }
