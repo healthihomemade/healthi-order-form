@@ -761,35 +761,43 @@
     max-width: 600px;
     margin-left: auto;
     margin-right: auto;
-    background: linear-gradient(135deg, #1e3d1a 0%, #2d5016 50%, #3a2a08 100%);
-    border: 1px solid rgba(200,150,42,0.4);
+    background: linear-gradient(135deg, #c05010 0%, #e06820 60%, #b04010 100%);
+    border: 1px solid rgba(255,180,80,0.4);
+    border-left: 4px solid #f0a030;
     border-radius: 8px;
-    padding: 8px 14px;
+    padding: 9px 14px;
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
     gap: 8px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(180,80,0,0.3), 0 0 14px rgba(220,120,20,0.2);
   }
 
   .promo-banner::after {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #f0a030, #ffd080, #f0a030, transparent);
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0%   { opacity: 0.6; }
+    50%  { opacity: 1; }
+    100% { opacity: 0.6; }
   }
 
   .promo-badge {
     background: var(--gold);
     color: var(--dark);
-    font-size: 9px;
+    font-size: 7px;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    padding: 3px 7px;
+    padding: 2px 5px;
     border-radius: 20px;
     white-space: nowrap;
     flex-shrink: 0;
@@ -797,18 +805,19 @@
 
   .promo-inline-items {
     font-size: 13px;
-    color: rgba(255,255,255,0.9);
+    color: #000;
     flex: 1;
     white-space: nowrap;
     overflow: visible;
     min-width: 0;
+    font-weight: 600;
   }
 
   .promo-price {
     font-family: 'Playfair Display', serif;
     font-size: 20px;
     font-weight: 900;
-    color: var(--gold-light);
+    color: #000;
     white-space: nowrap;
     flex-shrink: 0;
   }
@@ -816,8 +825,8 @@
   .promo-per {
     font-family: 'Lato', sans-serif;
     font-size: 13px;
-    font-weight: 400;
-    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    color: #222;
     margin-left: 2px;
   }
   .quote-section {
@@ -1213,7 +1222,6 @@
 
   <!-- PROMO BANNER -->
   <div class="promo-banner">
-    <span class="promo-badge">🌟 Special Package</span>
     <span class="promo-inline-items">🥘 3 Subzi · 🥛 Raita · 🍚 Rice · 🍮 Dessert</span>
     <span class="promo-price">$9.99<span class="promo-per">/person</span></span>
   </div>
