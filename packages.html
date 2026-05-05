@@ -2117,29 +2117,42 @@ function updateQuote() {
 // Apps Script doGet handles this and writes to sheet.
 // Payload is URL-encoded as a query parameter.
 function submitViaForm(payloadStr) {
-  // Strip photo data
   var payload = JSON.parse(payloadStr);
   delete payload['Photo Data'];
   var cleanStr = JSON.stringify(payload);
-  console.log('Submitting via postMessage to Velo, size:', cleanStr.length);
+  console.log('Submitting, payload size:', cleanStr.length);
 
-  // ── PRIMARY: postMessage to Velo (server-side, no CORS) ──
+  var submitted = false;
+
+  // ── METHOD 1: postMessage to Velo ────────────────────────
+  // Works when iFrame is in "Enter Code" mode in Wix
   try {
     window.parent.postMessage({ type: 'HEALTHI_SUBMIT', payload: cleanStr }, '*');
-    console.log('postMessage sent to Velo');
-  } catch(e) {
-    console.log('postMessage error:', e.message);
-  }
+    console.log('postMessage sent');
+  } catch(e) { console.log('postMessage failed:', e.message); }
 
-  // ── FALLBACK: navigator.sendBeacon (bypasses CSP in most browsers) ──
-  try {
-    if (navigator.sendBeacon) {
+  // ── METHOD 2: navigator.sendBeacon ───────────────────────
+  // Bypasses GitHub Pages CSP — most reliable from hosted pages
+  // Apps Script reads this as e.postData.contents (text/plain body)
+  if (navigator.sendBeacon) {
+    try {
       var blob = new Blob([cleanStr], { type: 'text/plain' });
       var sent = navigator.sendBeacon(SHEET_WEBAPP_URL, blob);
-      console.log('sendBeacon result:', sent);
-    }
-  } catch(be) {
-    console.log('sendBeacon failed:', be.message);
+      console.log('sendBeacon sent:', sent);
+      submitted = submitted || sent;
+    } catch(be) { console.log('sendBeacon error:', be.message); }
+  }
+
+  // ── METHOD 3: XHR with no-cors ───────────────────────────
+  // Last resort — may be blocked but worth trying
+  if (!submitted) {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', SHEET_WEBAPP_URL, true);
+      xhr.setRequestHeader('Content-Type', 'text/plain');
+      xhr.send(cleanStr);
+      console.log('XHR POST sent');
+    } catch(xe) { console.log('XHR failed:', xe.message); }
   }
 }
 
@@ -2307,27 +2320,32 @@ function syncQuickButtons(arr) {
 var areaCheckTimer = null;
 
 function checkDeliveryArea(fsa) {
-  var url = SHEET_WEBAPP_URL + '?action=checkArea&fsa=' + encodeURIComponent(fsa);
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', url, true);
-  xhr.timeout = 8000;
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) return;
-    try {
-      var data = JSON.parse(xhr.responseText);
-      areaServed = !!data.served;
-      if (data.served) {
-        showAreaMsg('served', '✅', 'Great news! We currently deliver to ' + fsa + '.');
-      } else {
-        showAreaMsg('unserved', '⚠️',
-          'No active deliveries in ' + fsa + ' yet. Submit and we will confirm within 2 business days.');
-      }
-    } catch(e) { hideAreaMsg(); }
-  };
-  xhr.ontimeout = function() { hideAreaMsg(); };
-  xhr.onerror   = function() { hideAreaMsg(); };
-  xhr.send();
+  // Send area check request to Velo via postMessage
+  // Velo calls Apps Script server-side (no CSP restrictions)
+  // Response comes back via HEALTHI_AREA_RESULT message
+  try {
+    window.parent.postMessage({ type: 'HEALTHI_CHECK_AREA', fsa: fsa }, '*');
+    console.log('Area check sent to Velo for FSA:', fsa);
+  } catch(e) {
+    console.log('postMessage for area check failed:', e.message);
+    hideAreaMsg(); // Can't check — hide the message
+  }
 }
+
+// Listen for area check response from Velo
+window.addEventListener('message', function(event) {
+  var data = event.data;
+  if (!data || data.type !== 'HEALTHI_AREA_RESULT') return;
+  areaServed = !!data.served;
+  if (data.served) {
+    showAreaMsg('served', '✅', 'Great news! We currently deliver to ' + data.fsa + '.');
+  } else if (data.served === false) {
+    showAreaMsg('unserved', '⚠️',
+      'No active deliveries in ' + data.fsa + ' yet. Submit and we will confirm within 2 business days.');
+  } else {
+    hideAreaMsg();
+  }
+});
 
 function showAreaMsg(type, icon, text) {
   var el   = document.getElementById('areaCheckMsg');
