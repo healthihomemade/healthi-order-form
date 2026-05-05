@@ -2117,15 +2117,53 @@ function updateQuote() {
 // Apps Script doGet handles this and writes to sheet.
 // Payload is URL-encoded as a query parameter.
 function submitViaForm(payloadStr) {
-  // Single image beacon only — no XHR backup to avoid duplicates
-  var url = 'https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPjTgdC6Q3BGy2JGxNN32me2xs35vcibUiKY2EHW8Xw0OAoLRMgJE/exec'
-          + '?payload=' + encodeURIComponent(payloadStr);
+  // Strip photo data — too large for URL
+  var payload = JSON.parse(payloadStr);
+  delete payload['Photo Data'];
+  var cleanStr = JSON.stringify(payload);
 
-  var img = new Image();
-  img.onload  = function() { console.log('Submission beacon OK'); };
-  img.onerror = function() { console.log('Submission beacon fired (onerror expected from Apps Script)'); };
-  img.src = url;
-  console.log('Submission sent via beacon');
+  console.log('Submitting payload, size:', cleanStr.length, 'chars');
+
+  // ── Method 1: Hidden form POST (no CSP issues, works from GitHub Pages) ──
+  try {
+    var iframe = document.getElementById('hidden_submit_frame');
+    if (!iframe) {
+      iframe = document.createElement('iframe');
+      iframe.name = 'hidden_submit_frame';
+      iframe.id   = 'hidden_submit_frame';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+    }
+
+    var form = document.createElement('form');
+    form.method  = 'POST';
+    form.action  = SHEET_WEBAPP_URL;
+    form.target  = 'hidden_submit_frame';
+    form.style.display = 'none';
+
+    var input = document.createElement('input');
+    input.type  = 'hidden';
+    input.name  = 'payload';
+    input.value = cleanStr;
+    form.appendChild(input);
+
+    document.body.appendChild(form);
+    form.submit();
+    setTimeout(function(){ document.body.removeChild(form); }, 3000);
+    console.log('Form POST submitted');
+
+  } catch(formErr) {
+    console.log('Form POST failed:', formErr.message, '— trying beacon');
+
+    // ── Method 2: Image beacon GET (fallback) ──
+    var encoded = encodeURIComponent(cleanStr);
+    var beaconUrl = SHEET_WEBAPP_URL + '?payload=' + encoded;
+    var img = new Image();
+    img.onload  = function(){ console.log('Beacon OK'); };
+    img.onerror = function(){ console.log('Beacon fired'); };
+    img.src = beaconUrl;
+    console.log('Beacon sent, length:', beaconUrl.length);
+  }
 }
 
 // ── QUOTE CARD COLLAPSE/EXPAND ───────────────────────────
@@ -2288,9 +2326,52 @@ function syncQuickButtons(arr) {
   if (qMS) qMS.classList.toggle('active', isMS);
 }
 
+// ── DELIVERY AREA CHECK ─────────────────────────────────
+var areaCheckTimer = null;
+
+function checkDeliveryArea(fsa) {
+  var url = SHEET_WEBAPP_URL + '?action=checkArea&fsa=' + encodeURIComponent(fsa);
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.timeout = 8000;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    try {
+      var data = JSON.parse(xhr.responseText);
+      areaServed = !!data.served;
+      if (data.served) {
+        showAreaMsg('served', '✅', 'Great news! We currently deliver to ' + fsa + '.');
+      } else {
+        showAreaMsg('unserved', '⚠️',
+          'No active deliveries in ' + fsa + ' yet. Submit and we will confirm within 2 business days.');
+      }
+    } catch(e) { hideAreaMsg(); }
+  };
+  xhr.ontimeout = function() { hideAreaMsg(); };
+  xhr.onerror   = function() { hideAreaMsg(); };
+  xhr.send();
+}
+
+function showAreaMsg(type, icon, text) {
+  var el   = document.getElementById('areaCheckMsg');
+  var icEl = document.getElementById('areaCheckIcon');
+  var txEl = document.getElementById('areaCheckText');
+  if (!el) return;
+  el.className = 'area-check-msg ' + type;
+  if (icEl) icEl.textContent = icon;
+  if (txEl) txEl.textContent = text;
+}
+
+function hideAreaMsg() {
+  var el = document.getElementById('areaCheckMsg');
+  if (el) el.className = 'area-check-msg';
+  areaServed = null;
+}
+
 // ── WIX IFRAME AUTO-HEIGHT ────────────────────────────────
 // ── SHEET WEBAPP URL ──────────────────────────────────────
 var SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPjTgdC6Q3BGy2JGxNN32me2xs35vcibUiKY2EHW8Xw0OAoLRMgJE/exec';
+var areaServed = null; // null=unknown, true=served, false=not served
 var INTERAC_EMAIL = 'healthihomemade@gmail.com';
 var INTERAC_MESSAGE_PREFIX = 'Healthi Homemade Order';
 
@@ -2442,41 +2523,70 @@ function submitOrder() {
       '. We will review your area and contact you within 2 business days.');
   }
 
-  // ── Show success immediately — reset button first ─────────
+  // ── Reset button immediately — never leave it stuck ─────────
   btn.disabled    = false;
   btn.textContent = 'Confirm & Submit →';
-  showSuccessScreen(notes, pkg);
 
-  // ── Send data in background ───────────────────────────────
-  var payloadStr = JSON.stringify(payload);
-  submitViaForm(payloadStr);
+  // ── Show success screen — wrapped in try/catch ────────────
+  try {
+    showSuccessScreen(notes, pkg);
+  } catch(screenErr) {
+    console.error('showSuccessScreen error:', screenErr.message);
+    // Fallback: just show the overlay directly
+    var overlay = document.getElementById('successOverlay');
+    if (overlay) overlay.classList.add('show');
+  }
+
+  // ── Send data in background (fire and forget) ─────────────
+  try {
+    var payloadStr = JSON.stringify(payload);
+    submitViaForm(payloadStr);
+  } catch(sendErr) {
+    console.error('submitViaForm error:', sendErr.message);
+  }
 }
 
 // ── SUCCESS SCREEN ────────────────────────────────────────
 function showSuccessScreen(notes, pkg) {
-  document.getElementById('successNotesCode').textContent = notes || '';
-  var custName = document.getElementById('fname').value.trim() || 'Customer';
+  // ── Safe getter helper ──────────────────────────────────
+  function safeGet(id) { return document.getElementById(id); }
+
+  // ── Notes ───────────────────────────────────────────────
+  var notesEl = safeGet('successNotesCode');
+  if (notesEl) notesEl.textContent = notes || '';
+
+  // ── Store refs for refreshSuccessAmounts ────────────────
+  var custName = (safeGet('fname') ? safeGet('fname').value.trim() : '') || 'Customer';
   showSuccessScreen._pkg      = pkg;
   showSuccessScreen._custName = custName;
 
-  var etRow = document.getElementById('successEtRow');
+  // ── E-transfer toggle (Monthly only) ───────────────────
+  var etRow = safeGet('successEtRow');
   if (etRow) {
     if (state.freq === 'MONTHLY') {
-      etRow.style.display  = 'flex';
-      successEtChecked     = state.etransfer;
-      var row = document.getElementById('successEtRow');
-      if (row) row.classList.toggle('checked', successEtChecked);
+      etRow.style.display = 'flex';
+      successEtChecked    = !!state.etransfer;
+      etRow.classList.toggle('checked', successEtChecked);
     } else {
       etRow.style.display = 'none';
       successEtChecked    = false;
     }
   }
-  var el = document.getElementById('stepName');
-  if (el) el.textContent = 'Healthi Homemade';
 
-  refreshSuccessAmounts();
-  document.getElementById('successOverlay').classList.add('show');
-  var fp=document.getElementById('totalPillBar'); if(fp) fp.classList.remove('show');
+  // ── Message recipient ───────────────────────────────────
+  var stepName = safeGet('stepName');
+  if (stepName) stepName.textContent = 'Healthi Homemade';
+
+  // ── Amounts ─────────────────────────────────────────────
+  try { refreshSuccessAmounts(); } catch(e) { console.error('refreshSuccessAmounts:', e.message); }
+
+  // ── Show overlay ────────────────────────────────────────
+  var overlay = safeGet('successOverlay');
+  if (overlay) overlay.classList.add('show');
+
+  // ── Hide pill ───────────────────────────────────────────
+  var pill = safeGet('totalPillBar');
+  if (pill) pill.classList.remove('show');
 }
 
 // ── RESET ─────────────────────────────────────────────────
@@ -2661,6 +2771,7 @@ var postalTimer=null;
 function onPostalInput(inp) {
   updateQuote();
   clearTimeout(postalTimer);
+  clearTimeout(areaCheckTimer);
   var raw  = inp.value.trim();
   var hint = document.getElementById('postalHint');
   if (hint) hint.classList.remove('show');
