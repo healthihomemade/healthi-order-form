@@ -2117,40 +2117,30 @@ function updateQuote() {
 // Apps Script doGet handles this and writes to sheet.
 // Payload is URL-encoded as a query parameter.
 function submitViaForm(payloadStr) {
-  // Strip photo data — too large for URL
+  // Strip photo data
   var payload = JSON.parse(payloadStr);
   delete payload['Photo Data'];
   var cleanStr = JSON.stringify(payload);
-  console.log('Submitting, size:', cleanStr.length, 'chars');
+  console.log('Submitting via postMessage to Velo, size:', cleanStr.length);
 
-  // ── fetch with text/plain — only "simple" content type ──────
-  // text/plain does NOT trigger CORS preflight (unlike application/json).
-  // Apps Script receives it in e.postData.contents.
-  // This works from any origin including GitHub Pages.
-  if (typeof fetch !== 'undefined') {
-    fetch(SHEET_WEBAPP_URL, {
-      method:  'POST',
-      mode:    'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body:    cleanStr
-    }).then(function() {
-      console.log('fetch text/plain sent OK');
-    }).catch(function(err) {
-      console.log('fetch failed:', err.message);
-      sendBeacon(cleanStr);
-    });
-  } else {
-    sendBeacon(cleanStr);
+  // ── PRIMARY: postMessage to Velo (server-side, no CORS) ──
+  try {
+    window.parent.postMessage({ type: 'HEALTHI_SUBMIT', payload: cleanStr }, '*');
+    console.log('postMessage sent to Velo');
+  } catch(e) {
+    console.log('postMessage error:', e.message);
   }
-}
 
-function sendBeacon(cleanStr) {
-  // Fallback: image beacon GET
-  var encoded = encodeURIComponent(cleanStr);
-  var url = SHEET_WEBAPP_URL + '?payload=' + encoded;
-  var img = new Image();
-  img.onerror = img.onload = function(){ console.log('Beacon fired, len:', url.length); };
-  img.src = url;
+  // ── FALLBACK: navigator.sendBeacon (bypasses CSP in most browsers) ──
+  try {
+    if (navigator.sendBeacon) {
+      var blob = new Blob([cleanStr], { type: 'text/plain' });
+      var sent = navigator.sendBeacon(SHEET_WEBAPP_URL, blob);
+      console.log('sendBeacon result:', sent);
+    }
+  } catch(be) {
+    console.log('sendBeacon failed:', be.message);
+  }
 }
 
 // ── QUOTE CARD COLLAPSE/EXPAND ───────────────────────────
