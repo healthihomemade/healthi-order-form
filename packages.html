@@ -2338,10 +2338,9 @@ window.addEventListener('message', function(event) {
   if (!data || data.type !== 'HEALTHI_AREA_RESULT') return;
   areaServed = !!data.served;
   if (data.served) {
-    showAreaMsg('served', '✅', 'Great news! We currently deliver to ' + data.fsa + '.');
+    showAreaMsg('served', '✅', 'Delivery is available in your area!');
   } else if (data.served === false) {
-    showAreaMsg('unserved', '⚠️',
-      'No active deliveries in ' + data.fsa + ' yet. Submit and we will confirm within 2 business days.');
+    showAreaMsg('unserved', '⚠️', 'Deliveries are currently not available in your area. Please give our team some time to respond back to your enquiry.');
   } else {
     hideAreaMsg();
   }
@@ -2514,8 +2513,7 @@ function submitOrder() {
   if (areaServed === false) {
     var postal3 = (document.getElementById('fpostal').value.trim().toUpperCase().replace(/\s/g, '')).slice(0,3);
     showAreaMsg('unserved', '⚠️',
-      'Note: We do not currently have active deliveries in ' + postal3 +
-      '. We will review your area and contact you within 2 business days.');
+      'Deliveries are currently not available in your area. Please give our team some time to respond back to your enquiry.');
   }
 
   // ── Reset button immediately — never leave it stuck ─────────
