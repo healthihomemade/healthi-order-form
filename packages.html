@@ -2906,6 +2906,16 @@ function selectAddress(idx) {
 
   closeDrop();
   updateQuote();
+
+  // Trigger area check when postal is auto-filled from address suggestion
+  if (postal) {
+    var fsa = postal.toUpperCase().replace(/\s/g, '').slice(0, 3);
+    if (fsa.length === 3) {
+      showAreaMsg('checking', '⏳', 'Checking delivery availability…');
+      clearTimeout(areaCheckTimer);
+      areaCheckTimer = setTimeout(function(){ checkDeliveryArea(fsa); }, 600);
+    }
+  }
 }
 
 function formatPostalCode(raw) {
