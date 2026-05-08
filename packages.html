@@ -197,6 +197,7 @@
   .day-shortcuts { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
   .shortcut-btn { font-size:12px; font-weight:600; font-family:'Mulish',sans-serif; padding:6px 14px; border:1.5px solid var(--border); border-radius:20px; background:white; cursor:pointer; color:var(--ash); transition:all 0.18s; }
   .shortcut-btn:hover { border-color:var(--cardamom); color:var(--cardamom); }
+  .shortcut-btn.active { background:var(--cardamom); border-color:var(--cardamom); color:var(--cream); }
 
   /* Quick schedule buttons */
   .days-quick-row { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px; }
@@ -1227,47 +1228,36 @@
 
   <!-- ③ DELIVERY DAYS -->
   <div class="form-panel" id="panel-days">
-    <div class="panel-header days-panel-header" onclick="toggleDaysPanel()" style="cursor:pointer;">
+    <div class="panel-header days-panel-header">
       <div class="panel-num">3</div>
       <div class="panel-title">
         Select Delivery Days <span class="required-star">*</span>
         <span class="days-panel-subtitle" id="daysPanelSubtitle"></span>
       </div>
-      <div class="extras-panel-arrow" id="daysPanelArrow">▼</div>
     </div>
 
-    <!-- Collapsible body -->
-    <div class="extras-panel-body" id="daysPanelBody" style="max-height:0;overflow:hidden;opacity:0;transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1),opacity 0.3s ease;">
+    <!-- Days body — always visible, no collapse -->
+    <div id="daysPanelBody">
       <div class="panel-body">
 
-        <!-- Three option buttons — always shown inside body -->
-        <div class="days-quick-btns" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
-          <button class="days-quick-btn" id="qbtn-monfri"
-            onclick="setDaysQuick('MONFRI')">MON–FRI</button>
-          <button class="days-quick-btn" id="qbtn-monsat"
-            onclick="setDaysQuick('MONSAT')">MON–SAT</button>
-          <button class="days-quick-btn days-quick-custom" id="qbtn-custom"
-            onclick="toggleCustomDays()">
-            <span id="customBtnLabel">Custom ▼</span>
-          </button>
+        <!-- Shortcut buttons -->
+        <div class="day-shortcuts">
+          <button class="shortcut-btn" id="qbtn-monfri" onclick="setDaysQuick('MONFRI')">MON–FRI</button>
+          <button class="shortcut-btn" id="qbtn-monsat" onclick="setDaysQuick('MONSAT')">MON–SAT</button>
+          <button class="shortcut-btn" onclick="setDays([])">Clear</button>
         </div>
 
-        <!-- Individual day chips — hidden, expand only for Custom -->
-        <div class="days-custom-wrap" id="daysCustomWrap">
-          <div class="days-grid" id="daysGrid" style="margin-top:12px;">
-            <div class="day-chip" data-day="MON" onclick="toggleDay(this)"><span class="day-abbr">MON</span><div class="day-dot"></div></div>
-            <div class="day-chip" data-day="TUE" onclick="toggleDay(this)"><span class="day-abbr">TUE</span><div class="day-dot"></div></div>
-            <div class="day-chip" data-day="WED" onclick="toggleDay(this)"><span class="day-abbr">WED</span><div class="day-dot"></div></div>
-            <div class="day-chip" data-day="THU" onclick="toggleDay(this)"><span class="day-abbr">THU</span><div class="day-dot"></div></div>
-            <div class="day-chip" data-day="FRI" onclick="toggleDay(this)"><span class="day-abbr">FRI</span><div class="day-dot"></div></div>
-            <div class="day-chip" data-day="SAT" onclick="toggleDay(this)"><span class="day-abbr">SAT</span><div class="day-dot"></div></div>
-          </div>
-          <div style="margin-top:10px;">
-            <button class="shortcut-btn" onclick="setDays([]);document.getElementById('qbtn-monfri').classList.remove('active');document.getElementById('qbtn-monsat').classList.remove('active');">Clear all</button>
-          </div>
+        <!-- Day chips — always visible -->
+        <div class="days-grid" id="daysGrid" style="margin-top:14px;">
+          <div class="day-chip" data-day="MON" onclick="toggleDay(this)"><span class="day-abbr">MON</span><div class="day-dot"></div></div>
+          <div class="day-chip" data-day="TUE" onclick="toggleDay(this)"><span class="day-abbr">TUE</span><div class="day-dot"></div></div>
+          <div class="day-chip" data-day="WED" onclick="toggleDay(this)"><span class="day-abbr">WED</span><div class="day-dot"></div></div>
+          <div class="day-chip" data-day="THU" onclick="toggleDay(this)"><span class="day-abbr">THU</span><div class="day-dot"></div></div>
+          <div class="day-chip" data-day="FRI" onclick="toggleDay(this)"><span class="day-abbr">FRI</span><div class="day-dot"></div></div>
+          <div class="day-chip" data-day="SAT" onclick="toggleDay(this)"><span class="day-abbr">SAT</span><div class="day-dot"></div></div>
         </div>
 
-        <div class="service-notice" style="margin-top:12px;">
+        <div class="service-notice" style="margin-top:14px;">
           <span class="service-notice-icon">📋</span>
           <div class="service-notice-text">
             <strong>Service Availability</strong>
@@ -1633,6 +1623,25 @@
 </div>
 
 <script>
+// ── TOAST HELPER ─────────────────────────────────────────
+function showToastMsg(msg) {
+  var existing = document.getElementById('formToast');
+  if (!existing) {
+    existing = document.createElement('div');
+    existing.id = 'formToast';
+    existing.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2d4a3e;color:#fdfaf4;padding:10px 18px;border-radius:30px;font-size:13px;font-weight:600;z-index:9999;transition:opacity 0.3s;white-space:nowrap;';
+    document.body.appendChild(existing);
+  }
+  existing.textContent = msg;
+  existing.style.opacity = '1';
+  clearTimeout(existing._t);
+  existing._t = setTimeout(function(){ existing.style.opacity='0'; }, 2500);
+}
+
+// ── SAFE DOM HELPER — prevents null classList errors ──
+function $id(id) { return document.getElementById(id); }
+function $cl(id) { var el = document.getElementById(id); return el ? el.classList : { add:function(){}, remove:function(){}, toggle:function(){}, contains:function(){ return false; } }; }
+
 console.log("Healthi Homemade Form v2.1 loaded — " + new Date().toISOString());
 // ── PRICING TABLE ──────────────────────────────────────────
 // prices[freq][pkg]
@@ -1687,13 +1696,16 @@ const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:
 const EXTRAS_PRICES = { rotiPair: 30, rice: 20, curry: 70 };
 
 function toggleExtra(type) {
-  // Auto-open the extras panel if it's closed
+  // Auto-open the extras panel
   openExtrasPanel();
-  if (state.freq !== 'MONTHLY') return;
+  if (state.freq !== 'MONTHLY') {
+    showToastMsg('Extras are available on Monthly plans only');
+    return;
+  }
   state.extras[type] = !state.extras[type];
 
   var rowId = { roti:'extraRotiRow', rice:'extraRiceRow', curry:'extraCurryRow' }[type];
-  document.getElementById(rowId).classList.toggle('selected', state.extras[type]);
+  var rowEl = document.getElementById(rowId); if (rowEl) rowEl.classList.toggle('selected', state.extras[type]);
 
   // Update green checkbox toggle icon
   var toggleEl = document.getElementById('formExtraToggle-' + type);
@@ -1729,11 +1741,11 @@ function updateRotiStepper() {
   var pairs  = state.extras.rotiPairs;
   var rotis  = pairs * 2;
   var total  = pairs * EXTRAS_PRICES.rotiPair;
-  document.getElementById('rotiCount').textContent     = rotis + ' roti' + (rotis > 1 ? 's' : '');
-  document.getElementById('rotiStepTotal').textContent = '= $' + total + ' / mo';
+  var _e_rotiCount=document.getElementById('rotiCount'); if(_e_rotiCount) _e_rotiCount.textContent=rotis + ' roti' + (rotis > 1 ? 's' : '');
+  var _e_rotiStepTotal=document.getElementById('rotiStepTotal'); if(_e_rotiStepTotal) _e_rotiStepTotal.textContent='= $' + total + ' / mo';
   document.getElementById('rotiMinus').disabled        = (pairs <= 1);
   document.getElementById('rotiPlus').disabled         = (pairs >= 6);
-  document.getElementById('extraRotiPrice').textContent = '$' + total;
+  var _e_extraRotiPrice=document.getElementById('extraRotiPrice'); if(_e_extraRotiPrice) _e_extraRotiPrice.textContent='$' + total;
 }
 
 function calcExtrasTotal() {
@@ -1749,23 +1761,37 @@ function updateExtrasTotal() {
   var anyExtra = state.extras.roti || state.extras.rice || state.extras.curry;
   var totalLine = document.getElementById('extrasTotalLine');
   totalLine.classList.toggle('show', anyExtra);
-  document.getElementById('extrasTotalVal').textContent = '$' + total + ' / mo';
+  var _e_extrasTotalVal=document.getElementById('extrasTotalVal'); if(_e_extrasTotalVal) _e_extrasTotalVal.textContent='$' + total + ' / mo';
 }
 
 function showHideExtrasPanel() {
   var panel = document.getElementById('panel-extras');
   if (!panel) return;
-  var show = state.freq === 'MONTHLY' && !!state.pkg;
+  // Show extras for ALL frequencies when a package is selected
+  // (Extras only active for Monthly but visible for all so customer can see options)
+  var show = !!state.pkg;
   panel.style.display = show ? 'block' : 'none';
-  // Renumber panels visually
+
+  // Update extras title — show (Optional, Monthly only) for non-monthly
+  var extrasSubLabel = panel.querySelector('.panel-title span');
+  if (extrasSubLabel) {
+    extrasSubLabel.textContent = state.freq === 'MONTHLY'
+      ? ' — Roti, Rice, Curry (Optional)'
+      : ' — Available on Monthly plans only';
+    extrasSubLabel.style.color = state.freq === 'MONTHLY' ? 'var(--ink)' : 'var(--ash)';
+  }
+
+  // Show/hide days panel
+  var daysPanel = document.getElementById('panel-days');
+  if (daysPanel) daysPanel.style.display = show ? 'block' : 'block'; // always visible
+
   updatePanelNumbers();
 }
 
 function updatePanelNumbers() {
-  var isMonthly = state.freq === 'MONTHLY' && !!state.pkg;
-  // panel-extras is num 2, days becomes 3 or 2, details 4 or 3
-  var daysNum    = isMonthly ? 3 : 2;
-  var detailsNum = isMonthly ? 4 : 3;
+  var hasExtras  = !!state.pkg;
+  var daysNum    = hasExtras ? 3 : 2;
+  var detailsNum = hasExtras ? 4 : 3;
   var daysNumEl    = document.querySelector('#panel-days .panel-num');
   var detailsNumEl = document.querySelector('#panel-details .panel-num');
   if (daysNumEl)    daysNumEl.textContent    = daysNum;
@@ -1775,7 +1801,7 @@ function updatePanelNumbers() {
 // ── E-TRANSFER TAX ─────────────────────────────────────────
 function toggleEtransfer() {
   state.etransfer = !state.etransfer;
-  document.getElementById('etransferRow').classList.toggle('checked', state.etransfer);
+  $cl('etransferRow').toggle('checked', state.etransfer);
   updateQuote();
 }
 
@@ -1786,7 +1812,7 @@ function selectFrequency(btn) {
   state.freq = btn.dataset.freq;
 
   // Update note
-  document.getElementById('freqNote').textContent = FREQ_NOTES[state.freq];
+  var _e_freqNote=document.getElementById('freqNote'); if(_e_freqNote) _e_freqNote.textContent=FREQ_NOTES[state.freq];
 
   // Show/hide Junior (available on Trial + Monthly, NOT Weekly/Bi-Weekly)
   var juniorCard = document.getElementById('card-JUNIOR');
@@ -1811,20 +1837,25 @@ function selectFrequency(btn) {
     }
   });
 
-  // E-transfer + Extras: Monthly only
+  // E-transfer: Monthly only
   if (state.freq !== 'MONTHLY') {
     state.etransfer = false;
-    document.getElementById('etransferRow').classList.remove('checked','visible');
+    $cl('etransferRow').remove('checked','visible');
+    // Reset extras state but keep panel visible so user can see them
     state.extras = { roti:false, rotiPairs:1, rice:false, curry:false };
     ['extraRotiRow','extraRiceRow','extraCurryRow'].forEach(function(id){
-      document.getElementById(id).classList.remove('selected');
+      var idEl = document.getElementById(id); if (idEl) idEl.classList.remove('selected');
     });
-    document.getElementById('rotiStepper').classList.remove('show');
-    document.getElementById('extrasTotalLine').classList.remove('show');
-    document.getElementById('extrasPanel').classList.remove('visible');
+    $cl('rotiStepper').remove('show');
+    $cl('extrasTotalLine').remove('show');
   } else {
-    document.getElementById('etransferRow').classList.add('visible');
-    if (state.pkg) document.getElementById('extrasPanel').classList.add('visible');
+    $cl('etransferRow').add('visible');
+  }
+
+  // Always show/refresh days + extras panels when freq changes and pkg is set
+  if (state.pkg) {
+    showHideExtrasPanel();
+    openDaysPanel();
   }
 
   
@@ -1861,7 +1892,7 @@ function selectPackage(cardEl) {
 
   // Expand the quote card now that a package has been selected
   openQuoteCard();
-  document.getElementById('panel-package').classList.add('panel-complete');
+  $cl('panel-package').add('panel-complete');
   showHideExtrasPanel();
   updateQuote();
 }
@@ -1870,14 +1901,14 @@ function selectOption(event, chipEl) {
   event.stopPropagation();
   var pkg = chipEl.dataset.pkg;
   document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
-  document.querySelector('.pkg-card[data-pkg="' + pkg + '"]').classList.add('selected');
+  var pkgCard = document.querySelector('.pkg-card[data-pkg="' + pkg + '"]'); if (pkgCard) pkgCard.classList.add('selected');
   state.pkg = pkg;
   document.querySelectorAll('#chips-' + pkg + ' .option-chip').forEach(function(c){ c.classList.remove('chip-selected'); });
   chipEl.classList.add('chip-selected');
   state.roti = parseInt(chipEl.dataset.roti);
   state.rice = chipEl.dataset.rice;
   state.optionLabel = chipEl.textContent.trim();
-  document.getElementById('panel-package').classList.add('panel-complete');
+  $cl('panel-package').add('panel-complete');
   updateQuote();
 }
 
@@ -1889,7 +1920,7 @@ function toggleDay(el) {
   state.days = el.classList.contains('active')
     ? (function(){ var s=[]; state.days.concat([day]).forEach(function(x){ if(s.indexOf(x)===-1) s.push(x); }); return s; })().sort(function(a,b){ return DAY_ORDER.indexOf(a)-DAY_ORDER.indexOf(b); })
     : state.days.filter(function(d){ return d!==day; });
-  document.getElementById('panel-days').classList.toggle('panel-complete', state.days.length>0);
+  $cl('panel-days').toggle('panel-complete', state.days.length>0);
   updateQuote();
 }
 
@@ -1903,7 +1934,7 @@ function setDays(arr) {
   state.days = arr.slice().sort(function(a,b) {
     return DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b);
   });
-  document.getElementById('panel-days').classList.toggle('panel-complete', state.days.length > 0);
+  $cl('panel-days').toggle('panel-complete', state.days.length > 0);
   updateDaysPanelSubtitle();
   updateQuote();
 }
@@ -1965,9 +1996,9 @@ function handlePhotoUpload(input) {
       state.photoFileName = file.name.replace(/\.[^.]+$/, '') + '_compressed.jpg';
 
       document.getElementById('photoPreview').src                 = compressed;
-      document.getElementById('photoName').textContent            = state.photoFileName;
-      document.getElementById('photoSize').textContent            = sizeKB + ' KB';
-      document.getElementById('photoUploadArea').classList.add('has-image');
+      var _e_photoName=document.getElementById('photoName'); if(_e_photoName) _e_photoName.textContent=state.photoFileName;
+      var _e_photoSize=document.getElementById('photoSize'); if(_e_photoSize) _e_photoSize.textContent=sizeKB + ' KB';
+      $cl('photoUploadArea').add('has-image');
       updateQuote();
     };
     img.src = e.target.result;
@@ -1981,9 +2012,9 @@ function removePhoto(event) {
   state.photoFileName = null;
   document.getElementById('photoInput').value = '';
   document.getElementById('photoPreview').src = '';
-  document.getElementById('photoName').textContent = '';
-  document.getElementById('photoSize').textContent = '';
-  document.getElementById('photoUploadArea').classList.remove('has-image');
+  var _e_photoName=document.getElementById('photoName'); if(_e_photoName) _e_photoName.textContent='';
+  var _e_photoSize=document.getElementById('photoSize'); if(_e_photoSize) _e_photoSize.textContent='';
+  $cl('photoUploadArea').remove('has-image');
   updateQuote();
 }
 
@@ -2032,12 +2063,11 @@ function updateQuote() {
     }
 
     // ── Price label ──
-    document.getElementById('q-price-label').textContent =
-      (state.etransfer || extrasTotal > 0) ? 'Base Package Price' : 'Fixed Price';
+    var _e_q_price_label=document.getElementById('q-price-label'); if(_e_q_price_label) _e_q_price_label.textContent=(state.etransfer || extrasTotal > 0) ? 'Base Package Price' : 'Fixed Price';
 
     // ── Base price line ──
-    document.getElementById('q-price').textContent = basePrice ? '$' + basePrice.toFixed(2) : '$—';
-    document.getElementById('q-pricesub').textContent = basePrice
+    var _e_q_price=document.getElementById('q-price'); if(_e_q_price) _e_q_price.textContent=basePrice ? '$' + basePrice.toFixed(2) : '$—';
+    var _e_q_pricesub=document.getElementById('q-pricesub'); if(_e_q_pricesub) _e_q_pricesub.textContent=basePrice
       ? freqLabel + ' · fixed rate'
       : 'Select a package above';
 
@@ -2051,31 +2081,31 @@ function updateQuote() {
       if (extrasTotal > 0 && state.etransfer) {
         tax   = +(combined * 0.13).toFixed(2);
         grand = +(combined + tax).toFixed(2);
-        document.getElementById('taxSubtotalLine').classList.add('visible');
-        document.getElementById('taxAmountLine').classList.add('visible');
-        document.getElementById('taxSubtotal').textContent = '$' + combined.toFixed(2) + ' (incl. $' + extrasTotal + ' extras)';
-        document.getElementById('taxAmount').textContent   = '+$' + tax.toFixed(2);
-        document.getElementById('q-price-total').textContent = '$' + grand.toFixed(2);
+        $cl('taxSubtotalLine').add('visible');
+        $cl('taxAmountLine').add('visible');
+        var _e_taxSubtotal=document.getElementById('taxSubtotal'); if(_e_taxSubtotal) _e_taxSubtotal.textContent='$' + combined.toFixed(2) + ' (incl. $' + extrasTotal + ' extras)';
+        var _e_taxAmount=document.getElementById('taxAmount'); if(_e_taxAmount) _e_taxAmount.textContent='+$' + tax.toFixed(2);
+        var _e_q_price_total=document.getElementById('q-price-total'); if(_e_q_price_total) _e_q_price_total.textContent='$' + grand.toFixed(2);
       } else if (extrasTotal > 0 && !state.etransfer) {
-        document.getElementById('taxSubtotalLine').classList.add('visible');
-        document.getElementById('taxAmountLine').classList.remove('visible');
-        document.getElementById('taxSubtotal').textContent = '+ $' + extrasTotal.toFixed(2) + ' extras';
-        document.getElementById('q-price-total').textContent = '$' + combined.toFixed(2);
+        $cl('taxSubtotalLine').add('visible');
+        $cl('taxAmountLine').remove('visible');
+        var _e_taxSubtotal=document.getElementById('taxSubtotal'); if(_e_taxSubtotal) _e_taxSubtotal.textContent='+ $' + extrasTotal.toFixed(2) + ' extras';
+        var _e_q_price_total=document.getElementById('q-price-total'); if(_e_q_price_total) _e_q_price_total.textContent='$' + combined.toFixed(2);
       } else if (state.etransfer) {
         tax   = +(basePrice * 0.13).toFixed(2);
         grand = +(basePrice + tax).toFixed(2);
-        document.getElementById('taxSubtotalLine').classList.add('visible');
-        document.getElementById('taxAmountLine').classList.add('visible');
-        document.getElementById('taxSubtotal').textContent = '$' + basePrice.toFixed(2);
-        document.getElementById('taxAmount').textContent   = '+$' + tax.toFixed(2);
-        document.getElementById('q-price-total').textContent = '$' + grand.toFixed(2);
+        $cl('taxSubtotalLine').add('visible');
+        $cl('taxAmountLine').add('visible');
+        var _e_taxSubtotal=document.getElementById('taxSubtotal'); if(_e_taxSubtotal) _e_taxSubtotal.textContent='$' + basePrice.toFixed(2);
+        var _e_taxAmount=document.getElementById('taxAmount'); if(_e_taxAmount) _e_taxAmount.textContent='+$' + tax.toFixed(2);
+        var _e_q_price_total=document.getElementById('q-price-total'); if(_e_q_price_total) _e_q_price_total.textContent='$' + grand.toFixed(2);
       }
       var lbl = document.getElementById('totalFinalLabel');
       if (lbl) lbl.textContent = state.etransfer ? 'Total with HST (13%)' : 'Monthly Total';
     } else {
       taxBlock.style.display = 'none';
-      document.getElementById('taxSubtotalLine').classList.remove('visible');
-      document.getElementById('taxAmountLine').classList.remove('visible');
+      $cl('taxSubtotalLine').remove('visible');
+      $cl('taxAmountLine').remove('visible');
     }
 
     // ── What's included ──
@@ -2093,16 +2123,16 @@ function updateQuote() {
     // ── Notes string ──
     var notes = buildNotesString();
     var np    = document.getElementById('q-notes-preview');
-    if (notes) { document.getElementById('q-notes-code').textContent = notes; np.style.display = 'block'; }
+    if (notes) { var _e_q_notes_code=document.getElementById('q-notes-code'); if(_e_q_notes_code) _e_q_notes_code.textContent=notes; np.style.display = 'block'; }
     else { np.style.display = 'none'; }
 
     // ── Pay button ──
 
   } else {
-    document.getElementById('q-price').textContent = '$—';
-    document.getElementById('q-pricesub').textContent = 'Select a package above';
-    document.getElementById('q-price-label').textContent = 'Fixed Price';
-    document.getElementById('etransferRow').classList.remove('visible');
+    var _e_q_price=document.getElementById('q-price'); if(_e_q_price) _e_q_price.textContent='$—';
+    var _e_q_pricesub=document.getElementById('q-pricesub'); if(_e_q_pricesub) _e_q_pricesub.textContent='Select a package above';
+    var _e_q_price_label=document.getElementById('q-price-label'); if(_e_q_price_label) _e_q_price_label.textContent='Fixed Price';
+    $cl('etransferRow').remove('visible');
     document.getElementById('taxBlock').style.display = 'none';
     document.getElementById('q-what').style.display = 'none';
     document.getElementById('q-notes-preview').style.display = 'none';
@@ -2195,7 +2225,7 @@ function toggleQuoteCard() {
 }
 
 // ── DAYS PANEL COLLAPSE/EXPAND ───────────────────────────
-var daysPanelOpen = false;
+var daysPanelOpen = true;
 
 function toggleDaysPanel() {
   daysPanelOpen = !daysPanelOpen;
@@ -2205,17 +2235,17 @@ function toggleDaysPanel() {
   if (daysPanelOpen) {
     body.style.maxHeight = '600px';
     body.style.opacity   = '1';
-    header.classList.add('open');
+    if (header) header.classList.add('open');
   } else {
     body.style.maxHeight = '0';
     body.style.opacity   = '0';
-    header.classList.remove('open');
+    if (header) header.classList.remove('open');
     // Close custom picker too
     daysCustomOpen = false;
     var wrap = document.getElementById('daysCustomWrap');
     if (wrap) wrap.classList.remove('open');
-    document.getElementById('customBtnLabel').textContent = 'Custom ▼';
-    document.getElementById('qbtn-custom').classList.remove('active');
+    // customBtnLabel removed
+    $cl('qbtn-custom').remove('active');
   }
 }
 
@@ -2250,11 +2280,11 @@ function toggleExtrasPanel() {
   if (extrasPanelOpen) {
     body.style.maxHeight = '600px';
     body.style.opacity   = '1';
-    header.classList.add('open');
+    if (header) header.classList.add('open');
   } else {
     body.style.maxHeight = '0';
     body.style.opacity   = '0';
-    header.classList.remove('open');
+    if (header) header.classList.remove('open');
   }
 }
 
@@ -2264,7 +2294,6 @@ function openExtrasPanel() {
 }
 
 // ── DELIVERY DAYS — quick select + custom expand ─────────
-var daysCustomOpen = false;
 
 function setDaysQuick(preset) {
   // Open the days panel if closed
@@ -2274,17 +2303,17 @@ function setDaysQuick(preset) {
   daysCustomOpen = false;
   var wrap = document.getElementById('daysCustomWrap');
   if (wrap) wrap.classList.remove('open');
-  document.getElementById('customBtnLabel').textContent = 'Custom ▼';
-  document.getElementById('qbtn-custom').classList.remove('active');
+  // customBtnLabel removed
+  $cl('qbtn-custom').remove('active');
 
   if (preset === 'MONFRI') {
     setDays(['MON','TUE','WED','THU','FRI']);
-    document.getElementById('qbtn-monfri').classList.add('active');
-    document.getElementById('qbtn-monsat').classList.remove('active');
+    $cl('qbtn-monfri').add('active');
+    $cl('qbtn-monsat').remove('active');
   } else if (preset === 'MONSAT') {
     setDays(['MON','TUE','WED','THU','FRI','SAT']);
-    document.getElementById('qbtn-monsat').classList.add('active');
-    document.getElementById('qbtn-monfri').classList.remove('active');
+    $cl('qbtn-monsat').add('active');
+    $cl('qbtn-monfri').remove('active');
   }
   updateDaysPanelSubtitle();
 }
@@ -2294,13 +2323,13 @@ function setDaysQuick(preset) {
 function toggleCustomDays() {
   openDaysPanel();
   daysCustomOpen = !daysCustomOpen;
-  document.getElementById('daysCustomWrap').classList.toggle('open', daysCustomOpen);
-  document.getElementById('customBtnLabel').textContent = daysCustomOpen ? 'Custom ▲' : 'Custom ▼';
-  document.getElementById('qbtn-custom').classList.toggle('active', daysCustomOpen);
+  $cl('daysCustomWrap').toggle('open', daysCustomOpen);
+  // customBtnLabel removed
+  $cl('qbtn-custom').toggle('active', daysCustomOpen);
 
   if (daysCustomOpen) {
-    document.getElementById('qbtn-monfri').classList.remove('active');
-    document.getElementById('qbtn-monsat').classList.remove('active');
+    $cl('qbtn-monfri').remove('active');
+    $cl('qbtn-monsat').remove('active');
     setDays([]);
   }
 }
@@ -2308,10 +2337,10 @@ function toggleCustomDays() {
 // Quick button sync handled inside setDaysQuick and toggleDay
 
 function syncQuickButtons(arr) {
-  var isMF  = arr.length === 5 && !arr.includes('SAT') && arr.includes('MON') && arr.includes('FRI');
-  var isMS  = arr.length === 6 && arr.includes('SAT');
-  var qMF   = document.getElementById('qbtn-monfri');
-  var qMS   = document.getElementById('qbtn-monsat');
+  var isMF = arr.length === 5 && arr.indexOf('SAT') === -1 && arr.indexOf('MON') > -1 && arr.indexOf('FRI') > -1;
+  var isMS = arr.length === 6 && arr.indexOf('SAT') > -1;
+  var qMF  = document.getElementById('qbtn-monfri');
+  var qMS  = document.getElementById('qbtn-monsat');
   if (qMF) qMF.classList.toggle('active', isMF);
   if (qMS) qMS.classList.toggle('active', isMS);
 }
@@ -2418,7 +2447,7 @@ function validateAndToggleSubmit() {
 // ── TERMS ─────────────────────────────────────────────────
 function toggleTerms() {
   state.termsAccepted = !state.termsAccepted;
-  document.getElementById('termsCheckRow').classList.toggle('checked', state.termsAccepted);
+  $cl('termsCheckRow').toggle('checked', state.termsAccepted);
   validateAndToggleSubmit();
 }
 function onTermsScroll() {
@@ -2584,7 +2613,7 @@ function showSuccessScreen(notes, pkg) {
 
 // ── RESET ─────────────────────────────────────────────────
 function resetForm() {
-  document.getElementById('successOverlay').classList.remove('show');
+  $cl('successOverlay').remove('show');
   Object.assign ? Object.assign(state, {pkg:null,roti:null,rice:null,optionLabel:null,days:[],freq:'MONTHLY',etransfer:false,extras:{roti:false,rotiPairs:1,rice:false,curry:false},deliveryPlace:null,photoData:null,photoFileName:null,termsAccepted:false}) : (function(){state.pkg=null;state.roti=null;state.rice=null;state.optionLabel=null;state.days=[];state.freq='MONTHLY';state.etransfer=false;state.extras={roti:false,rotiPairs:1,rice:false,curry:false};state.deliveryPlace=null;state.photoData=null;state.photoFileName=null;state.termsAccepted=false;})();
 
   document.querySelectorAll('.pkg-card').forEach(function(c){ c.classList.remove('selected'); });
@@ -2595,23 +2624,23 @@ function resetForm() {
   document.querySelectorAll('textarea').forEach(function(el){ el.value=''; });
   document.querySelectorAll('.delivery-opt').forEach(function(o){ o.classList.remove('selected'); });
 
-  document.getElementById('etransferRow').classList.remove('checked','visible');
+  $cl('etransferRow').remove('checked','visible');
   document.getElementById('taxBlock').style.display='none';
   successEtChecked = false;
   var ser = document.getElementById('successEtRow');
   if (ser){ ser.style.display='none'; ser.classList.remove('checked'); }
 
   document.querySelectorAll('.freq-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.freq==='MONTHLY'); });
-  document.getElementById('freqNote').textContent = FREQ_NOTES.MONTHLY;
-  document.getElementById('card-JUNIOR').classList.remove('pkg-hidden');
+  var _e_freqNote=document.getElementById('freqNote'); if(_e_freqNote) _e_freqNote.textContent=FREQ_NOTES.MONTHLY;
+  $cl('card-JUNIOR').remove('pkg-hidden');
   ['JUNIOR','REGULAR','LARGE','FAMILY'].forEach(function(p){ var el=document.getElementById('price-'+p); if(el&&PRICING.MONTHLY[p]) el.innerHTML='$'+PRICING.MONTHLY[p]+' <span>/ month</span>'; });
 
-  document.getElementById('termsCheckRow').classList.remove('checked');
+  $cl('termsCheckRow').remove('checked');
   var ep = document.getElementById('panel-extras'); if(ep) ep.style.display='none';
   ['extraRotiRow','extraRiceRow','extraCurryRow'].forEach(function(id){ document.getElementById(id).classList.remove('selected'); });
-  document.getElementById('rotiStepper').classList.remove('show');
-  document.getElementById('extrasTotalLine').classList.remove('show');
-  document.getElementById('extraRotiPrice').textContent='$30';
+  $cl('rotiStepper').remove('show');
+  $cl('extrasTotalLine').remove('show');
+  var _e_extraRotiPrice=document.getElementById('extraRotiPrice'); if(_e_extraRotiPrice) _e_extraRotiPrice.textContent='$30';
   document.getElementById('fstart').value = (function(){
   var d = new Date();
   d.setDate(d.getDate() + 1);
@@ -2907,8 +2936,8 @@ function pickCountry(event,idx){
 }
 function setCountry(country){
   selectedCountry=country;
-  document.getElementById('triggerFlag').textContent=country.flag;
-  document.getElementById('triggerCode').textContent=country.code;
+  var _e_triggerFlag=document.getElementById('triggerFlag'); if(_e_triggerFlag) _e_triggerFlag.textContent=country.flag;
+  var _e_triggerCode=document.getElementById('triggerCode'); if(_e_triggerCode) _e_triggerCode.textContent=country.code;
   renderCountryList(filteredCountries.length?filteredCountries:ALL_COUNTRIES);
 }
 document.addEventListener('click',function(e){
@@ -3012,8 +3041,8 @@ function refreshSuccessAmounts() {
   var taxRow = document.getElementById('taxBreakdownRow');
   if (taxRow) {
     if (successEtChecked) {
-      document.getElementById('payBaseAmt').textContent = 'Subtotal: $' + combined.toFixed(2);
-      document.getElementById('payTaxAmt').textContent  = '+ HST 13%: $' + tax.toFixed(2);
+      var _e_payBaseAmt=document.getElementById('payBaseAmt'); if(_e_payBaseAmt) _e_payBaseAmt.textContent='Subtotal: $' + combined.toFixed(2);
+      var _e_payTaxAmt=document.getElementById('payTaxAmt'); if(_e_payTaxAmt) _e_payTaxAmt.textContent='+ HST 13%: $' + tax.toFixed(2);
       taxRow.style.display = 'flex';
     } else {
       taxRow.style.display = 'none';
@@ -3032,7 +3061,7 @@ updateQuote();
 initCountryList();
 // Default: panel collapsed, MON-FRI pre-selected in state
 setDays(['MON','TUE','WED','THU','FRI']);
-document.getElementById('qbtn-monfri').classList.add('active');
+$cl('qbtn-monfri').add('active');
 updateDaysPanelSubtitle();
 </script>
   <!-- TOTAL PILL BAR — sticky bottom -->
