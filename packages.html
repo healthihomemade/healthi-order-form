@@ -1382,35 +1382,54 @@
 
         <!-- DELIVERY PREFERENCE -->
         <div class="field-group full">
-          <label>Preferred Place of Delivery <span style="font-size:11px;color:var(--ash);font-weight:400;font-style:italic;">(Optional)</span></label>
+          <label>Preferred Place of Delivery <span class="required-star">*</span></label>
           <div class="delivery-options" id="deliveryOptions">
             <div class="delivery-opt" data-place="Porch" onclick="selectDeliveryPlace(this)">
               <div class="delivery-opt-radio"></div>
               <span class="delivery-opt-icon">🏠</span>
               <span class="delivery-opt-label">Porch</span>
             </div>
-            <div class="delivery-opt" data-place="Front Door" onclick="selectDeliveryPlace(this)">
-              <div class="delivery-opt-radio"></div>
-              <span class="delivery-opt-icon">🚪</span>
-              <span class="delivery-opt-label">Front Door</span>
-            </div>
-            <div class="delivery-opt" data-place="Window Base" onclick="selectDeliveryPlace(this)">
-              <div class="delivery-opt-radio"></div>
-              <span class="delivery-opt-icon">🪟</span>
-              <span class="delivery-opt-label">Window Base</span>
-            </div>
             <div class="delivery-opt" data-place="Reception" onclick="selectDeliveryPlace(this)">
               <div class="delivery-opt-radio"></div>
               <span class="delivery-opt-icon">🛎️</span>
               <span class="delivery-opt-label">Reception</span>
             </div>
+            <div class="delivery-opt" data-place="Front Door" onclick="selectDeliveryPlace(this)">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">🚪</span>
+              <span class="delivery-opt-label">Front Door</span>
+            </div>
             <div class="delivery-opt" data-place="User Defined" onclick="selectDeliveryPlace(this)">
               <div class="delivery-opt-radio"></div>
               <span class="delivery-opt-icon">✏️</span>
-              <span class="delivery-opt-label">User Defined</span>
+              <span class="delivery-opt-label">Others</span>
+            </div>
+            <!-- Building Door Step — full width, last -->
+            <div class="delivery-opt delivery-opt-building" data-place="Building Door Step"
+              onclick="selectDeliveryPlace(this)" id="optBuilding"
+              style="grid-column:1/-1;">
+              <div class="delivery-opt-radio"></div>
+              <span class="delivery-opt-icon">🏢</span>
+              <div style="flex:1;">
+                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$30 surcharge)</span></span>
+                <div class="buzz-inline-wrap" id="buzzWrap" style="display:none;margin-top:8px;" onclick="event.stopPropagation()">
+                  <input type="text" id="fBuzzCode"
+                    placeholder="Buzz / Intercom code e.g. 1204"
+                    maxlength="10"
+                    oninput="updateQuote()"
+                    inputmode="numeric"
+                    style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Mulish',sans-serif;outline:none;transition:border-color 0.18s;"
+                    onfocus="this.style.borderColor='var(--saffron)'"
+                    onblur="this.style.borderColor='var(--border)'">
+                  <div style="font-size:10.5px;color:var(--ash);margin-top:3px;">Required to access your building</div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="user-defined-wrap" id="userDefinedWrap">
+
+
+          <!-- User Defined / Other -->
+          <div class="user-defined-wrap" id="userDefinedWrap" style="margin-top:10px;">
             <input type="text" id="userDefinedPlace" placeholder="Please describe your preferred delivery location…" oninput="updateQuote()">
           </div>
         </div>
@@ -1498,6 +1517,7 @@
     <div class="quote-line"><span class="quote-key">Curry</span><span class="quote-val" id="q-curry"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Serving</span><span class="quote-val" id="q-serving"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Delivery days</span><span class="quote-val" id="q-days"><em class="empty">—</em></span></div>
+    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$30</span></div>
 
     <hr class="quote-divider">
 
@@ -1706,7 +1726,7 @@ const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
 const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:'MONTHLY', etransfer:false, extras:{ roti:false, rotiPairs:1, rice:false, curry:false }, deliveryPlace:null, photoData:null, photoFileName:null, termsAccepted:false };
 
 // ── EXTRAS ─────────────────────────────────────────────────
-const EXTRAS_PRICES = { rotiPair: 30, rice: 20, curry: 70 };
+const EXTRAS_PRICES = { rotiPair: 30, rice: 20, curry: 70, buildingDoorStep: 30 };
 
 function toggleExtra(type) {
   // Auto-open the extras panel
@@ -1766,6 +1786,7 @@ function calcExtrasTotal() {
   if (state.extras.roti)  total += state.extras.rotiPairs * EXTRAS_PRICES.rotiPair;
   if (state.extras.rice)  total += EXTRAS_PRICES.rice;
   if (state.extras.curry) total += EXTRAS_PRICES.curry;
+  if (state.deliveryPlace === 'Building Door Step') total += EXTRAS_PRICES.buildingDoorStep;
   return total;
 }
 
@@ -1962,6 +1983,19 @@ function selectDeliveryPlace(el) {
   document.querySelectorAll('.delivery-opt').forEach(function(o){ o.classList.remove('selected'); });
   el.classList.add('selected');
   state.deliveryPlace = el.dataset.place;
+
+  // Buzz code — show inline inside Building Door Step card
+  var buzzWrap = document.getElementById('buzzWrap');
+  if (buzzWrap) {
+    buzzWrap.style.display = (state.deliveryPlace === 'Building Door Step') ? 'block' : 'none';
+    if (state.deliveryPlace === 'Building Door Step') {
+      setTimeout(function(){ var bz=document.getElementById('fBuzzCode'); if(bz) bz.focus(); }, 50);
+    } else {
+      var bz = document.getElementById('fBuzzCode'); if (bz) bz.value = '';
+    }
+  }
+
+  // Other / User Defined
   var wrap = document.getElementById('userDefinedWrap');
   if (state.deliveryPlace === 'User Defined') {
     wrap.classList.add('visible');
@@ -1970,6 +2004,7 @@ function selectDeliveryPlace(el) {
     wrap.classList.remove('visible');
     document.getElementById('userDefinedPlace').value = '';
   }
+
   updateQuote();
 }
 
@@ -2062,6 +2097,10 @@ function updateQuote() {
   document.getElementById('q-days').innerHTML    = state.days.length>0
     ? normaliseDays(state.days) + ' <span style="color:rgba(253,250,244,0.4);font-weight:400">(' + state.days.length + 'd/wk)</span>'
     : '<em class="empty">—</em>';
+
+  // Show Door Step delivery charge line
+  var doorStepLine = document.getElementById('q-doorstep-line');
+  if (doorStepLine) doorStepLine.style.display = (state.deliveryPlace === 'Building Door Step') ? 'flex' : 'none';
 
   if(pkg){
     var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
@@ -2465,7 +2504,9 @@ function validateAndToggleSubmit() {
     { ok: !!street,                 label: 'Enter your street address' },
     { ok: !!startDate,              label: 'Select a service start date' },
     { ok: !!subscribers,            label: 'Select number of subscribers' },
-    { ok: state.termsAccepted,      label: 'Accept the terms & conditions' }
+    { ok: !!state.deliveryPlace,      label: 'Select preferred place of delivery' },
+    { ok: state.deliveryPlace !== 'Building Door Step' || !!(document.getElementById('fBuzzCode') && document.getElementById('fBuzzCode').value.trim()), label: 'Enter your buzz / intercom code' },
+    { ok: state.termsAccepted,         label: 'Accept the terms & conditions' }
   ];
 
   var missing = checks.filter(function(c){ return !c.ok; });
@@ -2549,7 +2590,7 @@ function submitOrder() {
   var payload = {
     'Timestamp': new Date().toLocaleString('en-CA', {timeZone:'America/Toronto', hour12:true, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit'}),
     'Name':      document.getElementById('fname').value.trim(),
-    'Preferred Place': deliveryPlace,
+    'Preferred Place': deliveryPlace + (state.deliveryPlace === 'Building Door Step' && document.getElementById('fBuzzCode') && document.getElementById('fBuzzCode').value.trim() ? ' (Buzz: ' + document.getElementById('fBuzzCode').value.trim() + ')' : ''),
     'Whatsapp number': cleanPhone,
     'Street Address':  document.getElementById('fstreet').value.trim(),
     'Size':            notes,
