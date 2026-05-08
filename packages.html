@@ -59,6 +59,9 @@
   .panel-body { padding:22px 24px; }
 
   /* FREQUENCY TOGGLE */
+
+  .pkg-card.pkg-hidden { display:none; }
+
   .freq-toggle-wrap { margin-bottom:20px; }
   .freq-toggle-label { font-size:11.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--ash); margin-bottom:8px; display:block; }
   .freq-toggle { display:flex; flex-wrap:wrap; background:var(--smoke); border:1.5px solid var(--border); border-radius:10px; padding:3px; gap:2px; width:100%; }
@@ -69,7 +72,6 @@
   .freq-btn.active { background:var(--cardamom); color:var(--cream); box-shadow:0 2px 8px rgba(45,74,62,0.25); }
   .freq-note { margin-top:8px; font-size:12px; color:var(--ash); line-height:1.5; }
   .freq-note strong { color:var(--saffron-dark); }
-  .pkg-card.pkg-hidden { display:none; }
 
   /* PACKAGE CARDS */
   /* ── PACKAGE GRID — compact 2×2 tiles ── */
@@ -129,10 +131,22 @@
     transition:transform 0.32s ease, opacity 0.2s, color 0.2s;
     margin-top:2px;
     text-align:center;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
   }
-  .pkg-expand-arrow::after { content:'details ▼'; font-size:10px; font-family:'Mulish',sans-serif; font-weight:600; letter-spacing:0.03em; }
+  /* Collapsed: show subtitle + arrow */
+  .pkg-expand-arrow .pkg-collapsed-sub {
+    font-size:10px; font-family:'Mulish',sans-serif; font-weight:600;
+    color:var(--ash); letter-spacing:0.02em; white-space:nowrap;
+    overflow:hidden; text-overflow:ellipsis; max-width:120px;
+    display:block; opacity:1;
+    transition:opacity 0.2s;
+  }
+  .pkg-card.selected .pkg-expand-arrow .pkg-collapsed-sub {
+    display:none;
+  }
+  .pkg-expand-arrow::after { content:'▼'; font-size:9px; }
   .pkg-card.selected .pkg-expand-arrow { transform:rotate(180deg); color:var(--saffron-dark); opacity:1; }
-  .pkg-card.selected .pkg-expand-arrow::after { content:'close ▲'; }
+  .pkg-card.selected .pkg-expand-arrow::after { content:'▲'; }
   .pkg-card:hover .pkg-expand-arrow { opacity:0.8; }
   .pkg-check svg { display:none; }
   .pkg-card.selected .pkg-check svg { display:block; }
@@ -863,9 +877,6 @@
     .pkg-check    { width:20px; height:20px; top:10px; right:10px; }
 
     /* Frequency toggle — full width pills */
-    .freq-toggle  { display:flex; flex-wrap:wrap; width:100%; }
-    .freq-btn     { flex:1; min-width:70px; padding:8px 6px; font-size:11.5px; text-align:center; }
-    .freq-note    { font-size:11.5px; }
 
     /* Days */
     .days-grid    { grid-template-columns:repeat(3,1fr); gap:6px; }
@@ -975,7 +986,6 @@
     .pkg-price { font-size:1.1rem; }
     .fields-grid  { gap:8px; }
     .days-grid    { grid-template-columns:repeat(2,1fr); gap:5px; }
-    .freq-btn     { font-size:11px; padding:7px 4px; }
     .quote-price  { font-size:1.8rem; }
     input, textarea, select { font-size:16px; } /* prevents iOS zoom */
   }
@@ -1000,6 +1010,9 @@
     <div class="panel-body">
 
       <!-- FREQUENCY TOGGLE -->
+
+
+      <!-- FREQUENCY TOGGLE -->
       <div class="freq-toggle-wrap">
         <span class="freq-toggle-label">Billing Frequency</span>
         <div class="freq-toggle">
@@ -1021,7 +1034,7 @@
             <div class="pkg-info">
               <div class="pkg-name">Junior</div>
               <div class="pkg-price" id="price-JUNIOR">$180 <span>/ month</span></div>
-              <div class="pkg-expand-arrow">▼</div>
+              <div class="pkg-expand-arrow pkg-arrow-junior"><span class="pkg-collapsed-sub" id="pkg-sub-JUNIOR">12 Oz · 1 Gravy or 1 Dry</span>▼</div>
             </div>
           </div>
           <div class="pkg-body">
@@ -1053,7 +1066,7 @@
             <div class="pkg-info">
               <div class="pkg-name">Regular</div>
               <div class="pkg-price" id="price-REGULAR">$240 <span>/ month</span></div>
-              <div class="pkg-expand-arrow">▼</div>
+              <div class="pkg-expand-arrow pkg-arrow-regular"><span class="pkg-collapsed-sub" id="pkg-sub-REGULAR">8 Oz · 1 Gravy + 1 Dry</span>▼</div>
             </div>
           </div>
           <div class="pkg-body">
@@ -1085,7 +1098,7 @@
             <div class="pkg-info">
               <div class="pkg-name">Large</div>
               <div class="pkg-price" id="price-LARGE">$270 <span>/ month</span></div>
-              <div class="pkg-expand-arrow">▼</div>
+              <div class="pkg-expand-arrow pkg-arrow-large"><span class="pkg-collapsed-sub" id="pkg-sub-LARGE">12 Oz · 1 Gravy + 1 Dry</span>▼</div>
             </div>
           </div>
           <div class="pkg-body">
@@ -1117,7 +1130,7 @@
             <div class="pkg-info">
               <div class="pkg-name">Family</div>
               <div class="pkg-price" id="price-FAMILY">$450 <span>/ month</span></div>
-              <div class="pkg-expand-arrow">▼</div>
+              <div class="pkg-expand-arrow pkg-arrow-family"><span class="pkg-collapsed-sub" id="pkg-sub-FAMILY">24 Oz · 1 Gravy + 1 Dry</span>▼</div>
             </div>
           </div>
           <div class="pkg-body">
@@ -1827,13 +1840,18 @@ function selectFrequency(btn) {
     juniorCard.classList.remove('pkg-hidden');
   }
 
-  // Update all visible price tags
+  // Update all visible price tags + collapsed subtitles
   ['JUNIOR','REGULAR','LARGE','FAMILY'].forEach(function(pkg) {
     var priceEl = document.getElementById('price-' + pkg);
     if (!priceEl) return;
     var price = PRICING[state.freq] ? PRICING[state.freq][pkg] : null;
     if (price) {
       priceEl.innerHTML = '$' + price + ' <span>' + FREQ_LABELS[state.freq] + '</span>';
+    }
+    // Update collapsed subtitle
+    var subEl = document.getElementById('pkg-sub-' + pkg);
+    if (subEl && PACKAGES[pkg]) {
+      subEl.textContent = PACKAGES[pkg].currySize + ' · ' + PACKAGES[pkg].curryType;
     }
   });
 
@@ -2036,9 +2054,8 @@ function buildNotesString() {
 
 function updateQuote() {
   var pkg = state.pkg ? PACKAGES[state.pkg] : null;
-  var freqLabel = {TRIAL:'Trial / Single',WEEKLY:'Weekly',BIWEEKLY:'Bi-Weekly',MONTHLY:'Monthly'};
   document.getElementById('q-pkg').innerHTML = pkg
-    ? '<strong>' + pkg.label + '</strong> <span style="font-size:11px;font-weight:400;color:rgba(253,250,244,0.5);margin-left:4px">' + (freqLabel[state.freq]||'') + '</span>'
+    ? '<strong>' + pkg.label + '</strong>'
     : '<em class="empty">—</em>';
   document.getElementById('q-curry').innerHTML   = pkg ? (pkg.currySize + ' · ' + pkg.curryType) : '<em class="empty">—</em>';
   document.getElementById('q-serving').innerHTML = state.optionLabel ? state.optionLabel : '<em class="empty">—</em>';
@@ -2189,6 +2206,18 @@ function submitViaForm(payloadStr) {
 // ── QUOTE CARD COLLAPSE/EXPAND ───────────────────────────
 var quoteCardOpen = false; // starts collapsed
 
+function updateQuoteSubtitle() {
+  var sub = document.getElementById('quoteHeaderSub');
+  if (!sub) return;
+  if (state.pkg && PACKAGES[state.pkg]) {
+    var pkgData = PACKAGES[state.pkg];
+    var price2  = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+    sub.textContent = pkgData.label + ' — ' + pkgData.currySize + ' · ' + pkgData.curryType;
+  } else {
+    sub.textContent = 'Tap to expand';
+  }
+}
+
 function openQuoteCard() {
   if (quoteCardOpen) return;
   quoteCardOpen = true;
@@ -2198,6 +2227,7 @@ function openQuoteCard() {
   if (body)  { body.style.maxHeight = '800px'; body.style.opacity = '1'; body.style.marginTop = '14px'; }
   if (arrow) arrow.style.transform = 'rotate(0deg)';
   if (sub)   sub.textContent = 'Updates as you choose options';
+  // Keep collapsed sub in sync when panel is open too (shown when collapsed again)
 }
 
 function toggleQuoteCard() {
@@ -2219,8 +2249,16 @@ function toggleQuoteCard() {
     arrow.style.transform = 'rotate(180deg)';
     // Show summary in subtitle when collapsed
     var pkg   = state.pkg ? (window.PACKAGES && PACKAGES[state.pkg] ? PACKAGES[state.pkg].label : state.pkg) : null;
-    var price = getPayableAmount();
-    if (sub) sub.textContent = pkg && price ? pkg + ' — $' + price.toFixed(2) : 'Tap to expand';
+    if (state.pkg && PACKAGES[state.pkg]) {
+      var pkgData  = PACKAGES[state.pkg];
+      var price2   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+      var freqLbl  = { TRIAL:'Single Serve', WEEKLY:'Weekly', BIWEEKLY:'Bi-Weekly', MONTHLY:'Monthly' }[state.freq] || state.freq;
+      // e.g. "Junior — $12 / Single Serve · 12 Oz · Choice of 1 Gravy or 1 Dry"
+      var collapsedSub = pkgData.label + ' — ' + pkgData.currySize + ' · ' + pkgData.curryType;
+      if (sub) sub.textContent = collapsedSub;
+    } else {
+      if (sub) sub.textContent = 'Tap to expand';
+    }
   }
 }
 
