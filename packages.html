@@ -2426,19 +2426,70 @@ function syncQuickButtons(arr) {
 var areaCheckTimer = null;
 
 function checkDeliveryArea(fsa) {
-  // Send area check request to Velo via postMessage
-  // Velo calls Apps Script server-side (no CSP restrictions)
-  // Response comes back via HEALTHI_AREA_RESULT message
+  // Method 1: Try Velo postMessage (works when iFrame is in Enter Code mode)
   try {
     window.parent.postMessage({ type: 'HEALTHI_CHECK_AREA', fsa: fsa }, '*');
-    console.log('Area check sent to Velo for FSA:', fsa);
+    console.log('Area check postMessage sent for FSA:', fsa);
   } catch(e) {
-    console.log('postMessage for area check failed:', e.message);
-    hideAreaMsg(); // Can't check — hide the message
+    console.log('postMessage failed:', e.message);
   }
+
+  // Method 2: Direct JSONP call to Apps Script (works from any origin)
+  // Uses a script tag injection — completely bypasses CORS/CSP
+  var callbackName = 'areaCheckCb_' + Date.now();
+  var scriptEl = document.createElement('script');
+  var url = SHEET_WEBAPP_URL + '?action=checkArea&fsa=' + encodeURIComponent(fsa) + '&callback=' + callbackName;
+
+  window[callbackName] = function(data) {
+    try {
+      areaServed = !!data.served;
+      if (data.served) {
+        showAreaMsg('served', '✅', 'Delivery is available in your area!');
+      } else {
+        showAreaMsg('unserved', '⚠️', 'Deliveries are currently not available in your area. Please give our team some time to respond back to your enquiry.');
+      }
+    } catch(err) { hideAreaMsg(); }
+    // Cleanup
+    delete window[callbackName];
+    if (scriptEl.parentNode) scriptEl.parentNode.removeChild(scriptEl);
+  };
+
+  scriptEl.onerror = function() {
+    console.log('JSONP failed — trying XHR');
+    delete window[callbackName];
+    // Method 3: Direct XHR as last resort
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', SHEET_WEBAPP_URL + '?action=checkArea&fsa=' + encodeURIComponent(fsa), true);
+    xhr.timeout = 8000;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      try {
+        var data = JSON.parse(xhr.responseText);
+        areaServed = !!data.served;
+        if (data.served) {
+          showAreaMsg('served', '✅', 'Delivery is available in your area!');
+        } else {
+          showAreaMsg('unserved', '⚠️', 'Deliveries are currently not available in your area. Please give our team some time to respond back to your enquiry.');
+        }
+      } catch(e) { hideAreaMsg(); }
+    };
+    xhr.onerror = function() { hideAreaMsg(); };
+    xhr.send();
+  };
+
+  scriptEl.src = url;
+  document.head.appendChild(scriptEl);
+
+  // Timeout safety — if no response in 8s, hide message
+  setTimeout(function() {
+    if (window[callbackName]) {
+      delete window[callbackName];
+      hideAreaMsg();
+    }
+  }, 8000);
 }
 
-// Listen for area check response from Velo
+// Listen for Velo response (Method 1 response)
 window.addEventListener('message', function(event) {
   var data = event.data;
   if (!data || data.type !== 'HEALTHI_AREA_RESULT') return;
