@@ -1361,7 +1361,10 @@
         </div>
         <div class="field-group full">
           <label for="fstart">Service Start Date <span class="required-star">*</span></label>
-          <input type="date" id="fstart" id="fstart">
+          <input type="date" id="fstart" oninput="updateEndDate()">
+          <div id="endDateDisplay" style="display:none;margin-top:5px;font-size:12px;color:var(--sage);font-weight:600;">
+            📅 Service End Date: <span id="endDateVal">—</span>
+          </div>
         </div>
         <div class="field-group full">
           <label for="fsubscribers">Number of Subscribers <span class="required-star">*</span></label>
@@ -1896,6 +1899,8 @@ function selectFrequency(btn) {
     showHideExtrasPanel();
     openDaysPanel();
   }
+  // Recalculate end date when frequency changes
+  updateEndDate();
 
   
   // If currently selected package not available in new freq, reset
@@ -2519,6 +2524,53 @@ function hideAreaMsg() {
   areaServed = null;
 }
 
+// ── SERVICE END DATE CALCULATOR ─────────────────────────
+function calcEndDate(startStr, freq) {
+  if (!startStr) return '';
+  var d = new Date(startStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return '';
+
+  switch (freq) {
+    case 'TRIAL':    // Same as start date
+      break;
+    case 'WEEKLY':   // +7 days
+      d.setDate(d.getDate() + 7);
+      break;
+    case 'BIWEEKLY': // +14 days
+      d.setDate(d.getDate() + 14);
+      break;
+    case 'MONTHLY':  // Same day next month minus 1
+      // e.g. 2026-05-09 → 2026-06-08
+      var m = d.getMonth() + 1; // next month (0-indexed)
+      var y = d.getFullYear();
+      if (m > 11) { m = 0; y++; }
+      d.setFullYear(y, m, d.getDate() - 1);
+      break;
+    default:
+      d.setDate(d.getDate() + 30);
+  }
+
+  // Format as DD/MM/YYYY
+  var dd = String(d.getDate()).padStart(2,'0');
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var yyyy = d.getFullYear();
+  return dd + '/' + mm + '/' + yyyy;
+}
+
+function updateEndDate() {
+  var startVal = document.getElementById('fstart').value;
+  var endStr   = calcEndDate(startVal, state.freq);
+  var display  = document.getElementById('endDateDisplay');
+  var val      = document.getElementById('endDateVal');
+  if (endStr && startVal) {
+    if (display) display.style.display = 'block';
+    if (val)     val.textContent = endStr;
+  } else {
+    if (display) display.style.display = 'none';
+  }
+  updateQuote();
+}
+
 // ── TEST AREA TRIGGER ────────────────────────────────────
 function testAreaTrigger() {
   var inp = document.getElementById('fpostal');
@@ -2665,6 +2717,7 @@ function submitOrder() {
     'Number of Subscribers': document.getElementById('fsubscribers').value,
     'Terms': state.termsAccepted ? 'I understand and agree to the terms and conditions of Healthi Homemade.' : 'Not agreed',
     'When do you want to start?': fmtStart,
+    'Service End Date': calcEndDate(document.getElementById('fstart').value, state.freq),
     'Photo':     state.photoFileName || '',
     'Photo Data':state.photoData     || '',
     'Package':   pkg ? pkg.label : '',
