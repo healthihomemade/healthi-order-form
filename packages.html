@@ -1786,7 +1786,7 @@ function calcExtrasTotal() {
   if (state.extras.roti)  total += state.extras.rotiPairs * EXTRAS_PRICES.rotiPair;
   if (state.extras.rice)  total += EXTRAS_PRICES.rice;
   if (state.extras.curry) total += EXTRAS_PRICES.curry;
-  if (state.deliveryPlace === 'Building Door Step') total += EXTRAS_PRICES.buildingDoorStep;
+  if (state.deliveryPlace === 'Building Door Step' && state.freq === 'MONTHLY') total += EXTRAS_PRICES.buildingDoorStep;
   return total;
 }
 
@@ -2100,7 +2100,7 @@ function updateQuote() {
 
   // Show Door Step delivery charge line
   var doorStepLine = document.getElementById('q-doorstep-line');
-  if (doorStepLine) doorStepLine.style.display = (state.deliveryPlace === 'Building Door Step') ? 'flex' : 'none';
+  if (doorStepLine) doorStepLine.style.display = (state.deliveryPlace === 'Building Door Step' && state.freq === 'MONTHLY') ? 'flex' : 'none';
 
   if(pkg){
     var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
