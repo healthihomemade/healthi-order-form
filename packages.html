@@ -1892,16 +1892,18 @@ function getCurrySelectionString(pkg) {
   if (!curryState[pkg]) return '';
   var g = curryState[pkg][0];
   var d = curryState[pkg][1];
-  // Short label format:
-  // 1G + 1D → "G+D"
-  // 2G + 0D → "2G"
-  // 0G + 2D → "2D"
+  // Serve label curry codes:
+  // 1G + 1D → "1G1D"   e.g. L-4-R-1G1D
+  // 2G + 0D → "2G"     e.g. L-4-R-2G
+  // 0G + 2D → "2D"     e.g. L-6-N-2D
+  // 1G + 0D → "1G"     e.g. J-4-N-1G  (Junior gravy only)
+  // 0G + 1D → "1D"     e.g. J-0-R-1D  (Junior dry only)
   if (g > 0 && d > 0) {
-    return (g === 1 && d === 1) ? 'G+D' : g + 'G+' + d + 'D';
+    return g + 'G' + d + 'D'; // e.g. 1G1D
   } else if (g > 0) {
-    return g + 'G';
+    return g + 'G'; // e.g. 2G or 1G
   } else {
-    return d + 'D';
+    return d + 'D'; // e.g. 2D or 1D
   }
 }
 
