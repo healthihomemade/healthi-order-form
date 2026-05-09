@@ -1022,106 +1022,6 @@
 
       <div class="package-grid" id="packageGrid">
 
-        <!-- JUNIOR (Monthly only) -->
-        <div class="pkg-card" id="card-JUNIOR" data-pkg="JUNIOR" onclick="selectPackage(this)">
-          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="pkg-header">
-            <div class="pkg-icon">🌱</div>
-            <div class="pkg-info">
-              <div class="pkg-name">Junior</div>
-              <div class="pkg-price" id="price-JUNIOR">$180 <span>/ month</span></div>
-              <div class="pkg-expand-arrow pkg-arrow-junior"><span class="pkg-collapsed-sub" id="pkg-sub-JUNIOR">12 Oz · 1 Gravy or 1 Dry</span>▼</div>
-            </div>
-          </div>
-          <div class="pkg-body">
-            <div class="pkg-section">
-            <div class="curry-selector" id="curry-sel-JUNIOR">
-              <div class="curry-selector-label">Curry Selection (1 box × 12 Oz each)</div>
-              <div class="curry-toggle-row">
-                <span class="curry-toggle-name">🍛 Gravy</span>
-                <div class="curry-qty-ctrl">
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','gravy',-1)" id="curry-JUNIOR-gravy-minus" >−</button>
-                  <span class="curry-qty-num" id="curry-JUNIOR-gravy-num">1</span>
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','gravy',1)"  id="curry-JUNIOR-gravy-plus"  disabled>+</button>
-                  <span class="curry-qty-oz">12 Oz</span>
-                </div>
-              </div>
-              <div class="curry-toggle-row">
-                <span class="curry-toggle-name">🥘 Dry</span>
-                <div class="curry-qty-ctrl">
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','dry',-1)"   id="curry-JUNIOR-dry-minus"   disabled>−</button>
-                  <span class="curry-qty-num" id="curry-JUNIOR-dry-num">0</span>
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','dry',1)"    id="curry-JUNIOR-dry-plus"    >+</button>
-                  <span class="curry-qty-oz">0 Oz</span>
-                </div>
-              </div>
-              <div class="curry-total-line" id="curry-JUNIOR-total">
-                Total: 1 Gravy + 0 Dry = 12 Oz
-              </div>
-            </div>
-
-            </div>
-            <div class="pkg-options">
-              <div class="pkg-option-label">Pick your serving</div>
-              <div class="pkg-option-chips" id="chips-JUNIOR">
-                <div class="option-chip" data-pkg="JUNIOR" data-roti="4" data-rice="NO-RICE" onclick="selectOption(event,this)">4 Roti · No Rice</div>
-                <div class="option-chip" data-pkg="JUNIOR" data-roti="0" data-rice="RICE" onclick="selectOption(event,this)">Rice Only</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- REGULAR -->
-        <div class="pkg-card" id="card-REGULAR" data-pkg="REGULAR" onclick="selectPackage(this)">
-          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <div class="pkg-header">
-            <div class="pkg-icon">🍽️</div>
-            <div class="pkg-info">
-              <div class="pkg-name">Regular</div>
-              <div class="pkg-price" id="price-REGULAR">$240 <span>/ month</span></div>
-              <div class="pkg-expand-arrow pkg-arrow-regular"><span class="pkg-collapsed-sub" id="pkg-sub-REGULAR">8 Oz · 1 Gravy + 1 Dry</span>▼</div>
-            </div>
-          </div>
-          <div class="pkg-body">
-            <div class="pkg-section">
-            <div class="curry-selector" id="curry-sel-REGULAR">
-              <div class="curry-selector-label">Curry Selection (2 boxes × 8 Oz each)</div>
-              <div class="curry-toggle-row">
-                <span class="curry-toggle-name">🍛 Gravy</span>
-                <div class="curry-qty-ctrl">
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','gravy',-1)" id="curry-REGULAR-gravy-minus" >−</button>
-                  <span class="curry-qty-num" id="curry-REGULAR-gravy-num">1</span>
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','gravy',1)"  id="curry-REGULAR-gravy-plus"  >+</button>
-                  <span class="curry-qty-oz">8 Oz</span>
-                </div>
-              </div>
-              <div class="curry-toggle-row">
-                <span class="curry-toggle-name">🥘 Dry</span>
-                <div class="curry-qty-ctrl">
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','dry',-1)"   id="curry-REGULAR-dry-minus"   >−</button>
-                  <span class="curry-qty-num" id="curry-REGULAR-dry-num">1</span>
-                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','dry',1)"    id="curry-REGULAR-dry-plus"    >+</button>
-                  <span class="curry-qty-oz">8 Oz</span>
-                </div>
-              </div>
-              <div class="curry-total-line" id="curry-REGULAR-total">
-                Total: 1 Gravy + 1 Dry = 16 Oz
-              </div>
-            </div>
-
-            </div>
-            <div class="pkg-options">
-              <div class="pkg-option-label">Pick your serving</div>
-              <div class="pkg-option-chips" id="chips-REGULAR">
-                <div class="option-chip" data-pkg="REGULAR" data-roti="4" data-rice="RICE" onclick="selectOption(event,this)">4 Roti + Rice</div>
-                <div class="option-chip" data-pkg="REGULAR" data-roti="6" data-rice="NO-RICE" onclick="selectOption(event,this)">6 Roti · No Rice</div>
-                <div class="option-chip" data-pkg="REGULAR" data-roti="0" data-rice="2RICE" onclick="selectOption(event,this)">No Roti · 2× Rice</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- LARGE -->
         <div class="pkg-card" id="card-LARGE" data-pkg="LARGE" onclick="selectPackage(this)">
           <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="pkg-header">
@@ -1171,8 +1071,56 @@
           </div>
         </div>
 
-        <!-- FAMILY -->
-        <div class="pkg-card" id="card-FAMILY" data-pkg="FAMILY" onclick="selectPackage(this)">
+                <div class="pkg-card" id="card-REGULAR" data-pkg="REGULAR" onclick="selectPackage(this)">
+          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pkg-header">
+            <div class="pkg-icon">🍽️</div>
+            <div class="pkg-info">
+              <div class="pkg-name">Regular</div>
+              <div class="pkg-price" id="price-REGULAR">$240 <span>/ month</span></div>
+              <div class="pkg-expand-arrow pkg-arrow-regular"><span class="pkg-collapsed-sub" id="pkg-sub-REGULAR">8 Oz · 1 Gravy + 1 Dry</span>▼</div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-section">
+            <div class="curry-selector" id="curry-sel-REGULAR">
+              <div class="curry-selector-label">Curry Selection (2 boxes × 8 Oz each)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🍛 Gravy</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','gravy',-1)" id="curry-REGULAR-gravy-minus" >−</button>
+                  <span class="curry-qty-num" id="curry-REGULAR-gravy-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','gravy',1)"  id="curry-REGULAR-gravy-plus"  >+</button>
+                  <span class="curry-qty-oz">8 Oz</span>
+                </div>
+              </div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🥘 Dry</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','dry',-1)"   id="curry-REGULAR-dry-minus"   >−</button>
+                  <span class="curry-qty-num" id="curry-REGULAR-dry-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','dry',1)"    id="curry-REGULAR-dry-plus"    >+</button>
+                  <span class="curry-qty-oz">8 Oz</span>
+                </div>
+              </div>
+              <div class="curry-total-line" id="curry-REGULAR-total">
+                Total: 1 Gravy + 1 Dry = 16 Oz
+              </div>
+            </div>
+
+            </div>
+            <div class="pkg-options">
+              <div class="pkg-option-label">Pick your serving</div>
+              <div class="pkg-option-chips" id="chips-REGULAR">
+                <div class="option-chip" data-pkg="REGULAR" data-roti="4" data-rice="RICE" onclick="selectOption(event,this)">4 Roti + Rice</div>
+                <div class="option-chip" data-pkg="REGULAR" data-roti="6" data-rice="NO-RICE" onclick="selectOption(event,this)">6 Roti · No Rice</div>
+                <div class="option-chip" data-pkg="REGULAR" data-roti="0" data-rice="2RICE" onclick="selectOption(event,this)">No Roti · 2× Rice</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <div class="pkg-card" id="card-FAMILY" data-pkg="FAMILY" onclick="selectPackage(this)">
           <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="pkg-header">
             <div class="pkg-icon">👨‍👩‍👧‍👦</div>
@@ -1221,7 +1169,55 @@
           </div>
         </div>
 
-      </div>
+                <div class="pkg-card" id="card-JUNIOR" data-pkg="JUNIOR" onclick="selectPackage(this)">
+          <div class="pkg-check"><svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="pkg-header">
+            <div class="pkg-icon">🌱</div>
+            <div class="pkg-info">
+              <div class="pkg-name">Junior</div>
+              <div class="pkg-price" id="price-JUNIOR">$180 <span>/ month</span></div>
+              <div class="pkg-expand-arrow pkg-arrow-junior"><span class="pkg-collapsed-sub" id="pkg-sub-JUNIOR">12 Oz · 1 Gravy or 1 Dry</span>▼</div>
+            </div>
+          </div>
+          <div class="pkg-body">
+            <div class="pkg-section">
+            <div class="curry-selector" id="curry-sel-JUNIOR">
+              <div class="curry-selector-label">Curry Selection (1 box × 12 Oz each)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🍛 Gravy</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','gravy',-1)" id="curry-JUNIOR-gravy-minus" >−</button>
+                  <span class="curry-qty-num" id="curry-JUNIOR-gravy-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','gravy',1)"  id="curry-JUNIOR-gravy-plus"  disabled>+</button>
+                  <span class="curry-qty-oz">12 Oz</span>
+                </div>
+              </div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🥘 Dry</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','dry',-1)"   id="curry-JUNIOR-dry-minus"   disabled>−</button>
+                  <span class="curry-qty-num" id="curry-JUNIOR-dry-num">0</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','dry',1)"    id="curry-JUNIOR-dry-plus"    >+</button>
+                  <span class="curry-qty-oz">0 Oz</span>
+                </div>
+              </div>
+              <div class="curry-total-line" id="curry-JUNIOR-total">
+                Total: 1 Gravy + 0 Dry = 12 Oz
+              </div>
+            </div>
+
+            </div>
+            <div class="pkg-options">
+              <div class="pkg-option-label">Pick your serving</div>
+              <div class="pkg-option-chips" id="chips-JUNIOR">
+                <div class="option-chip" data-pkg="JUNIOR" data-roti="4" data-rice="NO-RICE" onclick="selectOption(event,this)">4 Roti · No Rice</div>
+                <div class="option-chip" data-pkg="JUNIOR" data-roti="0" data-rice="RICE" onclick="selectOption(event,this)">Rice Only</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+            </div>
     </div>
   </div>
 
