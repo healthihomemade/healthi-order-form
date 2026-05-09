@@ -2304,16 +2304,44 @@ function normaliseDays(days) {
 
 function buildNotesString() {
   if(!state.pkg||state.roti===null||!state.rice||state.days.length===0) return null;
-  var price   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : (PRICING.MONTHLY[state.pkg]||'');
-  var dayList = state.days.join(',');
-  var riceShort = state.rice === 'RICE' ? 'R' : (state.rice === '2RICE' ? '2R' : 'N');
+  var price     = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : (PRICING.MONTHLY[state.pkg]||'');
+  var dayList   = state.days.join(',');
   var pkgShort  = state.pkg[0]; // L, R, J, F
-  var curryStr  = getCurrySelectionString(state.pkg); // e.g. G+D or 2G or 2D
+  var cfg       = PKG_CURRY_CFG[state.pkg] || { oz:12 };
 
-  // Short label: L-4-R-G+D or L-6-N-2G
-  var shortLabel = pkgShort + '-' + state.roti + '-' + riceShort + '-' + curryStr;
+  // ── Roti: base + extra ───────────────────────────────────
+  var baseRoti  = state.roti || 0;
+  var extraRoti = (state.extras.roti) ? (state.extras.rotiPairs * 2) : 0;
+  var totalRoti = baseRoti + extraRoti;
 
-  // Full notes string includes short label + all details
+  // ── Rice: base + extra ───────────────────────────────────
+  // R=1 serving, 2R=2 servings
+  var baseRiceNum  = state.rice === 'RICE' ? 1 : (state.rice === '2RICE' ? 2 : 0);
+  var extraRiceNum = state.extras.rice ? 1 : 0;
+  var totalRice    = baseRiceNum + extraRiceNum;
+  var riceShort    = totalRice === 0 ? 'N' : (totalRice === 1 ? 'R' : totalRice + 'R');
+
+  // ── Curry: base + extra ──────────────────────────────────
+  var baseG = curryState[state.pkg] ? curryState[state.pkg][0] : 0;
+  var baseD = curryState[state.pkg] ? curryState[state.pkg][1] : 0;
+  var extraCurryG = (state.extras.curry && state.extras.curryType === 'Gravy') ? 1 : 0;
+  var extraCurryD = (state.extras.curry && state.extras.curryType === 'Dry')   ? 1 : 0;
+  var totalG = baseG + extraCurryG;
+  var totalD = baseD + extraCurryD;
+  // Curry string: 2G1D or 1G or 2D etc
+  var curryStr = '';
+  if (totalG > 0 && totalD > 0) curryStr = totalG + 'G' + totalD + 'D';
+  else if (totalG > 0)           curryStr = totalG + 'G';
+  else                           curryStr = totalD + 'D';
+
+  // ── Building Door Step ───────────────────────────────────
+  var bds = (state.deliveryPlace === 'Building Door Step') ? '+BDS' : '';
+
+  // ── Final serve label ────────────────────────────────────
+  // e.g. L-6-2R-2G1D+BDS
+  var shortLabel = pkgShort + '-' + totalRoti + '-' + riceShort + '-' + curryStr + bds;
+
+  // Full notes string
   return shortLabel + ',' + dayList + ',$' + price + ',' + state.freq;
 }
 
