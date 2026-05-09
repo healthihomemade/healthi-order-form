@@ -175,6 +175,17 @@
   .pkg-detail-label { color:var(--ash); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:block; margin-bottom:1px; }
 
   .pkg-options { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
+  .curry-selector { margin-top:10px; padding-top:10px; border-top:1px dashed rgba(232,137,12,0.2); }
+  .curry-selector-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--ash); margin-bottom:8px; }
+  .curry-toggle-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .curry-toggle-name { font-size:12.5px; font-weight:600; color:var(--ink); flex:1; }
+  .curry-qty-ctrl { display:flex; align-items:center; gap:6px; }
+  .curry-qty-btn { width:24px; height:24px; border-radius:50%; border:1.5px solid var(--border); background:white; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; line-height:1; color:var(--ink); }
+  .curry-qty-btn:hover:not(:disabled) { background:var(--saffron); border-color:var(--saffron); color:white; }
+  .curry-qty-btn:disabled { opacity:0.25; cursor:not-allowed; }
+  .curry-qty-num { font-size:13px; font-weight:700; color:var(--ink); min-width:20px; text-align:center; }
+  .curry-qty-oz { font-size:10.5px; color:var(--saffron-dark); font-weight:600; }
+  .curry-total-line { font-size:11px; color:var(--ash); margin-top:6px; font-style:italic; }
   .pkg-option-label { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--ash); margin-bottom:7px; }
   .pkg-option-chips { display:flex; flex-wrap:wrap; gap:6px; }
 
@@ -1039,14 +1050,31 @@
           </div>
           <div class="pkg-body">
             <div class="pkg-section">
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🥣</span>
-                <div><span class="pkg-detail-label">Curry</span>12 Oz — Choice of 1 Gravy <em>or</em> 1 Dry</div>
+            <div class="curry-selector" id="curry-sel-JUNIOR">
+              <div class="curry-selector-label">Curry Selection (1 box × 12 Oz each)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🍛 Gravy</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','gravy',-1)" id="curry-JUNIOR-gravy-minus" >−</button>
+                  <span class="curry-qty-num" id="curry-JUNIOR-gravy-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','gravy',1)"  id="curry-JUNIOR-gravy-plus"  disabled>+</button>
+                  <span class="curry-qty-oz">12 Oz</span>
+                </div>
               </div>
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🍽️</span>
-                <div><span class="pkg-detail-label">Serving</span>4 Roti <em>or</em> Rice (one choice)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🥘 Dry</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','dry',-1)"   id="curry-JUNIOR-dry-minus"   disabled>−</button>
+                  <span class="curry-qty-num" id="curry-JUNIOR-dry-num">0</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'JUNIOR','dry',1)"    id="curry-JUNIOR-dry-plus"    >+</button>
+                  <span class="curry-qty-oz">0 Oz</span>
+                </div>
               </div>
+              <div class="curry-total-line" id="curry-JUNIOR-total">
+                Total: 1 Gravy + 0 Dry = 12 Oz
+              </div>
+            </div>
+
             </div>
             <div class="pkg-options">
               <div class="pkg-option-label">Pick your serving</div>
@@ -1071,14 +1099,31 @@
           </div>
           <div class="pkg-body">
             <div class="pkg-section">
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🥣</span>
-                <div><span class="pkg-detail-label">Curry</span>8 Oz — 1 Gravy + 1 Dry</div>
+            <div class="curry-selector" id="curry-sel-REGULAR">
+              <div class="curry-selector-label">Curry Selection (2 boxes × 8 Oz each)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🍛 Gravy</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','gravy',-1)" id="curry-REGULAR-gravy-minus" >−</button>
+                  <span class="curry-qty-num" id="curry-REGULAR-gravy-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','gravy',1)"  id="curry-REGULAR-gravy-plus"  >+</button>
+                  <span class="curry-qty-oz">8 Oz</span>
+                </div>
               </div>
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🍽️</span>
-                <div><span class="pkg-detail-label">Serving options</span>4 Roti + Rice <em>or</em> 6 Roti (No Rice)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🥘 Dry</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','dry',-1)"   id="curry-REGULAR-dry-minus"   >−</button>
+                  <span class="curry-qty-num" id="curry-REGULAR-dry-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'REGULAR','dry',1)"    id="curry-REGULAR-dry-plus"    >+</button>
+                  <span class="curry-qty-oz">8 Oz</span>
+                </div>
               </div>
+              <div class="curry-total-line" id="curry-REGULAR-total">
+                Total: 1 Gravy + 1 Dry = 16 Oz
+              </div>
+            </div>
+
             </div>
             <div class="pkg-options">
               <div class="pkg-option-label">Pick your serving</div>
@@ -1103,14 +1148,31 @@
           </div>
           <div class="pkg-body">
             <div class="pkg-section">
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🥣</span>
-                <div><span class="pkg-detail-label">Curry</span>12 Oz — 1 Gravy + 1 Dry</div>
+            <div class="curry-selector" id="curry-sel-LARGE">
+              <div class="curry-selector-label">Curry Selection (2 boxes × 12 Oz each)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🍛 Gravy</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'LARGE','gravy',-1)" id="curry-LARGE-gravy-minus" >−</button>
+                  <span class="curry-qty-num" id="curry-LARGE-gravy-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'LARGE','gravy',1)"  id="curry-LARGE-gravy-plus"  >+</button>
+                  <span class="curry-qty-oz">12 Oz</span>
+                </div>
               </div>
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🍽️</span>
-                <div><span class="pkg-detail-label">Serving options</span>4 Roti + Rice <em>or</em> 6 Roti (No Rice)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🥘 Dry</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'LARGE','dry',-1)"   id="curry-LARGE-dry-minus"   >−</button>
+                  <span class="curry-qty-num" id="curry-LARGE-dry-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'LARGE','dry',1)"    id="curry-LARGE-dry-plus"    >+</button>
+                  <span class="curry-qty-oz">12 Oz</span>
+                </div>
               </div>
+              <div class="curry-total-line" id="curry-LARGE-total">
+                Total: 1 Gravy + 1 Dry = 24 Oz
+              </div>
+            </div>
+
             </div>
             <div class="pkg-options">
               <div class="pkg-option-label">Pick your serving</div>
@@ -1135,14 +1197,31 @@
           </div>
           <div class="pkg-body">
             <div class="pkg-section">
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🥣</span>
-                <div><span class="pkg-detail-label">Curry</span>24 Oz — 1 Gravy + 1 Dry</div>
+            <div class="curry-selector" id="curry-sel-FAMILY">
+              <div class="curry-selector-label">Curry Selection (2 boxes × 24 Oz each)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🍛 Gravy</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'FAMILY','gravy',-1)" id="curry-FAMILY-gravy-minus" >−</button>
+                  <span class="curry-qty-num" id="curry-FAMILY-gravy-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'FAMILY','gravy',1)"  id="curry-FAMILY-gravy-plus"  >+</button>
+                  <span class="curry-qty-oz">24 Oz</span>
+                </div>
               </div>
-              <div class="pkg-detail-row">
-                <span class="pkg-detail-icon">🍽️</span>
-                <div><span class="pkg-detail-label">Serving options</span>8 Roti + 2× Rice <em>or</em> 12 Roti (No Rice)</div>
+              <div class="curry-toggle-row">
+                <span class="curry-toggle-name">🥘 Dry</span>
+                <div class="curry-qty-ctrl">
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'FAMILY','dry',-1)"   id="curry-FAMILY-dry-minus"   >−</button>
+                  <span class="curry-qty-num" id="curry-FAMILY-dry-num">1</span>
+                  <button class="curry-qty-btn" onclick="changeCurry(event,'FAMILY','dry',1)"    id="curry-FAMILY-dry-plus"    >+</button>
+                  <span class="curry-qty-oz">24 Oz</span>
+                </div>
               </div>
+              <div class="curry-total-line" id="curry-FAMILY-total">
+                Total: 1 Gravy + 1 Dry = 48 Oz
+              </div>
+            </div>
+
             </div>
             <div class="pkg-options">
               <div class="pkg-option-label">Pick your serving</div>
@@ -1221,13 +1300,29 @@
           </div>
           <div class="form-extra-info">
             <div class="form-extra-name">🥣 Extra Curry</div>
-            <div class="form-extra-desc">Additional curry serving per delivery</div>
+            <div class="form-extra-desc" id="currydesc">Additional curry serving per delivery</div>
           </div>
         </div>
         <div class="form-extra-price-col">
-          <span class="form-extra-price">$70</span>
+          <span class="form-extra-price" id="extraCurryPrice">$70</span>
           <span class="form-extra-per">/ month</span>
         </div>
+      </div>
+
+      <!-- Curry type selector — expands when Extra Curry is selected -->
+      <div id="curryTypeWrap" style="display:none;padding:10px 24px 14px;background:#f9f6f0;border-bottom:1px solid var(--border);" onclick="event.stopPropagation()">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ash);margin-bottom:8px;">Select Curry Type</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="curry-type-btn" id="curryBtnGravy" onclick="selectCurryType('Gravy')"
+            style="padding:8px 18px;border:2px solid var(--border);border-radius:20px;background:white;font-family:'Mulish',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:all 0.18s;color:var(--ash);">
+            🍛 Gravy
+          </button>
+          <button class="curry-type-btn" id="curryBtnDry" onclick="selectCurryType('Dry')"
+            style="padding:8px 18px;border:2px solid var(--border);border-radius:20px;background:white;font-family:'Mulish',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:all 0.18s;color:var(--ash);">
+            🥘 Dry
+          </button>
+        </div>
+        <div id="curryTypeNote" style="font-size:11px;color:var(--ash);margin-top:6px;display:none;">✓ <span id="curryTypeSelected"></span> selected</div>
       </div>
 
       <!-- Extras subtotal bar -->
@@ -1702,8 +1797,18 @@ const FREQ_NOTES = {
   MONTHLY:  'Monthly plan — best value, billed once per month.'
 };
 
+// Curry box config per package
+const PKG_CURRY_CFG = {
+  JUNIOR:  { boxes:1, oz:12, maxBoxes:1 },
+  REGULAR: { boxes:2, oz:8,  maxBoxes:2 },
+  LARGE:   { boxes:2, oz:12, maxBoxes:2 },
+  FAMILY:  { boxes:2, oz:24, maxBoxes:2 },
+};
+// Curry state per package [gravy, dry]
+var curryState = { JUNIOR:[1,0], REGULAR:[1,1], LARGE:[1,1], FAMILY:[1,1] };
+
 const PACKAGES = {
-  JUNIOR:  { label:'Junior',  currySize:'12 Oz', curryType:'1 Gravy OR 1 Dry',
+  JUNIOR:  { label:'Junior',  currySize:'12 Oz', curryType:'1 Gravy or 1 Dry',
     defaultDays:['MON','TUE','WED','THU','FRI'],
     freqs: ['TRIAL','MONTHLY'],
     options:[ {label:'4 Roti · No Rice', roti:4,  rice:'NO-RICE', isDefault:true},
@@ -1729,7 +1834,103 @@ const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
 const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:'MONTHLY', etransfer:false, extras:{ roti:false, rotiPairs:1, rice:false, curry:false }, deliveryPlace:null, photoData:null, photoFileName:null, termsAccepted:false };
 
 // ── EXTRAS ─────────────────────────────────────────────────
-const EXTRAS_PRICES = { rotiPair: 30, rice: 20, curry: 70, buildingDoorStep: 30 };
+const EXTRAS_PRICES = { rotiPair: 30, rice: 20, buildingDoorStep: 30 };
+// Curry price depends on package: Regular=$60, Large=$70, Family=$90
+var CURRY_PRICES = { JUNIOR: 0, REGULAR: 60, LARGE: 70, FAMILY: 90 };
+
+function changeCurry(event, pkg, type, dir) {
+  event.stopPropagation();
+  var cfg = PKG_CURRY_CFG[pkg];
+  if (!cfg) return;
+  var cs = curryState[pkg]; // [gravy, dry]
+  var g = cs[0], d = cs[1];
+  var total = g + d;
+
+  if (type === 'gravy') {
+    var newG = g + dir;
+    if (newG < 0) return;
+    // Total must stay <= maxBoxes
+    var newD = cfg.maxBoxes - newG;
+    if (newD < 0) return;
+    curryState[pkg] = [newG, newD];
+  } else {
+    var newD2 = d + dir;
+    if (newD2 < 0) return;
+    var newG2 = cfg.maxBoxes - newD2;
+    if (newG2 < 0) return;
+    curryState[pkg] = [newG2, newD2];
+  }
+
+  updateCurryUI(pkg);
+  updateQuote();
+}
+
+function updateCurryUI(pkg) {
+  var cfg = PKG_CURRY_CFG[pkg];
+  if (!cfg) return;
+  var g = curryState[pkg][0];
+  var d = curryState[pkg][1];
+
+  var gNum   = document.getElementById('curry-' + pkg + '-gravy-num');
+  var dNum   = document.getElementById('curry-' + pkg + '-dry-num');
+  var gMinus = document.getElementById('curry-' + pkg + '-gravy-minus');
+  var gPlus  = document.getElementById('curry-' + pkg + '-gravy-plus');
+  var dMinus = document.getElementById('curry-' + pkg + '-dry-minus');
+  var dPlus  = document.getElementById('curry-' + pkg + '-dry-plus');
+  var total  = document.getElementById('curry-' + pkg + '-total');
+
+  if (gNum)   gNum.textContent = g;
+  if (dNum)   dNum.textContent = d;
+  if (gMinus) gMinus.disabled = (g <= 0);
+  if (gPlus)  gPlus.disabled  = (g >= cfg.maxBoxes);
+  if (dMinus) dMinus.disabled = (d <= 0);
+  if (dPlus)  dPlus.disabled  = (d >= cfg.maxBoxes);
+
+  // Update Oz display next to each number
+  var gOzEls = document.querySelectorAll('#curry-' + pkg + '-gravy-num ~ .curry-qty-oz');
+  var dOzEls = document.querySelectorAll('#curry-' + pkg + '-dry-num ~ .curry-qty-oz');
+  if (gOzEls.length) gOzEls[0].textContent = (g * cfg.oz) + ' Oz';
+  if (dOzEls.length) dOzEls[0].textContent = (d * cfg.oz) + ' Oz';
+
+  if (total) total.textContent = 'Total: ' + g + ' Gravy + ' + d + ' Dry = ' + ((g + d) * cfg.oz) + ' Oz';
+
+  // Update PACKAGES curryType string
+  if (window.PACKAGES && PACKAGES[pkg]) {
+    PACKAGES[pkg].curryType = g + ' Gravy + ' + d + ' Dry';
+  }
+}
+
+function getCurrySelectionString(pkg) {
+  if (!curryState[pkg]) return '';
+  var g = curryState[pkg][0];
+  var d = curryState[pkg][1];
+  // Short label format:
+  // 1G + 1D → "G+D"
+  // 2G + 0D → "2G"
+  // 0G + 2D → "2D"
+  if (g > 0 && d > 0) {
+    return (g === 1 && d === 1) ? 'G+D' : g + 'G+' + d + 'D';
+  } else if (g > 0) {
+    return g + 'G';
+  } else {
+    return d + 'D';
+  }
+}
+
+function selectCurryType(type) {
+  state.extras.curryType = type;
+  var btnG = document.getElementById('curryBtnGravy');
+  var btnD = document.getElementById('curryBtnDry');
+  var note = document.getElementById('curryTypeNote');
+  var sel  = document.getElementById('curryTypeSelected');
+  var activeStyle = 'background:var(--cardamom);border-color:var(--cardamom);color:var(--cream);';
+  var inactiveStyle = 'background:white;border-color:var(--border);color:var(--ash);';
+  if (btnG) btnG.style.cssText = btnG.style.cssText + (type==='Gravy' ? activeStyle : inactiveStyle);
+  if (btnD) btnD.style.cssText = btnD.style.cssText + (type==='Dry'   ? activeStyle : inactiveStyle);
+  if (note) note.style.display = 'block';
+  if (sel)  sel.textContent = type + ' curry';
+  updateQuote();
+}
 
 function toggleExtra(type) {
   // Auto-open the extras panel
@@ -1759,6 +1960,20 @@ function toggleExtra(type) {
     }
   }
 
+  // Show/hide curry type selector
+  if (type === 'curry') {
+    var curryWrap = document.getElementById('curryTypeWrap');
+    if (curryWrap) curryWrap.style.display = state.extras.curry ? 'block' : 'none';
+    if (!state.extras.curry) {
+      state.extras.curryType = null;
+      var note = document.getElementById('curryTypeNote');
+      if (note) note.style.display = 'none';
+    }
+    // Update curry price display based on package
+    var priceEl = document.getElementById('extraCurryPrice');
+    if (priceEl) priceEl.textContent = '$' + getCurryPrice();
+  }
+
   updateExtrasTotal();
   updateQuote();
 }
@@ -1784,11 +1999,15 @@ function updateRotiStepper() {
   var _e_extraRotiPrice=document.getElementById('extraRotiPrice'); if(_e_extraRotiPrice) _e_extraRotiPrice.textContent='$' + total;
 }
 
+function getCurryPrice() {
+  return (state.pkg && CURRY_PRICES[state.pkg]) ? CURRY_PRICES[state.pkg] : 70;
+}
+
 function calcExtrasTotal() {
   var total = 0;
   if (state.extras.roti)  total += state.extras.rotiPairs * EXTRAS_PRICES.rotiPair;
   if (state.extras.rice)  total += EXTRAS_PRICES.rice;
-  if (state.extras.curry) total += EXTRAS_PRICES.curry;
+  if (state.extras.curry) total += getCurryPrice();
   if (state.deliveryPlace === 'Building Door Step' && state.freq === 'MONTHLY') total += EXTRAS_PRICES.buildingDoorStep;
   return total;
 }
@@ -1926,6 +2145,16 @@ function selectPackage(cardEl) {
       ch.classList.toggle('chip-selected', ch.dataset.roti == def.roti && ch.dataset.rice === def.rice);
     });
   }
+  // Update curry price display when package changes
+  var curryPriceEl = document.getElementById('extraCurryPrice');
+  if (curryPriceEl) curryPriceEl.textContent = '$' + getCurryPrice();
+  var curryDescEl = document.getElementById('currydesc');
+  if (curryDescEl) {
+    var cp = getCurryPrice();
+    var desc = cp > 0 ? 'Additional curry serving per delivery — $' + cp + '/month' : 'Not available for this package';
+    curryDescEl.textContent = desc;
+  }
+
   // Auto-select default delivery days based on package
   // Junior → MON-FRI (5 days), all others → MON-SAT (6 days)
   if (pkg === 'JUNIOR') {
@@ -2085,11 +2314,17 @@ function normaliseDays(days) {
 
 function buildNotesString() {
   if(!state.pkg||state.roti===null||!state.rice||state.days.length===0) return null;
-  var pkg=PACKAGES[state.pkg];
-  var price = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : (PRICING.MONTHLY[state.pkg]||'');
-  // Each selected day listed individually — e.g. LARGE,4,MON,TUE,WED,THU,FRI,$270,RICE,MONTHLY
+  var price   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : (PRICING.MONTHLY[state.pkg]||'');
   var dayList = state.days.join(',');
-  return [state.pkg, state.roti, dayList, '$'+price, state.rice, state.freq].join(',');
+  var riceShort = state.rice === 'RICE' ? 'R' : 'N';
+  var pkgShort  = state.pkg[0]; // L, R, J, F
+  var curryStr  = getCurrySelectionString(state.pkg); // e.g. G+D or 2G or 2D
+
+  // Short label: L-4-R-G+D or L-6-N-2G
+  var shortLabel = pkgShort + '-' + state.roti + '-' + riceShort + '-' + curryStr;
+
+  // Full notes string includes short label + all details
+  return shortLabel + ',' + dayList + ',$' + price + ',' + state.freq;
 }
 
 function updateQuote() {
@@ -2097,7 +2332,24 @@ function updateQuote() {
   document.getElementById('q-pkg').innerHTML = pkg
     ? '<strong>' + pkg.label + '</strong>'
     : '<em class="empty">—</em>';
-  document.getElementById('q-curry').innerHTML   = pkg ? (pkg.currySize + ' · ' + pkg.curryType) : '<em class="empty">—</em>';
+  // Show live curry selection in quote card (readable format)
+  var curryDisplay = '';
+  if (pkg && state.pkg) {
+    var cfg2 = PKG_CURRY_CFG[state.pkg];
+    var cs2  = curryState[state.pkg];
+    if (cfg2 && cs2) {
+      var g2 = cs2[0], d2 = cs2[1];
+      var ozEach = cfg2.oz;
+      curryDisplay = pkg.currySize + ' total · ';
+      if (g2 > 0 && d2 > 0) curryDisplay += g2 + ' Gravy (' + (g2*ozEach) + ' Oz) + ' + d2 + ' Dry (' + (d2*ozEach) + ' Oz)';
+      else if (g2 > 0)       curryDisplay += g2 + ' Gravy (' + (g2*ozEach) + ' Oz)';
+      else if (d2 > 0)       curryDisplay += d2 + ' Dry (' + (d2*ozEach) + ' Oz)';
+      // No short label in quote card — full words only
+    } else {
+      curryDisplay = pkg.currySize + ' · ' + pkg.curryType;
+    }
+  }
+  document.getElementById('q-curry').innerHTML = curryDisplay || '<em class="empty">—</em>';
   document.getElementById('q-serving').innerHTML = state.optionLabel ? state.optionLabel : '<em class="empty">—</em>';
   document.getElementById('q-days').innerHTML    = state.days.length>0
     ? normaliseDays(state.days) + ' <span style="color:rgba(253,250,244,0.4);font-weight:400">(' + state.days.length + 'd/wk)</span>'
