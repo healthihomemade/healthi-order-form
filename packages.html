@@ -1081,6 +1081,7 @@
               <div class="pkg-option-chips" id="chips-JUNIOR">
                 <div class="option-chip" data-pkg="JUNIOR" data-roti="4" data-rice="NO-RICE" onclick="selectOption(event,this)">4 Roti · No Rice</div>
                 <div class="option-chip" data-pkg="JUNIOR" data-roti="0" data-rice="RICE" onclick="selectOption(event,this)">Rice Only</div>
+                <div class="option-chip" data-pkg="JUNIOR" data-roti="0" data-rice="2RICE" onclick="selectOption(event,this)">No Roti · 2× Rice</div>
               </div>
             </div>
           </div>
@@ -1130,6 +1131,7 @@
               <div class="pkg-option-chips" id="chips-REGULAR">
                 <div class="option-chip" data-pkg="REGULAR" data-roti="4" data-rice="RICE" onclick="selectOption(event,this)">4 Roti + Rice</div>
                 <div class="option-chip" data-pkg="REGULAR" data-roti="6" data-rice="NO-RICE" onclick="selectOption(event,this)">6 Roti · No Rice</div>
+                <div class="option-chip" data-pkg="REGULAR" data-roti="0" data-rice="2RICE" onclick="selectOption(event,this)">No Roti · 2× Rice</div>
               </div>
             </div>
           </div>
@@ -1179,6 +1181,7 @@
               <div class="pkg-option-chips" id="chips-LARGE">
                 <div class="option-chip" data-pkg="LARGE" data-roti="4" data-rice="RICE" onclick="selectOption(event,this)">4 Roti + Rice</div>
                 <div class="option-chip" data-pkg="LARGE" data-roti="6" data-rice="NO-RICE" onclick="selectOption(event,this)">6 Roti · No Rice</div>
+                <div class="option-chip" data-pkg="LARGE" data-roti="0" data-rice="2RICE" onclick="selectOption(event,this)">No Roti · 2× Rice</div>
               </div>
             </div>
           </div>
@@ -1228,6 +1231,7 @@
               <div class="pkg-option-chips" id="chips-FAMILY">
                 <div class="option-chip" data-pkg="FAMILY" data-roti="8" data-rice="RICE" onclick="selectOption(event,this)">8 Roti + 2× Rice</div>
                 <div class="option-chip" data-pkg="FAMILY" data-roti="12" data-rice="NO-RICE" onclick="selectOption(event,this)">12 Roti · No Rice</div>
+                <div class="option-chip" data-pkg="FAMILY" data-roti="0" data-rice="2RICE" onclick="selectOption(event,this)">No Roti · 2× Rice</div>
               </div>
             </div>
           </div>
@@ -1812,22 +1816,26 @@ const PACKAGES = {
     defaultDays:['MON','TUE','WED','THU','FRI'],
     freqs: ['TRIAL','MONTHLY'],
     options:[ {label:'4 Roti · No Rice', roti:4,  rice:'NO-RICE', isDefault:true},
-              {label:'Rice Only',        roti:0,  rice:'RICE',    isDefault:false} ] },
+              {label:'Rice Only',            roti:0,  rice:'RICE',    isDefault:false},
+              {label:'No Roti · 2× Rice',  roti:0,  rice:'2RICE',   isDefault:false} ] },
   REGULAR: { label:'Regular', currySize:'8 Oz',  curryType:'1 Gravy + 1 Dry',
     defaultDays:['MON','TUE','WED','THU','FRI','SAT'],
     freqs: ['TRIAL','WEEKLY','BIWEEKLY','MONTHLY'],
-    options:[ {label:'4 Roti + Rice',    roti:4,  rice:'RICE',    isDefault:true},
-              {label:'6 Roti · No Rice', roti:6,  rice:'NO-RICE', isDefault:false} ] },
+    options:[ {label:'4 Roti + Rice',         roti:4,  rice:'RICE',    isDefault:true},
+              {label:'6 Roti · No Rice', roti:6,  rice:'NO-RICE', isDefault:false},
+              {label:'No Roti · 2× Rice',  roti:0,  rice:'2RICE',   isDefault:false} ] },
   LARGE:   { label:'Large',   currySize:'12 Oz', curryType:'1 Gravy + 1 Dry',
     defaultDays:['MON','TUE','WED','THU','FRI','SAT'],
     freqs: ['TRIAL','WEEKLY','BIWEEKLY','MONTHLY'],
-    options:[ {label:'4 Roti + Rice',    roti:4,  rice:'RICE',    isDefault:true},
-              {label:'6 Roti · No Rice', roti:6,  rice:'NO-RICE', isDefault:false} ] },
+    options:[ {label:'4 Roti + Rice',         roti:4,  rice:'RICE',    isDefault:true},
+              {label:'6 Roti · No Rice', roti:6,  rice:'NO-RICE', isDefault:false},
+              {label:'No Roti · 2× Rice',  roti:0,  rice:'2RICE',   isDefault:false} ] },
   FAMILY:  { label:'Family',  currySize:'24 Oz', curryType:'1 Gravy + 1 Dry',
     defaultDays:['MON','TUE','WED','THU','FRI','SAT'],
     freqs: ['TRIAL','WEEKLY','BIWEEKLY','MONTHLY'],
-    options:[ {label:'8 Roti + 2× Rice',  roti:8,  rice:'RICE',   isDefault:true},
-              {label:'12 Roti · No Rice', roti:12, rice:'NO-RICE', isDefault:false} ] }
+    options:[ {label:'8 Roti + 2× Rice',       roti:8,  rice:'RICE',    isDefault:true},
+              {label:'12 Roti · No Rice',       roti:12, rice:'NO-RICE', isDefault:false},
+              {label:'No Roti · 2× Rice',  roti:0,  rice:'2RICE',   isDefault:false} ] }
 };
 
 const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
@@ -2316,7 +2324,7 @@ function buildNotesString() {
   if(!state.pkg||state.roti===null||!state.rice||state.days.length===0) return null;
   var price   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : (PRICING.MONTHLY[state.pkg]||'');
   var dayList = state.days.join(',');
-  var riceShort = state.rice === 'RICE' ? 'R' : 'N';
+  var riceShort = state.rice === 'RICE' ? 'R' : (state.rice === '2RICE' ? '2R' : 'N');
   var pkgShort  = state.pkg[0]; // L, R, J, F
   var curryStr  = getCurrySelectionString(state.pkg); // e.g. G+D or 2G or 2D
 
