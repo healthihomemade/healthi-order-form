@@ -2803,11 +2803,11 @@ function calcEndDate(startStr, freq) {
   switch (freq) {
     case 'TRIAL':    // Same as start date
       break;
-    case 'WEEKLY':   // +7 days
-      d.setDate(d.getDate() + 7);
+    case 'WEEKLY':   // +6 days
+      d.setDate(d.getDate() + 6);
       break;
-    case 'BIWEEKLY': // +14 days
-      d.setDate(d.getDate() + 14);
+    case 'BIWEEKLY': // +12 days
+      d.setDate(d.getDate() + 12);
       break;
     case 'MONTHLY':  // Same day next month minus 1
       // e.g. 2026-05-09 → 2026-06-08
