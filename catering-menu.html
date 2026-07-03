@@ -1234,7 +1234,7 @@
               <div class="delivery-opt-radio"></div>
               <span class="delivery-opt-icon">🏢</span>
               <div style="flex:1;">
-                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$30 surcharge)</span></span>
+                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$50 surcharge)</span></span>
                 <div class="buzz-inline-wrap" id="buzzWrap" style="display:none;margin-top:8px;" onclick="event.stopPropagation()">
                   <input type="text" id="fBuzzCode" placeholder="Buzz / Intercom code e.g. 1204" maxlength="10" oninput="updateQuote()" inputmode="numeric" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Mulish',sans-serif;outline:none;transition:border-color 0.18s;" onfocus="this.style.borderColor='var(--saffron)'" onblur="this.style.borderColor='var(--border)'">
                   <div style="font-size:10.5px;color:var(--ash);margin-top:3px;">Required to access your building</div>
@@ -1314,7 +1314,7 @@
     <div class="quote-line"><span class="quote-key">Curry</span><span class="quote-val" id="q-curry"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Serving</span><span class="quote-val" id="q-serving"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Delivery days</span><span class="quote-val" id="q-days"><em class="empty">—</em></span></div>
-    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$30</span></div>
+    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$50</span></div>
     <hr class="quote-divider">
     <div class="quote-total-label" id="q-price-label">Fixed Price</div>
     <div class="quote-price" id="q-price">$—</div>
@@ -1472,7 +1472,7 @@ const PACKAGES = {
 };
 const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
 const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:'MONTHLY', etransfer:false, extras:{roti:false,rotiPairs:1,rice:false,curry:false}, deliveryPlace:null, photoData:null, photoFileName:null, termsAccepted:false };
-const EXTRAS_PRICES = { rotiPair:30, rice:20, buildingDoorStep:30 };
+const EXTRAS_PRICES = { rotiPair:30, rice:20, buildingDoorStep:50 };
 var CURRY_PRICES = { JUNIOR:0, REGULAR:60, LARGE:70, FAMILY:90 };
 
 function changeCurry(event,pkg,type,dir){
