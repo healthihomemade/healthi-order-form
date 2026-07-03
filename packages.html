@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=579, initial-scale=1.0, viewport-fit=cover">
-<title>Healthi Homemade — Order Your Meal Plan v2.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Healthi Homemade — Order Your Meal Plan v2.3</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -16,9 +16,9 @@
     --radius: 16px; --radius-sm: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html  { width: 579px; max-width: 100%; overflow-x: hidden; }
+  html  { width: 100%; max-width: 100%; overflow-x: hidden; }
   body  {
-    width: 579px;
+    width: 100%;
     max-width: 100%;
     min-height: 897px;
     background: var(--smoke);
@@ -33,9 +33,9 @@
   }
 
   .page-body {
-    max-width: 579px;
+    max-width: 100%;
     width: 100%;
-    margin: 0 auto;
+    margin: 0;
     padding: 14px 12px 48px;
     display: grid;
     grid-template-columns: 1fr;
@@ -53,7 +53,7 @@
   .panel-num { width:28px; height:28px; background:var(--cardamom); color:var(--cream); border-radius:50%; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
   .panel-title { font-family:'Playfair Display',serif; font-size:1.1rem; display:flex; align-items:center; gap:6px; }
   .panel-title .required-star { font-size:0.85rem; margin-top:2px; }
-  .panel-body { padding:22px 24px; }
+  .panel-body { padding:16px 14px; box-sizing:border-box; width:100%; }
 
   .pkg-card.pkg-hidden { display:none; }
 
@@ -71,8 +71,8 @@
   /* ═══════════════════════════════════════════════
      PACKAGE CASCADE / ACCORDION
      All 4 cards stacked full-width in a column.
-     Collapsed = slim 1-row header, dim.
-     Selected  = header + full body open, vivid.
+     Collapsed = slim 1-row header.
+     Selected  = header + full body open.
      ═══════════════════════════════════════════════ */
 
   .package-grid {
@@ -83,11 +83,12 @@
     border-radius: var(--radius-sm);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
+    width: 100%;
+    box-sizing: border-box;
   }
 
-  /* pkg-queue-row is no longer needed — all cards are siblings */
   .pkg-queue-row {
-    display: contents; /* renders children directly, no wrapper box */
+    display: contents;
   }
 
   /* ── BASE CARD ── */
@@ -103,148 +104,166 @@
     user-select: none;
     background: white;
     transition: background 0.2s ease;
+    width: 100%;
+    box-sizing: border-box;
   }
   .pkg-card:last-child { border-bottom: none; }
   .pkg-card.pkg-hidden { display: none; }
 
-  /* ── HEADER — always visible, single row ── */
+  /* ── HEADER ── */
   .pkg-header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 14px;
-    padding: 14px 18px;
+    gap: 10px;
+    padding: 12px 14px;
     transition: background 0.2s ease;
     position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
   }
-
-  /* Collapsed row: icon + name + subtitle + price + arrow */
-  .pkg-card:not(.selected) .pkg-header {
-    background: white;
-  }
-  .pkg-card:not(.selected):hover .pkg-header {
-    background: var(--saffron-light);
-  }
-
-  /* Selected row: warm highlight */
+  .pkg-card:not(.selected):hover .pkg-header { background: var(--saffron-light); }
   .pkg-card.selected .pkg-header {
     background: var(--saffron-light);
     border-bottom: 1.5px solid rgba(232,137,12,0.22);
   }
 
-  /* Icon */
+  /* Icon — fixed small square, never shrinks */
   .pkg-icon {
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     line-height: 1;
     flex-shrink: 0;
-    width: 36px;
+    width: 28px;
     text-align: center;
-    transition: font-size 0.2s;
   }
-  .pkg-card.selected .pkg-icon { font-size: 1.75rem; }
+  .pkg-card.selected .pkg-icon { font-size: 1.5rem; }
 
-  /* Info block — takes remaining space */
-  .pkg-info { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+  /* Info block — fills remaining space, clips overflow */
+  .pkg-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
 
   /* Name */
   .pkg-name {
     font-weight: 800;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--ink);
     white-space: nowrap;
-    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
   }
-  .pkg-card.selected .pkg-name { color: var(--cardamom); }
+  .pkg-card.selected .pkg-name {
+    font-size: 14px;
+    color: var(--cardamom);
+  }
 
-  /* Collapsed subtitle — oz + curry type, shown only when not selected */
+  /* Subtitle — clips cleanly, hidden on selected */
   .pkg-collapsed-sub {
-    font-size: 11.5px;
+    font-size: 10.5px;
     font-family: 'Mulish', sans-serif;
     font-weight: 500;
     color: var(--ash);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
-    transition: opacity 0.15s;
+    display: block;
+    line-height: 1.3;
+    transition: opacity 0.15s, max-height 0.15s;
+    max-height: 20px;
   }
-  .pkg-card.selected .pkg-collapsed-sub { opacity: 0; pointer-events: none; }
+  .pkg-card.selected .pkg-collapsed-sub {
+    opacity: 0;
+    max-height: 0;
+    pointer-events: none;
+  }
 
-  /* Price — right-aligned in the header row */
+  /* Price — right side, never wraps */
   .pkg-price {
     font-family: 'Playfair Display', serif;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     color: var(--saffron-dark);
     line-height: 1;
     white-space: nowrap;
     flex-shrink: 0;
-    transition: font-size 0.2s;
   }
-  .pkg-card.selected .pkg-price { font-size: 1.35rem; }
+  .pkg-card.selected .pkg-price { font-size: 1.2rem; }
   .pkg-price span {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--ash);
     font-family: 'Mulish', sans-serif;
     font-weight: 400;
+    display: block;
+    line-height: 1.4;
   }
 
-  /* Expand arrow — right edge chevron */
+  /* Chevron arrow */
   .pkg-expand-arrow {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--ash);
-    width: 20px;
+    width: 16px;
     transition: transform 0.3s ease, color 0.2s;
   }
   .pkg-expand-arrow::after { content: '▼'; }
-  .pkg-expand-arrow .pkg-collapsed-sub { display: none; } /* hide old sub inside arrow */
+  .pkg-expand-arrow .pkg-collapsed-sub { display: none; }
   .pkg-card.selected .pkg-expand-arrow {
     transform: rotate(180deg);
     color: var(--saffron-dark);
   }
 
-  /* Check badge */
-  .pkg-check { display: none; } /* replaced by arrow chevron in cascade */
+  /* Check badge — hidden, chevron replaces it */
+  .pkg-check { display: none; }
 
-  /* ── BODY: slides open on selected ── */
-  .pkg-body-inner { padding: 18px 20px 22px; }
+  /* ── BODY ── */
+  .pkg-body-inner {
+    padding: 14px 14px 18px;
+    width: 100%;
+    box-sizing: border-box;
+  }
   .pkg-body {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
     transition: max-height 0.42s cubic-bezier(0.4,0,0.2,1),
                 opacity 0.28s ease 0.06s;
+    width: 100%;
+    box-sizing: border-box;
   }
   .pkg-card.selected .pkg-body {
     max-height: 600px;
     opacity: 1;
   }
 
-  .pkg-section { padding-top:12px; display:flex; flex-direction:column; gap:8px; }
-  .pkg-detail-row { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:var(--ink); line-height:1.4; }
+  .pkg-section { padding-top:10px; display:flex; flex-direction:column; gap:8px; }
+  .pkg-detail-row { display:flex; align-items:flex-start; gap:8px; font-size:12px; color:var(--ink); line-height:1.4; }
   .pkg-detail-icon { font-size:13px; flex-shrink:0; margin-top:1px; }
-  .pkg-detail-label { color:var(--ash); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:block; margin-bottom:1px; }
+  .pkg-detail-label { color:var(--ash); font-size:10px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; display:block; margin-bottom:1px; }
 
   .pkg-options { margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); }
   .curry-selector { margin-top:10px; padding-top:10px; border-top:1px dashed rgba(232,137,12,0.2); }
-  .curry-selector-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--ash); margin-bottom:8px; }
-  .curry-toggle-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
-  .curry-toggle-name { font-size:12.5px; font-weight:600; color:var(--ink); flex:1; }
-  .curry-qty-ctrl { display:flex; align-items:center; gap:6px; }
-  .curry-qty-btn { width:24px; height:24px; border-radius:50%; border:1.5px solid var(--border); background:white; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; line-height:1; color:var(--ink); }
+  .curry-selector-label { font-size:10px; text-transform:uppercase; letter-spacing:0.06em; font-weight:700; color:var(--ash); margin-bottom:8px; }
+  .curry-toggle-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+  .curry-toggle-name { font-size:12px; font-weight:600; color:var(--ink); flex:1; }
+  .curry-qty-ctrl { display:flex; align-items:center; gap:5px; }
+  .curry-qty-btn { width:24px; height:24px; border-radius:50%; border:1.5px solid var(--border); background:white; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s; line-height:1; color:var(--ink); flex-shrink:0; }
   .curry-qty-btn:hover:not(:disabled) { background:var(--saffron); border-color:var(--saffron); color:white; }
   .curry-qty-btn:disabled { opacity:0.25; cursor:not-allowed; }
-  .curry-qty-num { font-size:13px; font-weight:700; color:var(--ink); min-width:20px; text-align:center; }
-  .curry-qty-oz { font-size:10.5px; color:var(--saffron-dark); font-weight:600; }
-  .curry-total-line { font-size:11px; color:var(--ash); margin-top:6px; font-style:italic; }
-  .pkg-option-label { font-size:11px; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; color:var(--ash); margin-bottom:7px; }
+  .curry-qty-num { font-size:13px; font-weight:700; color:var(--ink); min-width:18px; text-align:center; }
+  .curry-qty-oz { font-size:10px; color:var(--saffron-dark); font-weight:600; }
+  .curry-total-line { font-size:10.5px; color:var(--ash); margin-top:5px; font-style:italic; }
+  .pkg-option-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.07em; font-weight:700; color:var(--ash); margin-bottom:7px; }
   .pkg-option-chips { display:flex; flex-wrap:wrap; gap:6px; }
 
-  .option-chip { font-size:11.5px; font-weight:600; padding:5px 12px; border-radius:20px; border:1.5px solid var(--border); background:white; cursor:pointer; transition:all 0.18s; white-space:nowrap; }
+  .option-chip { font-size:11px; font-weight:600; padding:5px 10px; border-radius:20px; border:1.5px solid var(--border); background:white; cursor:pointer; transition:all 0.18s; white-space:nowrap; }
   .option-chip:hover { border-color:var(--saffron); background:var(--saffron-light); color:var(--saffron-dark); }
   .option-chip.chip-selected { background:var(--cardamom); border-color:var(--cardamom); color:white; }
 
@@ -660,18 +679,25 @@
   }
   @media(max-width:600px){
     .page-body { padding:10px 8px 40px; gap:12px; }
-    .panel-header { padding:12px 14px 10px; gap:8px; }
-    .panel-body   { padding:14px; }
+    .panel-header { padding:12px 12px 10px; gap:8px; }
+    .panel-body   { padding:12px 10px; }
     .panel-title  { font-size:1rem; }
     .panel-num    { width:24px; height:24px; font-size:11px; }
-    .pkg-header   { padding:10px 10px 8px; gap:4px; }
-    .pkg-icon     { font-size:1.5rem; }
-    .pkg-name     { font-size:15px; }
-    .pkg-price    { font-size:1.25rem; }
-    .pkg-body     { padding:0 12px 12px; }
-    .pkg-detail-row { font-size:12px; }
-    .option-chip  { font-size:11px; padding:4px 9px; }
-    .pkg-check    { width:20px; height:20px; top:10px; right:10px; }
+    /* Package cascade mobile overrides */
+    .pkg-header   { padding:10px 10px; gap:7px; }
+    .pkg-icon     { font-size:1.1rem; width:22px; }
+    .pkg-card.selected .pkg-icon { font-size:1.25rem; }
+    .pkg-name     { font-size:12px; }
+    .pkg-card.selected .pkg-name { font-size:13px; }
+    .pkg-collapsed-sub { font-size:9.5px; }
+    .pkg-price    { font-size:0.9rem; }
+    .pkg-card.selected .pkg-price { font-size:1rem; }
+    .pkg-price span { font-size:8px; }
+    .pkg-expand-arrow { font-size:8px; width:13px; }
+    .pkg-body-inner { padding:12px 10px 14px; }
+    .curry-toggle-name { font-size:11.5px; }
+    .curry-qty-btn { width:22px; height:22px; }
+    .option-chip  { font-size:10.5px; padding:4px 9px; }
     .days-grid    { grid-template-columns:repeat(3,1fr); gap:6px; }
     .day-chip     { padding:9px 4px; }
     .day-abbr     { font-size:10.5px; }
@@ -739,9 +765,15 @@
   }
   @media(max-width:400px){
     .page-body    { padding:8px 6px 32px; }
-    .panel-body   { padding:12px; }
-    .pkg-name { font-size:13px; }
-    .pkg-price { font-size:1.1rem; }
+    .panel-body   { padding:10px 8px; }
+    .pkg-header   { padding:9px 8px; gap:6px; }
+    .pkg-icon     { font-size:1rem; width:18px; }
+    .pkg-name     { font-size:11.5px; }
+    .pkg-collapsed-sub { font-size:9px; }
+    .pkg-price    { font-size:0.82rem; }
+    .pkg-expand-arrow { width:12px; font-size:7px; }
+    .pkg-body-inner { padding:10px 8px 12px; }
+    .option-chip  { font-size:10px; padding:4px 8px; }
     .fields-grid  { gap:8px; }
     .days-grid    { grid-template-columns:repeat(2,1fr); gap:5px; }
     .quote-price  { font-size:1.8rem; }
@@ -1202,7 +1234,7 @@
               <div class="delivery-opt-radio"></div>
               <span class="delivery-opt-icon">🏢</span>
               <div style="flex:1;">
-                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$30 surcharge)</span></span>
+                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$50 surcharge)</span></span>
                 <div class="buzz-inline-wrap" id="buzzWrap" style="display:none;margin-top:8px;" onclick="event.stopPropagation()">
                   <input type="text" id="fBuzzCode" placeholder="Buzz / Intercom code e.g. 1204" maxlength="10" oninput="updateQuote()" inputmode="numeric" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:'Mulish',sans-serif;outline:none;transition:border-color 0.18s;" onfocus="this.style.borderColor='var(--saffron)'" onblur="this.style.borderColor='var(--border)'">
                   <div style="font-size:10.5px;color:var(--ash);margin-top:3px;">Required to access your building</div>
@@ -1282,7 +1314,7 @@
     <div class="quote-line"><span class="quote-key">Curry</span><span class="quote-val" id="q-curry"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Serving</span><span class="quote-val" id="q-serving"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Delivery days</span><span class="quote-val" id="q-days"><em class="empty">—</em></span></div>
-    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$30</span></div>
+    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$50</span></div>
     <hr class="quote-divider">
     <div class="quote-total-label" id="q-price-label">Fixed Price</div>
     <div class="quote-price" id="q-price">$—</div>
@@ -1440,7 +1472,7 @@ const PACKAGES = {
 };
 const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
 const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:'MONTHLY', etransfer:false, extras:{roti:false,rotiPairs:1,rice:false,curry:false}, deliveryPlace:null, photoData:null, photoFileName:null, termsAccepted:false };
-const EXTRAS_PRICES = { rotiPair:30, rice:20, buildingDoorStep:30 };
+const EXTRAS_PRICES = { rotiPair:30, rice:20, buildingDoorStep:50 };
 var CURRY_PRICES = { JUNIOR:0, REGULAR:60, LARGE:70, FAMILY:90 };
 
 function changeCurry(event,pkg,type,dir){
@@ -1492,7 +1524,7 @@ function toggleExtra(type){
 function stepRoti(event,dir){event.stopPropagation();var n=state.extras.rotiPairs+dir;if(n<1||n>6)return;state.extras.rotiPairs=n;updateRotiStepper();updateExtrasTotal();updateQuote();}
 function updateRotiStepper(){var p=state.extras.rotiPairs,r=p*2,t=p*EXTRAS_PRICES.rotiPair;var ec=document.getElementById('rotiCount');if(ec)ec.textContent=r+' roti'+(r>1?'s':'');var es=document.getElementById('rotiStepTotal');if(es)es.textContent='= $'+t+' / mo';document.getElementById('rotiMinus').disabled=(p<=1);document.getElementById('rotiPlus').disabled=(p>=6);var ep=document.getElementById('extraRotiPrice');if(ep)ep.textContent='$'+t;}
 function getCurryPrice(){return(state.pkg&&CURRY_PRICES[state.pkg])?CURRY_PRICES[state.pkg]:70;}
-function calcExtrasTotal(){var t=0;if(state.extras.roti)t+=state.extras.rotiPairs*EXTRAS_PRICES.rotiPair;if(state.extras.rice)t+=EXTRAS_PRICES.rice;if(state.extras.curry)t+=getCurryPrice();if(state.deliveryPlace==='Building Door Step'&&state.freq==='MONTHLY')t+=EXTRAS_PRICES.buildingDoorStep;return t;}
+function calcExtrasTotal(){var t=0;if(state.extras.roti)t+=state.extras.rotiPairs*EXTRAS_PRICES.rotiPair;if(state.extras.rice)t+=EXTRAS_PRICES.rice;if(state.extras.curry)t+=getCurryPrice();if(state.deliveryPlace==='Building Door Step')t+=EXTRAS_PRICES.buildingDoorStep;return t;}
 function updateExtrasTotal(){var t=calcExtrasTotal();var a=state.extras.roti||state.extras.rice||state.extras.curry;var tl=document.getElementById('extrasTotalLine');tl.classList.toggle('show',a);var tv=document.getElementById('extrasTotalVal');if(tv)tv.textContent='$'+t+' / mo';}
 function showHideExtrasPanel(){var p=document.getElementById('panel-extras');if(!p)return;var s=!!state.pkg;p.style.display=s?'block':'none';var el=p.querySelector('.panel-title span');if(el){el.textContent=state.freq==='MONTHLY'?' — Roti, Rice, Curry (Optional)':' — Available on Monthly plans only';el.style.color=state.freq==='MONTHLY'?'var(--ink)':'var(--ash)';}updatePanelNumbers();}
 function updatePanelNumbers(){var h=!!state.pkg;var dn=h?3:2;var dd=h?4:3;var de=document.querySelector('#panel-days .panel-num');var di=document.querySelector('#panel-details .panel-num');if(de)de.textContent=dn;if(di)di.textContent=dd;}
@@ -1628,7 +1660,7 @@ function updateQuote(){
   document.getElementById('q-curry').innerHTML=curryDisplay||'<em class="empty">—</em>';
   document.getElementById('q-serving').innerHTML=state.optionLabel?state.optionLabel:'<em class="empty">—</em>';
   document.getElementById('q-days').innerHTML=state.days.length>0?normaliseDays(state.days)+' <span style="color:rgba(253,250,244,0.4);font-weight:400">('+state.days.length+'d/wk)</span>':'<em class="empty">—</em>';
-  var dsl=document.getElementById('q-doorstep-line');if(dsl)dsl.style.display=(state.deliveryPlace==='Building Door Step'&&state.freq==='MONTHLY')?'flex':'none';
+  var dsl=document.getElementById('q-doorstep-line');if(dsl)dsl.style.display=(state.deliveryPlace==='Building Door Step')?'flex':'none';
   if(pkg){
     var bp=PRICING[state.freq]&&PRICING[state.freq][state.pkg]?PRICING[state.freq][state.pkg]:0;
     var et=calcExtrasTotal();var cb=bp+et;var fl=FREQ_LABELS[state.freq]||'/ month';
@@ -1661,7 +1693,7 @@ function updateQuote(){
 }
 
 var SHEET_WEBAPP_URL='https://script.google.com/macros/s/AKfycbzdGyzHlp3YGbdPjTgdC6Q3BGy2JGxNN32me2xs35vcibUiKY2EHW8Xw0OAoLRMgJE/exec';
-var areaServed=null;var INTERAC_EMAIL='healthihomemade@gmail.com';
+console.log("v2.3 — BDS=$50 FINAL");var areaServed=null;var INTERAC_EMAIL='healthihomemade@gmail.com';
 var areaCheckTimer=null;
 
 function submitViaForm(payloadStr){
