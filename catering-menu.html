@@ -1524,7 +1524,7 @@ function toggleExtra(type){
 function stepRoti(event,dir){event.stopPropagation();var n=state.extras.rotiPairs+dir;if(n<1||n>6)return;state.extras.rotiPairs=n;updateRotiStepper();updateExtrasTotal();updateQuote();}
 function updateRotiStepper(){var p=state.extras.rotiPairs,r=p*2,t=p*EXTRAS_PRICES.rotiPair;var ec=document.getElementById('rotiCount');if(ec)ec.textContent=r+' roti'+(r>1?'s':'');var es=document.getElementById('rotiStepTotal');if(es)es.textContent='= $'+t+' / mo';document.getElementById('rotiMinus').disabled=(p<=1);document.getElementById('rotiPlus').disabled=(p>=6);var ep=document.getElementById('extraRotiPrice');if(ep)ep.textContent='$'+t;}
 function getCurryPrice(){return(state.pkg&&CURRY_PRICES[state.pkg])?CURRY_PRICES[state.pkg]:70;}
-function calcExtrasTotal(){var t=0;if(state.extras.roti)t+=state.extras.rotiPairs*EXTRAS_PRICES.rotiPair;if(state.extras.rice)t+=EXTRAS_PRICES.rice;if(state.extras.curry)t+=getCurryPrice();if(state.deliveryPlace==='Building Door Step'&&state.freq==='MONTHLY')t+=EXTRAS_PRICES.buildingDoorStep;return t;}
+function calcExtrasTotal(){var t=0;if(state.extras.roti)t+=state.extras.rotiPairs*EXTRAS_PRICES.rotiPair;if(state.extras.rice)t+=EXTRAS_PRICES.rice;if(state.extras.curry)t+=getCurryPrice();if(state.deliveryPlace==='Building Door Step')t+=EXTRAS_PRICES.buildingDoorStep;return t;}
 function updateExtrasTotal(){var t=calcExtrasTotal();var a=state.extras.roti||state.extras.rice||state.extras.curry;var tl=document.getElementById('extrasTotalLine');tl.classList.toggle('show',a);var tv=document.getElementById('extrasTotalVal');if(tv)tv.textContent='$'+t+' / mo';}
 function showHideExtrasPanel(){var p=document.getElementById('panel-extras');if(!p)return;var s=!!state.pkg;p.style.display=s?'block':'none';var el=p.querySelector('.panel-title span');if(el){el.textContent=state.freq==='MONTHLY'?' — Roti, Rice, Curry (Optional)':' — Available on Monthly plans only';el.style.color=state.freq==='MONTHLY'?'var(--ink)':'var(--ash)';}updatePanelNumbers();}
 function updatePanelNumbers(){var h=!!state.pkg;var dn=h?3:2;var dd=h?4:3;var de=document.querySelector('#panel-days .panel-num');var di=document.querySelector('#panel-details .panel-num');if(de)de.textContent=dn;if(di)di.textContent=dd;}
@@ -1660,7 +1660,7 @@ function updateQuote(){
   document.getElementById('q-curry').innerHTML=curryDisplay||'<em class="empty">—</em>';
   document.getElementById('q-serving').innerHTML=state.optionLabel?state.optionLabel:'<em class="empty">—</em>';
   document.getElementById('q-days').innerHTML=state.days.length>0?normaliseDays(state.days)+' <span style="color:rgba(253,250,244,0.4);font-weight:400">('+state.days.length+'d/wk)</span>':'<em class="empty">—</em>';
-  var dsl=document.getElementById('q-doorstep-line');if(dsl)dsl.style.display=(state.deliveryPlace==='Building Door Step'&&state.freq==='MONTHLY')?'flex':'none';
+  var dsl=document.getElementById('q-doorstep-line');if(dsl)dsl.style.display=(state.deliveryPlace==='Building Door Step')?'flex':'none';
   if(pkg){
     var bp=PRICING[state.freq]&&PRICING[state.freq][state.pkg]?PRICING[state.freq][state.pkg]:0;
     var et=calcExtrasTotal();var cb=bp+et;var fl=FREQ_LABELS[state.freq]||'/ month';
