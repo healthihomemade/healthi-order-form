@@ -1685,8 +1685,8 @@ function buildNotesString(){
   var extraCurryG=(state.extras.curry&&state.extras.curryType==='Gravy')?1:0;var extraCurryD=(state.extras.curry&&state.extras.curryType==='Dry')?1:0;
   var totalG=baseG+extraCurryG;var totalD=baseD+extraCurryD;
   var curryStr='';if(totalG>0&&totalD>0)curryStr=totalG+'G'+totalD+'D';else if(totalG>0)curryStr=totalG+'G';else curryStr=totalD+'D';
-  var bds=(state.deliveryPlace==='Building Door Step')?'+BDS':'';
-  var shortLabel=pkgShort+'-'+totalRoti+'-'+riceShort+'-'+curryStr+bds;
+  var bds='';
+  var shortLabel=pkgShort+'-'+totalRoti+'-'+riceShort+'-'+curryStr;
   return shortLabel+','+dayList+',$'+price+','+state.freq;
 }
 function updateQuote(){
