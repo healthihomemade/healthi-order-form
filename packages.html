@@ -1524,10 +1524,31 @@ function toggleExtra(type){
 function stepRoti(event,dir){event.stopPropagation();var n=state.extras.rotiPairs+dir;if(n<1||n>6)return;state.extras.rotiPairs=n;updateRotiStepper();updateExtrasTotal();updateQuote();}
 function updateRotiStepper(){var p=state.extras.rotiPairs,r=p*2,t=p*EXTRAS_PRICES.rotiPair;var ec=document.getElementById('rotiCount');if(ec)ec.textContent=r+' roti'+(r>1?'s':'');var es=document.getElementById('rotiStepTotal');if(es)es.textContent='= $'+t+' / mo';document.getElementById('rotiMinus').disabled=(p<=1);document.getElementById('rotiPlus').disabled=(p>=6);var ep=document.getElementById('extraRotiPrice');if(ep)ep.textContent='$'+t;}
 function getCurryPrice(){return(state.pkg&&CURRY_PRICES[state.pkg])?CURRY_PRICES[state.pkg]:70;}
-function calcExtrasTotal(){var t=0;if(state.extras.roti)t+=state.extras.rotiPairs*EXTRAS_PRICES.rotiPair;if(state.extras.rice)t+=EXTRAS_PRICES.rice;if(state.extras.curry)t+=getCurryPrice();if(state.deliveryPlace==='Building Door Step')t+=EXTRAS_PRICES.buildingDoorStep;return t;}
+function calcExtrasTotal(){var t=0;if(state.extras.roti)t+=state.extras.rotiPairs*EXTRAS_PRICES.rotiPair;if(state.extras.rice)t+=EXTRAS_PRICES.rice;if(state.extras.curry)t+=getCurryPrice();if(state.deliveryPlace==='Building Door Step'&&state.freq==='MONTHLY')t+=EXTRAS_PRICES.buildingDoorStep;return t;}
 function updateExtrasTotal(){var t=calcExtrasTotal();var a=state.extras.roti||state.extras.rice||state.extras.curry;var tl=document.getElementById('extrasTotalLine');tl.classList.toggle('show',a);var tv=document.getElementById('extrasTotalVal');if(tv)tv.textContent='$'+t+' / mo';}
-function showHideExtrasPanel(){var p=document.getElementById('panel-extras');if(!p)return;var s=!!state.pkg;p.style.display=s?'block':'none';var el=p.querySelector('.panel-title span');if(el){el.textContent=state.freq==='MONTHLY'?' — Roti, Rice, Curry (Optional)':' — Available on Monthly plans only';el.style.color=state.freq==='MONTHLY'?'var(--ink)':'var(--ash)';}updatePanelNumbers();}
-function updatePanelNumbers(){var h=!!state.pkg;var dn=h?3:2;var dd=h?4:3;var de=document.querySelector('#panel-days .panel-num');var di=document.querySelector('#panel-details .panel-num');if(de)de.textContent=dn;if(di)di.textContent=dd;}
+function showHideExtrasPanel(){
+  var p=document.getElementById('panel-extras');if(!p)return;
+  var s=!!state.pkg;
+  p.style.display=s?'block':'none';
+  var el=p.querySelector('.panel-title span');
+  if(el){el.textContent=state.freq==='MONTHLY'?' — Roti, Rice, Curry (Optional)':' — Available on Monthly plans only';el.style.color=state.freq==='MONTHLY'?'var(--ink)':'var(--ash)';}
+  // Hide days panel on TRIAL
+  var dp=document.getElementById('panel-days');
+  if(dp) dp.style.display=(state.freq==='TRIAL')?'none':'block';
+  updatePanelNumbers();
+}
+function updatePanelNumbers(){
+  var hasExtras=!!state.pkg;
+  var isTrial=state.freq==='TRIAL';
+  // TRIAL: no days panel → Details is step 3 (with extras) or 2 (without)
+  // Others: days panel exists → Details is step 4 (with extras) or 3 (without)
+  var daysNum   = hasExtras ? 3 : 2;
+  var detailsNum= isTrial ? (hasExtras ? 3 : 2) : (hasExtras ? 4 : 3);
+  var de=document.querySelector('#panel-days .panel-num');
+  var di=document.querySelector('#panel-details .panel-num');
+  if(de)de.textContent=daysNum;
+  if(di)di.textContent=detailsNum;
+}
 function toggleEtransfer(){state.etransfer=!state.etransfer;$cl('etransferRow').toggle('checked',state.etransfer);updateQuote();}
 function selectFrequency(btn){
   document.querySelectorAll('.freq-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');state.freq=btn.dataset.freq;
@@ -1536,7 +1557,17 @@ function selectFrequency(btn){
   if(!ja){jc.classList.add('pkg-hidden');if(state.pkg==='JUNIOR'){jc.classList.remove('selected');state.pkg=null;state.roti=null;state.rice=null;state.optionLabel=null;}}else{jc.classList.remove('pkg-hidden');}
   ['JUNIOR','REGULAR','LARGE','FAMILY'].forEach(function(p){var pe=document.getElementById('price-'+p);if(!pe)return;var pr=PRICING[state.freq]?PRICING[state.freq][p]:null;if(pr)pe.innerHTML='$'+pr+' <span>'+FREQ_LABELS[state.freq]+'</span>';var se=document.getElementById('pkg-sub-'+p);if(se&&PACKAGES[p])se.textContent=PACKAGES[p].currySize+' · '+PACKAGES[p].curryType;});
   if(state.freq!=='MONTHLY'){state.etransfer=false;$cl('etransferRow').remove('checked','visible');state.extras={roti:false,rotiPairs:1,rice:false,curry:false};['extraRotiRow','extraRiceRow','extraCurryRow'].forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('selected');});$cl('rotiStepper').remove('show');$cl('extrasTotalLine').remove('show');}else{$cl('etransferRow').add('visible');}
-  if(state.pkg){showHideExtrasPanel();openDaysPanel();}
+  // TRIAL: hide days panel, silently select MON-SAT in background
+  var dp=document.getElementById('panel-days');
+  if(state.freq==='TRIAL'){
+    if(dp)dp.style.display='none';
+    state.days=['MON','TUE','WED','THU','FRI','SAT'];
+    $cl('qbtn-monfri').remove('active');
+    $cl('qbtn-monsat').remove('active');
+  } else {
+    if(dp)dp.style.display='block';
+  }
+  if(state.pkg){showHideExtrasPanel();if(state.freq!=='TRIAL')openDaysPanel();}
   updateEndDate();
   if(state.pkg&&!PACKAGES[state.pkg].freqs.includes(state.freq)){document.querySelectorAll('.pkg-card').forEach(function(c){c.classList.remove('selected');});document.querySelectorAll('.option-chip').forEach(function(c){c.classList.remove('chip-selected');});state.pkg=null;state.roti=null;state.rice=null;state.optionLabel=null;}
   updateQuote();
@@ -1565,7 +1596,13 @@ function selectPackage(cardEl){
   if(cd){var cv=getCurryPrice();cd.textContent=cv>0?'Additional curry serving per delivery — $'+cv+'/month':'Not available for this package';}
 
   // Auto-select days
-  if(pkg==='JUNIOR'){setDaysQuick('MONFRI');}else{setDaysQuick('MONSAT');}
+  if(state.freq!=='TRIAL'){
+    if(pkg==='JUNIOR' && state.freq==='MONTHLY'){setDaysQuick('MONFRI');}else{setDaysQuick('MONSAT');}
+  } else {
+    // TRIAL: silently select MON-SAT in state but keep panel hidden
+    state.days=['MON','TUE','WED','THU','FRI','SAT'];
+    var dp=document.getElementById('panel-days');if(dp)dp.style.display='none';
+  }
 
   openQuoteCard();
   $cl('panel-package').add('panel-complete');
@@ -1660,7 +1697,7 @@ function updateQuote(){
   document.getElementById('q-curry').innerHTML=curryDisplay||'<em class="empty">—</em>';
   document.getElementById('q-serving').innerHTML=state.optionLabel?state.optionLabel:'<em class="empty">—</em>';
   document.getElementById('q-days').innerHTML=state.days.length>0?normaliseDays(state.days)+' <span style="color:rgba(253,250,244,0.4);font-weight:400">('+state.days.length+'d/wk)</span>':'<em class="empty">—</em>';
-  var dsl=document.getElementById('q-doorstep-line');if(dsl)dsl.style.display=(state.deliveryPlace==='Building Door Step')?'flex':'none';
+  var dsl=document.getElementById('q-doorstep-line');if(dsl)dsl.style.display=(state.deliveryPlace==='Building Door Step'&&state.freq==='MONTHLY')?'flex':'none';
   if(pkg){
     var bp=PRICING[state.freq]&&PRICING[state.freq][state.pkg]?PRICING[state.freq][state.pkg]:0;
     var et=calcExtrasTotal();var cb=bp+et;var fl=FREQ_LABELS[state.freq]||'/ month';
@@ -1864,7 +1901,7 @@ function isPhoneValid(){var inp=document.getElementById('fphone');return!!(inp&&
 
 function validateAndToggleSubmit(){
   var name=document.getElementById('fname').value.trim();var phone=document.getElementById('fphone').value.trim();var email=document.getElementById('femail').value.trim();var city=document.getElementById('fcity').value.trim();var street=document.getElementById('fstreet').value.trim();var startDate=document.getElementById('fstart').value;var subscribers=document.getElementById('fsubscribers').value;
-  var checks=[{ok:!!state.pkg,label:'Choose a package'},{ok:state.days.length>0,label:'Select at least one delivery day'},{ok:!!name,label:'Enter your full name'},{ok:!!phone,label:'Enter your phone number'},{ok:isPhoneValid(),label:'Enter a valid phone number with country code'},{ok:!!email,label:'Enter your email address'},{ok:!!city,label:'Enter your city'},{ok:!!street,label:'Enter your street address'},{ok:!!startDate,label:'Select a service start date'},{ok:!!subscribers,label:'Select number of subscribers'},{ok:!!state.deliveryPlace,label:'Select preferred place of delivery'},{ok:state.deliveryPlace!=='Building Door Step'||!!(document.getElementById('fBuzzCode')&&document.getElementById('fBuzzCode').value.trim()),label:'Enter your buzz / intercom code'},{ok:state.termsAccepted,label:'Accept the terms & conditions'}];
+  var checks=[{ok:!!state.pkg,label:'Choose a package'},{ok:state.freq==='TRIAL'||state.days.length>0,label:'Select at least one delivery day'},{ok:!!name,label:'Enter your full name'},{ok:!!phone,label:'Enter your phone number'},{ok:isPhoneValid(),label:'Enter a valid phone number with country code'},{ok:!!email,label:'Enter your email address'},{ok:!!city,label:'Enter your city'},{ok:!!street,label:'Enter your street address'},{ok:!!startDate,label:'Select a service start date'},{ok:!!subscribers,label:'Select number of subscribers'},{ok:!!state.deliveryPlace,label:'Select preferred place of delivery'},{ok:state.deliveryPlace!=='Building Door Step'||!!(document.getElementById('fBuzzCode')&&document.getElementById('fBuzzCode').value.trim()),label:'Enter your buzz / intercom code'},{ok:state.termsAccepted,label:'Accept the terms & conditions'}];
   var missing=checks.filter(function(c){return!c.ok;});var ready=missing.length===0;
   document.getElementById('submitBtn').disabled=!ready;
   var hint=document.getElementById('validationHint');if(!ready){hint.style.display='block';hint.textContent='⚠ Still needed: '+missing.map(function(c){return c.label;}).join(' · ');}else{hint.style.display='none';hint.textContent='';}
