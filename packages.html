@@ -75,7 +75,7 @@
 
   /* PACKAGE CARDS */
   /* ── PACKAGE GRID — compact 2×2 tiles ── */
-  .package-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  .package-grid { display:flex; flex-direction:column; gap:8px; }
 
   /* Compact tile — fixed height header, expands on select */
   .pkg-card {
@@ -93,24 +93,24 @@
   .pkg-card:hover  { border-color:var(--saffron); box-shadow:0 3px 14px rgba(232,137,12,0.15); }
   .pkg-card.selected { border-color:var(--saffron); box-shadow:0 5px 20px rgba(232,137,12,0.25); }
 
-  /* Compact header — icon + name + price stacked */
+  /* Cascade header — icon left, name + price right, horizontal */
   .pkg-header {
-    padding:12px 12px 10px;
+    padding:13px 14px;
     display:flex;
-    flex-direction:column;
+    flex-direction:row;
     align-items:center;
-    text-align:center;
-    gap:4px;
+    text-align:left;
+    gap:14px;
     position:relative;
     transition:background 0.22s;
   }
   .pkg-card:hover .pkg-header   { background:var(--saffron-light); }
   .pkg-card.selected .pkg-header { background:var(--saffron-light); }
 
-  .pkg-icon  { font-size:1.6rem; line-height:1; }
-  .pkg-info  { width:100%; }
-  .pkg-name  { font-weight:800; font-size:14px; color:var(--ink); margin-bottom:2px; }
-  .pkg-price { font-family:'Playfair Display',serif; font-size:1.25rem; color:var(--saffron-dark); line-height:1.1; }
+  .pkg-icon  { font-size:1.8rem; line-height:1; flex-shrink:0; }
+  .pkg-info  { flex:1; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .pkg-name  { font-weight:800; font-size:15px; color:var(--ink); }
+  .pkg-price { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--saffron-dark); line-height:1; margin-left:auto; flex-shrink:0; }
   .pkg-price span { font-size:11px; color:var(--ash); font-family:'Mulish',sans-serif; font-weight:400; }
 
   /* Check circle — top-right */
@@ -125,13 +125,15 @@
 
   /* Expand arrow — small, centered below price */
   .pkg-expand-arrow {
-    font-size:10px;
+    font-size:11px;
     color:var(--ash);
     opacity:0.5;
     transition:transform 0.32s ease, opacity 0.2s, color 0.2s;
-    margin-top:2px;
-    text-align:center;
-    display:flex; flex-direction:column; align-items:center; gap:2px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
   }
   /* Collapsed: show subtitle + arrow */
   .pkg-expand-arrow .pkg-collapsed-sub {
@@ -845,7 +847,7 @@
 
   /* Tablet (600-900px) */
   @media(max-width:860px){
-    .package-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+    /* cascade — single column always */
     .fields-grid  { grid-template-columns:1fr 1fr; }
     .days-grid    { grid-template-columns:repeat(6,1fr); }
   }
@@ -862,7 +864,7 @@
     .panel-num    { width:24px; height:24px; font-size:11px; }
 
     /* Package cards — 1 column on small screens */
-    .package-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+    /* cascade — single column always */
     .pkg-header   { padding:10px 10px 8px; gap:4px; }
     .pkg-icon     { font-size:1.5rem; }
     .pkg-name     { font-size:15px; }
@@ -978,8 +980,6 @@
     .page-body    { padding:8px 6px 32px; }
     .panel-body   { padding:12px; }
     .package-grid { gap:6px; }
-    .pkg-name { font-size:13px; }
-    .pkg-price { font-size:1.1rem; }
     .fields-grid  { gap:8px; }
     .days-grid    { grid-template-columns:repeat(2,1fr); gap:5px; }
     .quote-price  { font-size:1.8rem; }
@@ -1493,7 +1493,7 @@
               <div class="delivery-opt-radio"></div>
               <span class="delivery-opt-icon">🏢</span>
               <div style="flex:1;">
-                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$30 surcharge)</span></span>
+                <span class="delivery-opt-label">Building Door Step <span style="font-size:11px;color:var(--ash);font-weight:400;">(+$50 surcharge)</span></span>
                 <div class="buzz-inline-wrap" id="buzzWrap" style="display:none;margin-top:8px;" onclick="event.stopPropagation()">
                   <input type="text" id="fBuzzCode"
                     placeholder="Buzz / Intercom code e.g. 1204"
@@ -1599,7 +1599,7 @@
     <div class="quote-line"><span class="quote-key">Curry</span><span class="quote-val" id="q-curry"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Serving</span><span class="quote-val" id="q-serving"><em class="empty">—</em></span></div>
     <div class="quote-line"><span class="quote-key">Delivery days</span><span class="quote-val" id="q-days"><em class="empty">—</em></span></div>
-    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$30</span></div>
+    <div class="quote-line" id="q-doorstep-line" style="display:none;"><span class="quote-key">Door Step Delivery</span><span class="quote-val" style="color:var(--saffron);">+$50</span></div>
 
     <hr class="quote-divider">
 
@@ -1822,7 +1822,7 @@ const DAY_ORDER = ['MON','TUE','WED','THU','FRI','SAT'];
 const state = { pkg:null, roti:null, rice:null, optionLabel:null, days:[], freq:'MONTHLY', etransfer:false, extras:{ roti:false, rotiPairs:1, rice:false, curry:false }, deliveryPlace:null, photoData:null, photoFileName:null, termsAccepted:false };
 
 // ── EXTRAS ─────────────────────────────────────────────────
-const EXTRAS_PRICES = { rotiPair: 30, rice: 20, buildingDoorStep: 30 };
+const EXTRAS_PRICES = { rotiPair: 30, rice: 20, buildingDoorStep: 50 };
 // Curry price depends on package: Regular=$60, Large=$70, Family=$90
 var CURRY_PRICES = { JUNIOR: 0, REGULAR: 60, LARGE: 70, FAMILY: 90 };
 
@@ -3637,6 +3637,11 @@ updateDaysPanelSubtitle();
     justify-content:center;
     animation:none;
   ">
+    <!-- HH Logo -->
+    <img src="data:image/png;base64,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"
+         style="height:48px;width:48px;flex-shrink:0;border-radius:50%;"
+         alt="Healthi Homemade">
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
     <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(253,250,244,0.55);">Total</span>
     <div style="width:1px;height:18px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
     <span id="totalPillAmount" style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#e8890c;line-height:1;font-weight:700;">$—</span>
