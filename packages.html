@@ -2111,6 +2111,8 @@ function selectFrequency(btn) {
   }
   // Recalculate end date when frequency changes
   updateEndDate();
+  // Show/hide days panel based on frequency
+  updateDaysPanelVisibility();
 
   
   // If currently selected package not available in new freq, reset
@@ -2595,6 +2597,24 @@ function toggleQuoteCard() {
   }
 }
 
+// ── DAYS PANEL VISIBILITY BY FREQUENCY ──────────────────
+function updateDaysPanelVisibility() {
+  var daysPanel = document.getElementById('panel-days');
+  if (!daysPanel) return;
+  if (state.freq === 'TRIAL') {
+    // Hide days panel for Trial — delivery is one-time, no schedule needed
+    daysPanel.style.display = 'none';
+    // Still set default days for payload completeness
+    setDays(['MON','TUE','WED','THU','FRI','SAT']);
+    var qmf = document.getElementById('qbtn-monfri');
+    var qms = document.getElementById('qbtn-monsat');
+    if (qmf) qmf.classList.remove('active');
+    if (qms) qms.classList.add('active');
+  } else {
+    daysPanel.style.display = 'block';
+  }
+}
+
 // ── DAYS PANEL COLLAPSE/EXPAND ───────────────────────────
 var daysPanelOpen = true;
 
@@ -2873,6 +2893,21 @@ function enforceTomorrow(el) {
 function preventPastDate(e, el) {
   // After typing, enforce min on blur
   setTimeout(function(){ enforceTomorrow(el); }, 0);
+}
+
+// ── START DATE VALIDATION ────────────────────────────────
+function validateStartDate(inp) {
+  if (!inp) return;
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var selected = new Date(inp.value + 'T00:00:00');
+  if (selected <= today) {
+    // Force to tomorrow
+    var tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+    inp.value = tomorrow.toISOString().split('T')[0];
+    showToastMsg('Start date must be tomorrow or later');
+  }
 }
 
 // ── SERVICE END DATE CALCULATOR ─────────────────────────
@@ -3675,9 +3710,9 @@ updateDaysPanelSubtitle();
          style="height:36px;width:36px;flex-shrink:0;border-radius:50%;object-fit:cover;"
          alt="Healthi Homemade">
     <div style="width:1px;height:18px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-    <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(253,250,244,0.55);">Total</span>
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(253,250,244,0.55);">Total</span>
     <div style="width:1px;height:18px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-    <span id="totalPillAmount" style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#e8890c;line-height:1;font-weight:700;">$—</span>
+    <span id="totalPillAmount" style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#e8890c;line-height:1;font-weight:700;">$—</span>
   </div>
 
   <!-- DUPLICATE CUSTOMER MODAL -->
