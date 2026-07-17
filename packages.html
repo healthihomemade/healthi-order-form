@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1162,7 +1161,8 @@
         </div>
         <div class="field-group">
           <label for="femail">Email <span class="required-star">*</span></label>
-          <input type="email" id="femail" placeholder="you@example.com" oninput="updateQuote()" autocomplete="email" inputmode="email" name="email" spellcheck="false" autocapitalize="none" autocorrect="off">
+          <input type="email" id="femail" placeholder="you@example.com" oninput="updateQuote()" onblur="lookupEmailAndPopulate(this.value)" autocomplete="email" inputmode="email" name="email" spellcheck="false" autocapitalize="none" autocorrect="off">
+          <div id="emailLookupHint" style="font-size:11px;margin-top:4px;display:none;"></div>
         </div>
         <div class="field-group full">
           <label for="fstreet">Street Address <span class="required-star">*</span></label>
@@ -1912,6 +1912,57 @@ function onTermsScroll(){var el=document.getElementById('termsBody');var hint=do
 
 function getValidatedPhone(){var inp=document.getElementById('fphone');if(inp&&inp.dataset.e164)return inp.dataset.e164;var raw=inp?inp.value.trim():'';var digits=raw.replace(/[^0-9]/g,'');return digits?(raw.charAt(0)==='+'?'+'+digits:digits):'';}
 function getPayableAmount(){if(!state.pkg)return null;var bp=PRICING[state.freq]&&PRICING[state.freq][state.pkg]?PRICING[state.freq][state.pkg]:0;var et=calcExtrasTotal();var cb=bp+et;var t=state.etransfer?+(cb*1.13).toFixed(2):cb;return t>0?t:null;}
+
+function lookupEmailAndPopulate(email){
+  email=(email||'').trim().toLowerCase();
+  var hint=document.getElementById('emailLookupHint');
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){if(hint){hint.style.display='none';}return;}
+  if(hint){hint.style.display='block';hint.style.color='var(--ash)';hint.textContent='🔍 Looking up…';}
+  var cn='_elCB'+Date.now();
+  var se=document.createElement('script');
+  se.src=SHEET_WEBAPP_URL+'?action=lookupEmail&email='+encodeURIComponent(email)+'&callback='+cn;
+  se.timeout=8000;
+  window[cn]=function(d){
+    delete window[cn];
+    if(se.parentNode)se.parentNode.removeChild(se);
+    if(!d||d.status==='not_found'||d.error){
+      if(hint){hint.style.display='block';hint.style.color='var(--ash)';hint.textContent='New customer — please fill in your details below.';}
+      return;
+    }
+    // Populate fields only if currently empty
+    function fill(id,val){var el=document.getElementById(id);if(el&&val&&!el.value.trim())el.value=val;}
+    fill('fname', d['Name']);
+    // Phone: set raw value and trigger re-validation
+    if(d['Whatsapp number']){
+      var ph=document.getElementById('fphone');
+      if(ph&&!ph.value.trim()){ph.value=d['Whatsapp number'];onPhoneInput(ph);}
+    }
+    fill('fstreet', d['Street Address']);
+    fill('fcity',   d['City']);
+    fill('fpostal', d['POSTAL CODE']);
+    fill('fregion', d['Province/State']||d['Region']||'');
+    fill('fcountry',d['Country']||'');
+    if(d['Number of Subscribers']){fill('fsubscribers',d['Number of Subscribers']);}
+    updateQuote();
+    if(hint){hint.style.display='block';hint.style.color='var(--green)';hint.textContent='✅ Existing customer — details filled in!';}
+    setTimeout(function(){if(hint)hint.style.display='none';},4000);
+  };
+  se.onerror=function(){
+    delete window[cn];
+    if(se.parentNode)se.parentNode.removeChild(se);
+    // Fallback: XHR (may fail due to CORS but try anyway)
+    var xhr=new XMLHttpRequest();
+    xhr.open('GET',SHEET_WEBAPP_URL+'?action=lookupEmail&email='+encodeURIComponent(email),true);
+    xhr.timeout=8000;
+    xhr.onreadystatechange=function(){
+      if(xhr.readyState!==4)return;
+      try{var d=JSON.parse(xhr.responseText);if(d&&d['Name']){window[cn+'_cb'](d);}}catch(e){}
+      if(hint)hint.style.display='none';
+    };
+    xhr.send();
+  };
+  document.head.appendChild(se);
+}
 
 function submitOrder(){
   var btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='Submitting…';
