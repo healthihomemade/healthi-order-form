@@ -1925,24 +1925,28 @@ function lookupEmailAndPopulate(email){
   window[cn]=function(d){
     delete window[cn];
     if(se.parentNode)se.parentNode.removeChild(se);
+    console.log('[HH] lookupEmail response:', JSON.stringify(d));
     if(!d||d.status==='not_found'||d.error){
       if(hint){hint.style.display='block';hint.style.color='var(--ash)';hint.textContent='New customer — please fill in your details below.';}
       return;
     }
-    // Populate fields only if currently empty
-    function fill(id,val){var el=document.getElementById(id);if(el&&val&&!el.value.trim())el.value=val;}
-    fill('fname', d['Name']);
-    // Phone: set raw value and trigger re-validation
-    if(d['Whatsapp number']){
+    // Fill fields (overwrite — returning customer refresh)
+    function fill(id,val){var el=document.getElementById(id);if(el&&val!==undefined&&val!==null&&String(val).trim())el.value=String(val).trim();}
+    fill('fname', d['Name']||d['name']||d['Full Name']||d['full name']||'');
+    // Phone
+    var rawPhone=d['Whatsapp number']||d['WhatsApp number']||d['Phone']||d['phone']||d['Whatsapp Number']||'';
+    if(rawPhone){
       var ph=document.getElementById('fphone');
-      if(ph&&!ph.value.trim()){ph.value=d['Whatsapp number'];onPhoneInput(ph);}
+      if(ph){ph.value=rawPhone;onPhoneInput(ph);}
     }
-    fill('fstreet', d['Street Address']);
-    fill('fcity',   d['City']);
-    fill('fpostal', d['POSTAL CODE']);
-    fill('fregion', d['Province/State']||d['Region']||'');
-    fill('fcountry',d['Country']||'');
-    if(d['Number of Subscribers']){fill('fsubscribers',d['Number of Subscribers']);}
+    fill('fstreet', d['Street Address']||d['street']||d['Address']||'');
+    fill('fcity',   d['City']||d['city']||'');
+    fill('fpostal', d['POSTAL CODE']||d['Postal Code']||d['postal_code']||d['postal']||'');
+    fill('fregion', d['Province/State']||d['Region']||d['province']||d['state']||'');
+    fill('fcountry',d['Country']||d['country']||'');
+    // Subscribers dropdown
+    var subs=d['Number of Subscribers']||d['Subscribers']||d['subscribers']||'';
+    if(subs){var sel=document.getElementById('fsubscribers');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===String(subs)){sel.selectedIndex=i;break;}}}}
     updateQuote();
     if(hint){hint.style.display='block';hint.style.color='var(--green)';hint.textContent='✅ Existing customer — details filled in!';}
     setTimeout(function(){if(hint)hint.style.display='none';},4000);
