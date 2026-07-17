@@ -1931,22 +1931,21 @@ function lookupEmailAndPopulate(email){
       return;
     }
     // Fill fields (overwrite — returning customer refresh)
-    function fill(id,val){var el=document.getElementById(id);if(el&&val!==undefined&&val!==null&&String(val).trim())el.value=String(val).trim();}
-    fill('fname', d['Name']||d['name']||d['Full Name']||d['full name']||'');
+    // Helper: find value by searching keys case-insensitively and trimmed
+    function getCol(keys){for(var k=0;k<keys.length;k++){for(var dk in d){if(dk.trim().toLowerCase()===keys[k].toLowerCase()&&String(d[dk]).trim())return String(d[dk]).trim();}}return '';}
+    function fill(id,val){var el=document.getElementById(id);if(el&&val)el.value=val;}
+    fill('fname',   getCol(['Name','name','Full Name']));
+    fill('fstreet', getCol(['Street Address with apartment/unit number','Street Address','Address']));
+    fill('fcity',   getCol(['City','city']));
+    fill('fpostal', getCol(['POSTAL CODE[FORMAT XXX XXX]','POSTAL CODE','Postal Code','postal']));
+    fill('fregion', getCol(['Province/State','Region','province','state']));
+    fill('fcountry',getCol(['Country','country']));
     // Phone
-    var rawPhone=d['Whatsapp number']||d['WhatsApp number']||d['Phone']||d['phone']||d['Whatsapp Number']||'';
-    if(rawPhone){
-      var ph=document.getElementById('fphone');
-      if(ph){ph.value=rawPhone;onPhoneInput(ph);}
-    }
-    fill('fstreet', d['Street Address']||d['street']||d['Address']||'');
-    fill('fcity',   d['City']||d['city']||'');
-    fill('fpostal', d['POSTAL CODE']||d['Postal Code']||d['postal_code']||d['postal']||'');
-    fill('fregion', d['Province/State']||d['Region']||d['province']||d['state']||'');
-    fill('fcountry',d['Country']||d['country']||'');
+    var rawPhone=getCol(['Whatsapp number format e.g. 6476073961','Whatsapp number','WhatsApp number','Phone']);
+    if(rawPhone){var ph=document.getElementById('fphone');if(ph){ph.value=rawPhone;onPhoneInput(ph);}}
     // Subscribers dropdown
-    var subs=d['Number of Subscribers']||d['Subscribers']||d['subscribers']||'';
-    if(subs){var sel=document.getElementById('fsubscribers');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===String(subs)){sel.selectedIndex=i;break;}}}}
+    var subs=getCol(['Number of Subscribers','Subscribers']);
+    if(subs){var sel=document.getElementById('fsubscribers');if(sel){for(var i=0;i<sel.options.length;i++){if(sel.options[i].value===subs){sel.selectedIndex=i;break;}}}}
     updateQuote();
     if(hint){hint.style.display='block';hint.style.color='var(--green)';hint.textContent='✅ Existing customer — details filled in!';}
     setTimeout(function(){if(hint)hint.style.display='none';},4000);
