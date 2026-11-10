@@ -1541,9 +1541,9 @@ body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; 
 
   }
 
-/* ===== CATERING WRAPPER ===== */
-#cat-wrapper { width: 100vw !important; min-height: calc(100vh - 48px) !important; overflow: visible !important; max-width: 100% !important; }
-#cat-wrapper iframe { width: 100vw !important; max-width: 100% !important; height: calc(100vh - 48px) !important; display: block !important; border: none !important; min-height: 600px !important; }
+/* ===== CATERING NAV OFFSET ===== */
+#cat-wrapper { width: 100% !important; min-height: calc(100vh - 48px) !important; overflow: visible !important; }
+#cat-wrapper iframe { width: 100% !important; height: calc(100vh - 48px) !important; display: block !important; border: none !important; min-height: 600px !important; }
 </style>
 </head>
 <body>
@@ -2408,10 +2408,11 @@ body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; 
   </div>
 </div>
 </div>
-</div>
 
+</div>
 <div id="cat-wrapper" style="display:none;width:100%;min-height:calc(100vh - 48px);">
 <iframe src="catering-menu.html" id="cat-iframe" style="width:100%;height:calc(100vh - 48px);min-height:500px;border:none;display:block;"></iframe>
+</div>
 </div>
 
 <script>
@@ -2464,7 +2465,8 @@ const PRICING = {
   WEEKLY:   { REGULAR:90,  LARGE:105, FAMILY:180 },
   BIWEEKLY: { REGULAR:165, LARGE:175, FAMILY:280 },
   MONTHLY:  { JUNIOR:180, REGULAR:240, LARGE:270, FAMILY:450 },
-  MONTHLY_SAT: { JUNIOR:200 } // Junior Mon-Sat surcharge
+  MONTHLY_SAT: { JUNIOR:200, REGULAR:280, LARGE:315, FAMILY:525 }, // Mon-Sat rates
+  SAT_SURCHARGE: { REGULAR:40, LARGE:45, FAMILY:75 } // surcharge over Mon-Fri rate
 };
 
 const FREQ_LABELS = {
@@ -2849,13 +2851,8 @@ function selectPackage(cardEl) {
     curryDescEl.textContent = desc;
   }
 
-  // Auto-select default delivery days based on package
-  // Junior → MON-FRI (5 days), all others → MON-SAT (6 days)
-  if (pkg === 'JUNIOR') {
-    setDaysQuick('MONFRI');
-  } else {
-    setDaysQuick('MONSAT');
-  }
+  // Auto-select default delivery days — Mon-Fri for all packages
+  setDaysQuick('MONFRI');
 
   // Expand the quote card now that a package has been selected
   openQuoteCard();
@@ -3084,7 +3081,9 @@ function pkgUpdateQuote() {
 
   if(pkg){
     var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+    var isMonthlySat = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
     if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice = 200;
+    else if (isMonthlySat && PRICING.SAT_SURCHARGE[state.pkg]) basePrice += PRICING.SAT_SURCHARGE[state.pkg];
     var extrasTotal = calcExtrasTotal();
     var combined    = basePrice + extrasTotal;
     var freqLabel   = FREQ_LABELS[state.freq] || '/ month';
@@ -3423,6 +3422,8 @@ function setDaysQuick(preset) {
     if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY') {
       state.juniorSatExtra = false;
       pkgUpdateQuote();
+    } else if (state.freq === 'MONTHLY' && PRICING.SAT_SURCHARGE[state.pkg]) {
+      showToastMsg('Saturday removed — back to $' + PRICING.MONTHLY[state.pkg] + '/month');
     }
 
   } else if (preset === 'MONSAT') {
@@ -3433,6 +3434,11 @@ function setDaysQuick(preset) {
     setDays(['MON','TUE','WED','THU','FRI','SAT']);
     $cl('qbtn-monsat').add('active');
     $cl('qbtn-monfri').remove('active');
+    if (state.freq === 'MONTHLY' && PRICING.SAT_SURCHARGE[state.pkg]) {
+      var surcharge = PRICING.SAT_SURCHARGE[state.pkg];
+      var newTotal  = PRICING.MONTHLY[state.pkg] + surcharge;
+      showToastMsg('Saturday added — Total updated to $' + newTotal + '/month (+$' + surcharge + ')');
+    }
   }
   updateDaysPanelSubtitle();
 }
@@ -3801,6 +3807,9 @@ function getValidatedPhone() {
 function getPayableAmount() {
   if (!state.pkg) return null;
   var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var isMonthlySat = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
+  if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice = 200;
+  else if (isMonthlySat && PRICING.SAT_SURCHARGE[state.pkg]) basePrice += PRICING.SAT_SURCHARGE[state.pkg];
   var extrasTotal = calcExtrasTotal();
   var combined    = basePrice + extrasTotal;
   var total       = state.etransfer ? +(combined * 1.13).toFixed(2) : combined;
@@ -3830,6 +3839,9 @@ function submitOrder() {
     : (state.deliveryPlace || '');
 
   var basePrice2   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var isMonthlySat2 = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
+  if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice2 = 200;
+  else if (isMonthlySat2 && PRICING.SAT_SURCHARGE[state.pkg]) basePrice2 += PRICING.SAT_SURCHARGE[state.pkg];
   var extrasTotal2 = calcExtrasTotal();
   var combined2    = +(basePrice2 + extrasTotal2).toFixed(2);
   var totalWithTax = state.etransfer ? +(combined2 * 1.13).toFixed(2) : combined2;
@@ -4392,6 +4404,9 @@ function toggleSuccessEtransfer() {
 function refreshSuccessAmounts() {
   var pkg         = showSuccessScreen._pkg;
   var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var isMonthlySat = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
+  if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice = 200;
+  else if (isMonthlySat && PRICING.SAT_SURCHARGE[state.pkg]) basePrice += PRICING.SAT_SURCHARGE[state.pkg];
   var extrasTotal = calcExtrasTotal();
   var combined    = basePrice + extrasTotal;
   var tax         = successEtChecked ? +(combined * 0.13).toFixed(2) : 0;
@@ -4435,6 +4450,276 @@ updateDaysPanelSubtitle();
 
 </script>
 
+<script>
+/* ===== CATERING JS ===== */
+
+const catMenuData = {
+  veggie: { label:"Veggie Delight", items:[
+    {name:"Daal Makhani",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Malai Kofta",price:"$3 / person",rate:3,unit:"person"},
+    {name:"Mattar Mushroom",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Dum Aalloo",price:"$3 / person",rate:3,unit:"person"},
+    {name:"Channa Masala",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Bhartha",price:"$3 / person",rate:3,unit:"person"},
+    {name:"Rajma",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Mattar Paneer",price:"$3 / person",rate:3,unit:"person"},
+    {name:"Punjabi Special Kadhi",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Shahi Paneer",price:"$3 / person",rate:3,unit:"person"},
+    {name:"Mix Veg",price:"$2 / person",rate:2,unit:"person"}
+  ]},
+  raita: { label:"Raita", items:[
+    {name:"Boondi Raita",price:"$1 / person",rate:1,unit:"person"},
+    {name:"Mint Raita",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Plain Raita",price:"$1 / person",rate:1,unit:"person"},
+    {name:"Pineapple Raita",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Mixed Fruit Raita",price:"$2 / person",rate:2,unit:"person"}
+  ]},
+  rice: { label:"Rice", items:[
+    {name:"Plain Rice",price:"$1 / person",rate:1,unit:"person"},
+    {name:"Veg Fried Rice",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Zeera Rice",price:"$1 / person",rate:1,unit:"person"},
+    {name:"Shahi Pulao",price:"$2 / person",rate:2,unit:"person"}
+  ]},
+  breads: { label:"Roti / Breads", items:[
+    {name:"Tava Roti",price:"$1 / piece",rate:1,unit:"roti"},
+    {name:"Poori",price:"$2 / piece",rate:2,unit:"roti"},
+    {name:"Plain Naan",price:"$2 / piece",rate:2,unit:"roti"},
+    {name:"Palak Poori",price:"$2.50 / piece",rate:2.5,unit:"roti"},
+    {name:"Garlic Naan",price:"$3 / piece",rate:3,unit:"roti"}
+  ]},
+  desserts: { label:"Desserts", items:[
+    {name:"Gulab Jamun",price:"$1 / person",rate:1,unit:"person"},
+    {name:"Gajjar Halwa",price:"$3 / piece",rate:3,unit:"piece"},
+    {name:"Ras Malai",price:"$2 / piece",rate:2,unit:"piece"},
+    {name:"Moon Daal Halwa",price:"$3 / piece",rate:3,unit:"piece"}
+  ]},
+  appetizers: { label:"Appetizers", items:[
+    {name:"Chilly Paneer",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Honey Cauliflower",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Soya Chaap – Malai",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Pasta – White Sauce",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Manchurian",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Fried Rice",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Soya Chaap – Ambarsari",price:"$2 / person",rate:2,unit:"person"},
+    {name:"Pasta – Red Sauce",price:"$2 / person",rate:2,unit:"person"}
+  ]}
+};
+
+const catSelected = new Set();
+let catGuests = 25;
+let catActiveCategory = null;
+
+const catCategoryLabels = {
+  veggie:'🥘 Veggie Delight',raita:'🥛 Raita',rice:'🍚 Rice',
+  breads:'🫓 Roti / Breads',desserts:'🍮 Desserts',appetizers:'🌶️ Appetizers'
+};
+
+function catChangeGuests(delta) {
+  catGuests = Math.max(1, catGuests + delta);
+  document.getElementById('catGuestCount').textContent = catGuests;
+  const surchargeNote = document.getElementById('catSurchargeNoteInline');
+  if (catGuests < 25) { surchargeNote.style.display = 'inline'; document.getElementById('catGuestCount').style.color = '#ffaa66'; }
+  else { surchargeNote.style.display = 'none'; document.getElementById('catGuestCount').style.color = '#fff'; }
+  catUpdateQuote();
+}
+
+function catUpdateQuote() {
+  const empty = document.getElementById('catQuoteEmpty');
+  const body = document.getElementById('catQuoteBody');
+  const section = document.getElementById('catQuoteSection');
+  if (catSelected.size === 0) {
+    section.style.display = 'none'; empty.style.display = 'none'; body.style.display = 'none';
+    document.getElementById('catGuestPerPerson').style.display = 'none';
+    document.getElementById('catFloatingTotal').style.display = 'none';
+    return;
+  }
+  section.style.display = ''; empty.style.display = 'none'; body.style.display = '';
+  const groups = {};
+  catSelected.forEach(id => {
+    const parts = id.split('-'); const sec = parts[0]; const idx = parseInt(parts[1]);
+    if (!groups[sec]) groups[sec] = [];
+    groups[sec].push(catMenuData[sec].items[idx]);
+  });
+  let subtotal = 0, html = '';
+  Object.keys(groups).forEach(sec => {
+    html += `<div><div class="quote-group-title">${catMenuData[sec].label}</div>`;
+    groups[sec].forEach(item => {
+      const isPerson = item.unit==='person', isRoti = item.unit==='roti';
+      const qty = isPerson ? catGuests : isRoti ? Math.ceil(catGuests*1.5) : 1;
+      const lineTotal = item.rate * qty;
+      subtotal += lineTotal;
+      const calcStr = isPerson ? `$${item.rate} × ${catGuests} guests` : isRoti ? `$${item.rate} × ${qty} pcs` : `$${item.rate.toFixed(2)} fixed`;
+      html += `<div class="quote-line"><span class="quote-line-name">${item.name}</span><span class="quote-line-calc">${calcStr}</span><span class="quote-line-amt">$${lineTotal.toFixed(2)}</span></div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('catQuoteGroups').innerHTML = html;
+  document.getElementById('catQuoteSubtotal').textContent = `$${subtotal.toFixed(2)}`;
+  const surcharge = catGuests < 25 ? 50 : 0;
+  document.getElementById('catSurchargeRow').style.display = surcharge ? '' : 'none';
+  document.getElementById('catQuoteSurcharge').textContent = `+$${surcharge.toFixed(2)}`;
+  const grandTotal = subtotal + surcharge;
+  document.getElementById('catQuoteTotal').textContent = `$${grandTotal.toFixed(2)}`;
+  document.getElementById('catQuotePricePerPerson').textContent = `$${(grandTotal/catGuests).toFixed(2)}`;
+  const perPersonEl = document.getElementById('catGuestPerPerson');
+  document.getElementById('catGuestPerPersonAmt').textContent = `$${(grandTotal/catGuests).toFixed(2)}`;
+  perPersonEl.style.display = '';
+  const pp = (grandTotal/catGuests).toFixed(2);
+  document.getElementById('catFloatingAmt').textContent = `$${grandTotal.toFixed(2)}`;
+  document.getElementById('catFloatingPP').innerHTML = `$${pp}<span class="floating-pp-label">/pp</span>`;
+  document.getElementById('catFloatingTotal').style.display = '';
+}
+
+function catPlaceOrderWhatsApp() {
+  let text = `🌿 *Catering Order — Healthy Homemade*\n👥 Guests: ${catGuests}\n\n`;
+  const groups = {};
+  catSelected.forEach(id => {
+    const [sec, idx] = id.split('-');
+    if (!groups[sec]) groups[sec] = [];
+    groups[sec].push(catMenuData[sec].items[parseInt(idx)]);
+  });
+  let total = 0;
+  Object.keys(groups).forEach(sec => {
+    text += `*${catMenuData[sec].label}:*\n`;
+    groups[sec].forEach(item => {
+      const qty = item.unit==='person' ? catGuests : item.unit==='roti' ? Math.ceil(catGuests*1.5) : 1;
+      const lineTotal = item.rate * qty;
+      total += lineTotal;
+      text += `  • ${item.name} — $${lineTotal.toFixed(2)}\n`;
+    });
+    text += '\n';
+  });
+  const surcharge = catGuests < 25 ? 50 : 0;
+  if (surcharge) text += `⚠️ Small Group Surcharge — +$50.00\n\n`;
+  const grandTotal = total + surcharge;
+  text += `─────────────────────\n💰 *Total: $${grandTotal.toFixed(2)}*\n👤 *Per Person: $${(grandTotal/catGuests).toFixed(2)}*`;
+  window.open(`https://wa.me/16476073961?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function catRenderGrid(sec, gridId) {
+  const grid = document.getElementById(gridId);
+  catMenuData[sec].items.forEach((item, i) => {
+    const id = `${sec}-${i}`;
+    const el = document.createElement('div');
+    el.className = 'menu-item';
+    el.id = `cat-item-${id}`;
+    el.innerHTML = `<div class="item-left"><span class="item-name">${item.name}</span>${item.price ? `<span class="item-price">${item.price}</span>` : ''}</div><div class="check-icon"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,8 11,1"/></svg></div>`;
+    el.onclick = () => catToggleItem(id, el);
+    grid.appendChild(el);
+  });
+}
+
+function catToggleItem(id, el) {
+  if (catSelected.has(id)) { catSelected.delete(id); el.classList.remove('selected'); }
+  else { catSelected.add(id); el.classList.add('selected'); }
+  catUpdateOrderBar(); catUpdateQuote(); catValidateVeggie(); catUpdateCatCounts();
+}
+
+function catUpdateOrderBar() {
+  const bar = document.getElementById('catOrderBar');
+  document.getElementById('catOrderCount').textContent = catSelected.size;
+  if (catSelected.size > 0) bar.classList.add('visible');
+  else bar.classList.remove('visible');
+}
+
+function catValidateVeggie() {
+  const veggieCount = [...catSelected].filter(id => id.startsWith('veggie-')).length;
+  const msg = document.getElementById('catVeggieValidation');
+  msg.style.display = (veggieCount > 0 && veggieCount < 2 && catActiveCategory === 'veggie') ? '' : 'none';
+  const invalid = veggieCount > 0 && veggieCount < 2;
+  const orderBtn = document.querySelector('#cat-wrapper .order-btn');
+  if (orderBtn) { orderBtn.disabled = invalid; orderBtn.style.opacity = invalid ? '0.4' : '1'; }
+}
+
+function catClearAll() {
+  catSelected.forEach(id => { const el = document.getElementById(`cat-item-${id}`); if (el) el.classList.remove('selected'); });
+  catSelected.clear();
+  catUpdateOrderBar(); catUpdateQuote(); catValidateVeggie(); catUpdateCatCounts();
+}
+
+function catOpenModal() {
+  const groups = {};
+  catSelected.forEach(id => {
+    const [sec, idx] = id.split('-');
+    if (!groups[sec]) groups[sec] = [];
+    groups[sec].push(catMenuData[sec].items[parseInt(idx)]);
+  });
+  let html = '';
+  Object.keys(groups).forEach(sec => {
+    html += `<div class="modal-group"><div class="modal-group-title">${catMenuData[sec].label}</div>`;
+    groups[sec].forEach(item => { html += `<div class="modal-item"><span>${item.name}</span>${item.price ? `<span class="modal-item-extra">${item.price}</span>` : ''}</div>`; });
+    html += '</div>';
+  });
+  document.getElementById('catModalContent').innerHTML = html;
+  document.getElementById('catModalOverlay').classList.add('visible');
+}
+
+function catCloseModal(e) {
+  if (!e || e.target === document.getElementById('catModalOverlay'))
+    document.getElementById('catModalOverlay').classList.remove('visible');
+}
+
+function catCopyOrder() {
+  let text = "🌿 My Catering Order (Healthy Homemade)\n\n";
+  const groups = {};
+  catSelected.forEach(id => {
+    const [sec, idx] = id.split('-');
+    if (!groups[sec]) groups[sec] = [];
+    groups[sec].push(catMenuData[sec].items[parseInt(idx)]);
+  });
+  Object.keys(groups).forEach(sec => {
+    text += `${catMenuData[sec].label}:\n`;
+    groups[sec].forEach(item => { text += `  • ${item.name}${item.price ? ` (${item.price})` : ''}\n`; });
+    text += '\n';
+  });
+  text += "DM to inquire / confirm order!";
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#catModalOverlay .modal-dm-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function catSelectCategory(id) {
+  const panel = document.getElementById('catExpandedPanel');
+  ['veggie','raita','rice','breads','desserts','appetizers'].forEach(s => {
+    document.getElementById(`cat-${s}`).style.display = 'none';
+    document.getElementById(`cat-tile-${s}`).classList.remove('active');
+  });
+  if (catActiveCategory === id) { panel.style.display = 'none'; catActiveCategory = null; return; }
+  catActiveCategory = id;
+  document.getElementById(`cat-${id}`).style.display = '';
+  document.getElementById(`cat-tile-${id}`).classList.add('active');
+  document.getElementById('catExpandedTitle').textContent = catCategoryLabels[id];
+  panel.style.display = '';
+  const vv = document.getElementById('catVeggieValidation');
+  const count = [...catSelected].filter(x => x.startsWith('veggie-')).length;
+  vv.style.display = (id === 'veggie' && count > 0 && count < 2) ? '' : 'none';
+}
+
+function catCloseCategory() {
+  document.getElementById('catExpandedPanel').style.display = 'none';
+  if (catActiveCategory) { document.getElementById(`cat-tile-${catActiveCategory}`).classList.remove('active'); catActiveCategory = null; }
+}
+
+function catUpdateCatCounts() {
+  ['veggie','raita','rice','breads','desserts','appetizers'].forEach(sec => {
+    const count = [...catSelected].filter(id => id.startsWith(`${sec}-`)).length;
+    const el = document.getElementById(`cat-count-${sec}`);
+    el.textContent = count || '';
+    el.classList.toggle('has-items', count > 0);
+  });
+}
+
+catRenderGrid('veggie','catVeggieGrid');
+catRenderGrid('raita','catRaitaGrid');
+catRenderGrid('rice','catRiceGrid');
+catRenderGrid('breads','catBreadsGrid');
+catRenderGrid('desserts','catDessertsGrid');
+catRenderGrid('appetizers','catAppetizersGrid');
+
+</script>
 
 </body>
 </html>

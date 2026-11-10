@@ -1793,7 +1793,8 @@ const PRICING = {
   WEEKLY:   { REGULAR:90,  LARGE:105, FAMILY:180 },
   BIWEEKLY: { REGULAR:165, LARGE:175, FAMILY:280 },
   MONTHLY:  { JUNIOR:180, REGULAR:240, LARGE:270, FAMILY:450 },
-  MONTHLY_SAT: { JUNIOR:200 } // Junior Mon-Sat surcharge
+  MONTHLY_SAT: { JUNIOR:200, REGULAR:280, LARGE:315, FAMILY:525 }, // Mon-Sat rates
+  SAT_SURCHARGE: { REGULAR:40, LARGE:45, FAMILY:75 } // surcharge over Mon-Fri rate
 };
 
 const FREQ_LABELS = {
@@ -2178,13 +2179,8 @@ function selectPackage(cardEl) {
     curryDescEl.textContent = desc;
   }
 
-  // Auto-select default delivery days based on package
-  // Junior → MON-FRI (5 days), all others → MON-SAT (6 days)
-  if (pkg === 'JUNIOR') {
-    setDaysQuick('MONFRI');
-  } else {
-    setDaysQuick('MONSAT');
-  }
+  // Auto-select default delivery days — Mon-Fri for all packages
+  setDaysQuick('MONFRI');
 
   // Expand the quote card now that a package has been selected
   openQuoteCard();
@@ -2413,7 +2409,9 @@ function updateQuote() {
 
   if(pkg){
     var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+    var isMonthlySat = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
     if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice = 200;
+    else if (isMonthlySat && PRICING.SAT_SURCHARGE[state.pkg]) basePrice += PRICING.SAT_SURCHARGE[state.pkg];
     var extrasTotal = calcExtrasTotal();
     var combined    = basePrice + extrasTotal;
     var freqLabel   = FREQ_LABELS[state.freq] || '/ month';
@@ -2752,6 +2750,8 @@ function setDaysQuick(preset) {
     if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY') {
       state.juniorSatExtra = false;
       updateQuote();
+    } else if (state.freq === 'MONTHLY' && PRICING.SAT_SURCHARGE[state.pkg]) {
+      showToastMsg('Saturday removed — back to $' + PRICING.MONTHLY[state.pkg] + '/month');
     }
 
   } else if (preset === 'MONSAT') {
@@ -2762,6 +2762,11 @@ function setDaysQuick(preset) {
     setDays(['MON','TUE','WED','THU','FRI','SAT']);
     $cl('qbtn-monsat').add('active');
     $cl('qbtn-monfri').remove('active');
+    if (state.freq === 'MONTHLY' && PRICING.SAT_SURCHARGE[state.pkg]) {
+      var surcharge = PRICING.SAT_SURCHARGE[state.pkg];
+      var newTotal  = PRICING.MONTHLY[state.pkg] + surcharge;
+      showToastMsg('Saturday added — Total updated to $' + newTotal + '/month (+$' + surcharge + ')');
+    }
   }
   updateDaysPanelSubtitle();
 }
@@ -3130,6 +3135,9 @@ function getValidatedPhone() {
 function getPayableAmount() {
   if (!state.pkg) return null;
   var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var isMonthlySat = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
+  if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice = 200;
+  else if (isMonthlySat && PRICING.SAT_SURCHARGE[state.pkg]) basePrice += PRICING.SAT_SURCHARGE[state.pkg];
   var extrasTotal = calcExtrasTotal();
   var combined    = basePrice + extrasTotal;
   var total       = state.etransfer ? +(combined * 1.13).toFixed(2) : combined;
@@ -3159,6 +3167,9 @@ function submitOrder() {
     : (state.deliveryPlace || '');
 
   var basePrice2   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var isMonthlySat2 = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
+  if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice2 = 200;
+  else if (isMonthlySat2 && PRICING.SAT_SURCHARGE[state.pkg]) basePrice2 += PRICING.SAT_SURCHARGE[state.pkg];
   var extrasTotal2 = calcExtrasTotal();
   var combined2    = +(basePrice2 + extrasTotal2).toFixed(2);
   var totalWithTax = state.etransfer ? +(combined2 * 1.13).toFixed(2) : combined2;
@@ -3721,6 +3732,9 @@ function toggleSuccessEtransfer() {
 function refreshSuccessAmounts() {
   var pkg         = showSuccessScreen._pkg;
   var basePrice   = PRICING[state.freq] && PRICING[state.freq][state.pkg] ? PRICING[state.freq][state.pkg] : 0;
+  var isMonthlySat = state.freq === 'MONTHLY' && state.days && state.days.indexOf('SAT') > -1;
+  if (state.pkg === 'JUNIOR' && state.freq === 'MONTHLY' && state.juniorSatExtra) basePrice = 200;
+  else if (isMonthlySat && PRICING.SAT_SURCHARGE[state.pkg]) basePrice += PRICING.SAT_SURCHARGE[state.pkg];
   var extrasTotal = calcExtrasTotal();
   var combined    = basePrice + extrasTotal;
   var tax         = successEtChecked ? +(combined * 0.13).toFixed(2) : 0;
