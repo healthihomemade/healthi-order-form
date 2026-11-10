@@ -2,43 +2,47 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Healthi Homemade</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Mulish:wght@300;400;500;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===== TOGGLE BAR ===== */
+#mode-toggle-bar {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #1a1208;
+  padding: 8px 16px;
+  height: 48px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.mode-btn {
+  padding: 6px 22px;
+  border-radius: 24px;
+  border: 1.5px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: rgba(255,255,255,0.65);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.mode-btn.active {
+  background: #e8a020;
+  border-color: #e8a020;
+  color: #1a1208;
+}
+/* ===== NAV OFFSET FOR CATERING ===== */
+#cat-wrapper .nav-bar { top: 48px !important; }
+#cat-wrapper .floating-total { top: 60px !important; }
+/* ===== PKG CSS SCOPED ===== */
+#pkg-wrapper {
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { overflow-x: hidden; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-  #mode-toggle-bar {
-    position: sticky; top: 0; z-index: 500;
-    background: #1a1208; display: flex; align-items: stretch; height: 48px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.4);
-    border-bottom: 1px solid rgba(200,150,42,0.2);
-  }
-  .mode-btn {
-    flex: 1; border: none; background: transparent;
-    color: rgba(255,255,255,0.5);
-    font-family: 'Mulish', 'Lato', sans-serif;
-    font-size: 13px; font-weight: 700; letter-spacing: 0.5px;
-    cursor: pointer; transition: all 0.2s;
-    border-bottom: 3px solid transparent;
-    border-right: 1px solid rgba(255,255,255,0.08);
-  }
-  .mode-btn:last-child { border-right: none; }
-  .mode-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }
-  .mode-btn.active { color: #fff; border-bottom-color: #E8890C; background: rgba(232,137,12,0.08); }
-  #cat-wrapper .nav-bar { top: 48px !important; }
-  #pkg-wrapper #totalPillBar { top: 60px !important; }
-  #cat-wrapper .floating-total { top: 60px !important; }
-  #pkg-wrapper .quote-title { font-family: 'Playfair Display', serif !important; font-size: 1.2rem !important; margin-bottom: 3px !important; color: var(--cream) !important; font-weight: 400 !important; }
-  #cat-wrapper .quote-title { font-family: 'Playfair Display', serif !important; font-size: 22px !important; font-weight: 900 !important; color: #fff !important; }
-  #pkg-wrapper .quote-line { display: flex !important; justify-content: space-between !important; align-items: flex-start !important; padding: 9px 0 !important; border-bottom: 1px solid rgba(255,255,255,0.08) !important; font-size: 13px !important; gap: 10px !important; }
-  #cat-wrapper .quote-line { display: flex !important; justify-content: space-between !important; align-items: center !important; gap: 8px !important; padding: 5px 0 !important; font-size: 13.5px !important; color: rgba(255,255,255,0.82) !important; border-bottom: 1px solid rgba(255,255,255,0.04) !important; }
-  #pkg-wrapper { background: #F5F0E8; display: block; }
-  #cat-wrapper { background: #faf6ef; display: block; }
-
-
-  #pkg-wrapper {
+  :root {
     --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
     --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
     --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
@@ -48,8 +52,11 @@
     --radius: 16px; --radius-sm: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  html  { width: 579px; max-width: 100%; overflow-x: hidden; }
   body  {
+    width: 579px;
     max-width: 100%;
+    min-height: 897px;
     background: var(--smoke);
     color: var(--ink);
     font-family: 'Mulish', sans-serif;
@@ -1028,8 +1035,11 @@
     input, select, textarea { font-size:16px !important; }
   }
 
+}
+/* ===== CAT CSS SCOPED ===== */
+#cat-wrapper {
 
-  #cat-wrapper {
+  :root {
     --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
     --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
     --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
@@ -1806,6 +1816,7 @@
     input, select, textarea { font-size:16px !important; }
   }
 
+}
 </style>
 </head>
 <body>
@@ -3312,9 +3323,33 @@
   </div>
   <button class="new-order-btn" onclick="resetForm()">← Place Another Order</button>
 </div>
+
+
+
+  <!-- FLOATING TOTAL PILL -->
+  <div id="totalPillBar" style="display:none;position:fixed;top:12px;right:12px;left:auto;transform:none;z-index:9999;align-items:center;gap:14px;background:#2d4a3e;border-radius:50px;padding:12px 24px;box-shadow:0 8px 32px rgba(26,22,18,0.4);white-space:nowrap;min-width:0;width:auto;justify-content:center;">
+    <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:rgba(253,250,244,0.55);">Total</span>
+    <div style="width:1px;height:18px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
+    <span id="totalPillAmount" style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#e8890c;line-height:1;font-weight:700;">$—</span>
+  </div>
+</div>  <!-- close unclosed cat div -->
 </div>
 
 <script>
+function setMode(mode) {
+  var pkgW = document.getElementById('pkg-wrapper');
+  var catW = document.getElementById('cat-wrapper');
+  var btnP = document.getElementById('btn-packages');
+  var btnC = document.getElementById('btn-catering');
+  pkgW.style.display = mode === 'packages' ? '' : 'none';
+  catW.style.display = mode === 'catering'  ? '' : 'none';
+  btnP.classList.toggle('active', mode === 'packages');
+  btnC.classList.toggle('active', mode === 'catering');
+}
+</script>
+
+<script>
+/* ===== PACKAGES JS ===== */
 
 // ── TOAST HELPER ─────────────────────────────────────────
 function showToastMsg(msg) {
@@ -5315,6 +5350,7 @@ updateDaysPanelSubtitle();
 </script>
 
 <script>
+/* ===== CATERING JS ===== */
 
 function showToastMsg(msg) {
   var existing = document.getElementById('formToast');
@@ -5832,21 +5868,6 @@ initCountryList();
 setDays(['MON','TUE','WED','THU','FRI']);
 $cl('qbtn-monfri').add('active');
 updateDaysPanelSubtitle();
-
-</script>
-
-<script>
-
-function setMode(mode) {
-  var pkgW = document.getElementById('pkg-wrapper');
-  var catW = document.getElementById('cat-wrapper');
-  var btnP = document.getElementById('btn-packages');
-  var btnC = document.getElementById('btn-catering');
-  pkgW.style.display = mode === 'packages' ? '' : 'none';
-  catW.style.display = mode === 'catering'  ? '' : 'none';
-  btnP.classList.toggle('active', mode === 'packages');
-  btnC.classList.toggle('active', mode === 'catering');
-}
 
 </script>
 
