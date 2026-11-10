@@ -573,6 +573,7 @@
   .veggie-row-item.selected .vri-check { background: var(--forest); border-color: var(--forest); }
   .veggie-row-item .vri-check svg { width: 8px; height: 8px; stroke: #fff; stroke-width: 2.5; opacity: 0; transition: opacity 0.15s; }
   .veggie-row-item.selected .vri-check svg { opacity: 1; }
+  .raita-table { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid rgba(200,150,42,0.3); border-radius: 8px; overflow: hidden; }
 </style>
 </head>
 <body>
@@ -625,7 +626,7 @@
     </div>
     <p class="section-validation" id="catVeggieValidation" style="display:none">⚠️ Please select at least 2 Veggie items</p>
     <div id="cat-veggie" style="display:none"><div class="veggie-table" id="catVeggieGrid"></div></div>
-    <div id="cat-raita"  style="display:none"><div class="items-grid" id="catRaitaGrid"></div></div>
+    <div id="cat-raita"  style="display:none"><div class="raita-table" id="catRaitaGrid"></div></div>
     <div id="cat-rice"   style="display:none"><div class="items-grid" id="catRiceGrid"></div></div>
     <div id="cat-breads" style="display:none"><div class="items-grid" id="catBreadsGrid"></div></div>
     <div id="cat-desserts"   style="display:none"><div class="items-grid" id="catDessertsGrid"></div></div>
@@ -718,11 +719,11 @@ const catMenuData = {
     {name:"Malai Chaap",price:"$3 / person",rate:3,unit:"person",type:"gravy"}
   ]},
   raita: { label:"Raita", items:[
-    {name:"Boondi Raita",price:"$1 / person",rate:1,unit:"person"},
-    {name:"Mint Raita",price:"$2 / person",rate:2,unit:"person"},
-    {name:"Plain Raita",price:"$1 / person",rate:1,unit:"person"},
-    {name:"Pineapple Raita",price:"$2 / person",rate:2,unit:"person"},
-    {name:"Mixed Fruit Raita",price:"$2 / person",rate:2,unit:"person"}
+    {name:"Plain Raita / Dahi",price:"$1 / person",rate:1,unit:"person",type:"plain"},
+    {name:"Boondi Raita",price:"$1 / person",rate:1,unit:"person",type:"plain"},
+    {name:"Mint Raita",price:"$2 / person",rate:2,unit:"person",type:"special"},
+    {name:"Pineapple Raita",price:"$2 / person",rate:2,unit:"person",type:"special"},
+    {name:"Mixed Fruit Raita",price:"$2 / person",rate:2,unit:"person",type:"special"}
   ]},
   rice: { label:"Rice", items:[
     {name:"Plain Rice",price:"$1 / person",rate:1,unit:"person"},
@@ -888,6 +889,35 @@ function catRenderVeggieTable(gridId) {
   });
 }
 
+function catRenderRaitaTable(gridId) {
+  const grid = document.getElementById(gridId);
+  const cols = { plain: [], special: [] };
+  catMenuData.raita.items.forEach((item, i) => {
+    const type = (item.type || 'plain').toLowerCase();
+    if (cols[type]) cols[type].push({ item, i });
+  });
+  const headers = {
+    plain:   { icon: '🥛', label: 'Plain',   price: '$1 / person' },
+    special: { icon: '🍍', label: 'Special', price: '$2 / person' }
+  };
+  ['plain','special'].forEach(type => {
+    const col = document.createElement('div');
+    col.className = 'veggie-col';
+    const { icon, label, price } = headers[type];
+    col.innerHTML = `<div class="veggie-col-header"><span class="col-icon">${icon}</span>${label}<span class="col-price">${price}</span></div>`;
+    cols[type].forEach(({ item, i }) => {
+      const id = `raita-${i}`;
+      const row = document.createElement('div');
+      row.className = 'veggie-row-item';
+      row.id = `cat-item-${id}`;
+      row.innerHTML = `<span class="vri-name">${item.name}</span><div class="vri-check"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,8 11,1"/></svg></div>`;
+      row.onclick = () => catToggleItem(id, row);
+      col.appendChild(row);
+    });
+    grid.appendChild(col);
+  });
+}
+
 function catToggleItem(id, el) {
   if (catSelected.has(id)) { catSelected.delete(id); el.classList.remove('selected'); }
   else { catSelected.add(id); el.classList.add('selected'); }
@@ -992,7 +1022,7 @@ function catUpdateCatCounts() {
 }
 
 catRenderVeggieTable('catVeggieGrid');
-catRenderGrid('raita','catRaitaGrid');
+catRenderRaitaTable('catRaitaGrid');
 catRenderGrid('rice','catRiceGrid');
 catRenderGrid('breads','catBreadsGrid');
 catRenderGrid('desserts','catDessertsGrid');
