@@ -672,7 +672,7 @@
   </div>
 </section>
 <footer class="footer">
-  <a href="https://wa.me/16476073961" class="footer-call-btn">📞 Call (647) 607-3961</a>
+  <a href="tel:+16476073961" class="footer-call-btn">📞 Call (647) 607-3961</a>
   <p>Healthy Homemade Catering · All vegetarian · Prices may vary</p>
 </footer>
 <div class="order-bar" id="catOrderBar">
@@ -825,7 +825,6 @@ function catUpdateQuote() {
 }
 
 function catPlaceOrderWhatsApp() {
-  let text = `🌿 *Catering Order — Healthy Homemade*\n👥 Guests: ${catGuests}\n\n`;
   const groups = {};
   catSelected.forEach(id => {
     const [sec, idx] = id.split('-');
@@ -833,21 +832,29 @@ function catPlaceOrderWhatsApp() {
     groups[sec].push(catMenuData[sec].items[parseInt(idx)]);
   });
   let total = 0;
+  let bodyLines = [];
   Object.keys(groups).forEach(sec => {
-    text += `*${catMenuData[sec].label}:*\n`;
+    bodyLines.push(catMenuData[sec].label + ':');
     groups[sec].forEach(item => {
       const qty = item.unit==='person' ? catGuests : item.unit==='roti' ? Math.ceil(catGuests*1.5) : 1;
       const lineTotal = item.rate * qty;
       total += lineTotal;
-      text += `  • ${item.name} — $${lineTotal.toFixed(2)}\n`;
+      bodyLines.push('  • ' + item.name + ' — $' + lineTotal.toFixed(2));
     });
-    text += '\n';
+    bodyLines.push('');
   });
   const surcharge = catGuests < 25 ? 50 : 0;
-  if (surcharge) text += `⚠️ Small Group Surcharge — +$50.00\n\n`;
+  if (surcharge) { bodyLines.push('Small Group Surcharge (< 25 guests): +$50.00'); bodyLines.push(''); }
   const grandTotal = total + surcharge;
-  text += `─────────────────────\n💰 *Total: $${grandTotal.toFixed(2)}*\n👤 *Per Person: $${(grandTotal/catGuests).toFixed(2)}*`;
-  window.open(`https://wa.me/16476073961?text=${encodeURIComponent(text)}`, '_blank');
+  bodyLines.push('─────────────────────────');
+  bodyLines.push('Total: $' + grandTotal.toFixed(2));
+  bodyLines.push('Per Person: $' + (grandTotal / catGuests).toFixed(2));
+  bodyLines.push('');
+  bodyLines.push('Please confirm availability and event date.');
+
+  const subject = 'Catering Order — Healthy Homemade (' + catGuests + ' guests)';
+  const body = 'Catering Order — Healthy Homemade\nGuests: ' + catGuests + '\n\n' + bodyLines.join('\n');
+  window.location.href = 'mailto:healthihomemade@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
 }
 
 function catRenderGrid(sec, gridId) {
