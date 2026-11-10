@@ -6,6 +6,25 @@
 <title>Healthi Homemade</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===== CSS VARIABLES ===== */
+:root {
+    --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
+    --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
+    --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
+    --red: #C0392B; --green: #2D6A4F;
+    --shadow-sm: 0 2px 8px rgba(26,22,18,0.08);
+    --shadow-lg: 0 20px 60px rgba(26,22,18,0.18);
+    --radius: 16px; --radius-sm: 10px;
+  }
+:root {
+    --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
+    --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
+    --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
+    --red: #C0392B; --green: #2D6A4F;
+    --shadow-sm: 0 2px 8px rgba(26,22,18,0.08);
+    --shadow-lg: 0 20px 60px rgba(26,22,18,0.18);
+    --radius: 16px; --radius-sm: 10px;
+  }
 /* ===== TOGGLE BAR ===== */
 #mode-toggle-bar {
   position: sticky;
@@ -41,17 +60,7 @@
 #cat-wrapper .floating-total { top: 60px !important; }
 /* ===== PKG CSS SCOPED ===== */
 #pkg-wrapper {
-
-  :root {
-    --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
-    --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
-    --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
-    --red: #C0392B; --green: #2D6A4F;
-    --shadow-sm: 0 2px 8px rgba(26,22,18,0.08);
-    --shadow-lg: 0 20px 60px rgba(26,22,18,0.18);
-    --radius: 16px; --radius-sm: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
   html  { width: 579px; max-width: 100%; overflow-x: hidden; }
   body  {
     width: 579px;
@@ -1034,21 +1043,10 @@
   @media(max-width:480px){
     input, select, textarea { font-size:16px !important; }
   }
-
 }
 /* ===== CAT CSS SCOPED ===== */
 #cat-wrapper {
-
-  :root {
-    --saffron: #E8890C; --saffron-light: #FBF0DC; --saffron-dark: #B86D00;
-    --cardamom: #2D4A3E; --cream: #FDFAF4; --smoke: #F5F0E8;
-    --ash: #8A8278; --ink: #1A1612; --border: #E0D9CC; --white: #FFFFFF;
-    --red: #C0392B; --green: #2D6A4F;
-    --shadow-sm: 0 2px 8px rgba(26,22,18,0.08);
-    --shadow-lg: 0 20px 60px rgba(26,22,18,0.18);
-    --radius: 16px; --radius-sm: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
   html  { width: 100%; max-width: 100%; overflow-x: hidden; }
   body  {
     width: 100%;
@@ -1815,14 +1813,13 @@
   @media(max-width:480px){
     input, select, textarea { font-size:16px !important; }
   }
-
 }
 </style>
 </head>
 <body>
 
 <div id="mode-toggle-bar">
-  <button class="mode-btn active" id="btn-packages" onclick="setMode('packages')">🍱 Tiffin</button>
+  <button class="mode-btn active" id="btn-packages" onclick="setMode('packages')">📦 Packages</button>
   <button class="mode-btn" id="btn-catering" onclick="setMode('catering')">🍽️ Catering</button>
 </div>
 
