@@ -871,7 +871,7 @@ function catRenderVeggieTable(gridId) {
     const type = (item.type || 'gravy').toLowerCase();
     if (cols[type]) cols[type].push({ item, i });
   });
-  const headers = { soupy: { icon: '🫕', label: 'Soupy' }, gravy: { icon: '🥘', label: 'Gravy' }, dry: { icon: '🍽️', label: 'Dry' } };
+  const headers = { soupy: { icon: '🫕', label: 'Gravy' }, gravy: { icon: '🥘', label: 'Thick Gravy' }, dry: { icon: '🍽️', label: 'Dry' } };
   ['soupy','gravy','dry'].forEach(type => {
     const col = document.createElement('div');
     col.className = 'veggie-col';
