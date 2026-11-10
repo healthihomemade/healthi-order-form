@@ -562,6 +562,7 @@
   .veggie-col:not(:last-child) { border-right: 1px solid rgba(200,150,42,0.25); }
   .veggie-col-header { padding: 9px 6px; text-align: center; font-family: 'Lato', sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; background: var(--forest); color: rgba(255,255,255,0.9); border-bottom: 1px solid rgba(200,150,42,0.3); }
   .veggie-col-header .col-icon { display: block; font-size: 16px; margin-bottom: 2px; }
+  .veggie-col-header .col-price { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: none; color: var(--gold-light); margin-top: 3px; }
   .veggie-row-item { display: flex; align-items: center; justify-content: space-between; gap: 4px; padding: 9px 8px; cursor: pointer; border-bottom: 1px solid rgba(200,150,42,0.12); transition: background 0.15s; background: var(--parchment); }
   .veggie-row-item:last-child { border-bottom: none; }
   .veggie-row-item:hover { background: #edf5e5; }
@@ -875,13 +876,16 @@ function catRenderVeggieTable(gridId) {
     const col = document.createElement('div');
     col.className = 'veggie-col';
     const { icon, label } = headers[type];
-    col.innerHTML = `<div class="veggie-col-header"><span class="col-icon">${icon}</span>${label}</div>`;
+    const rates = cols[type].map(({ item }) => item.rate);
+    const minR = Math.min(...rates), maxR = Math.max(...rates);
+    const priceLabel = minR === maxR ? `$${minR} / person` : `$${minR}–$${maxR} / person`;
+    col.innerHTML = `<div class="veggie-col-header"><span class="col-icon">${icon}</span>${label}<span class="col-price">${priceLabel}</span></div>`;
     cols[type].forEach(({ item, i }) => {
       const id = `veggie-${i}`;
       const row = document.createElement('div');
       row.className = 'veggie-row-item';
       row.id = `cat-item-${id}`;
-      row.innerHTML = `<span class="vri-name">${item.name}</span><span class="vri-price">${item.price}</span><div class="vri-check"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,8 11,1"/></svg></div>`;
+      row.innerHTML = `<span class="vri-name">${item.name}</span><div class="vri-check"><svg viewBox="0 0 12 10" fill="none"><polyline points="1,5 4,8 11,1"/></svg></div>`;
       row.onclick = () => catToggleItem(id, row);
       col.appendChild(row);
     });
