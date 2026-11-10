@@ -20,8 +20,8 @@
 
 /* ===== GLOBAL RESET ===== */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { overflow-x: hidden; }
-body { background: #faf6ef; }
+html { overflow-x: hidden; width: 100%; }
+body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; }
 
 /* ===== TOGGLE BAR ===== */
 #mode-toggle-bar {
@@ -1541,9 +1541,9 @@ body { background: #faf6ef; }
 
   }
 
-/* ===== CATERING NAV OFFSET ===== */
-#cat-wrapper .nav-bar { top: 48px !important; }
-#cat-wrapper .floating-total { top: 60px !important; }
+/* ===== CATERING WRAPPER ===== */
+#cat-wrapper { width: 100vw !important; min-height: calc(100vh - 48px) !important; overflow: visible !important; max-width: 100% !important; }
+#cat-wrapper iframe { width: 100vw !important; max-width: 100% !important; height: calc(100vh - 48px) !important; display: block !important; border: none !important; min-height: 600px !important; }
 </style>
 </head>
 <body>
@@ -2408,9 +2408,10 @@ body { background: #faf6ef; }
   </div>
 </div>
 </div>
+</div>
 
-<div id="cat-wrapper" style="display:none">
-<iframe src="catering-menu.html" id="cat-iframe" style="width:100%;height:calc(100vh - 48px);border:none;display:block;" loading="lazy"></iframe>
+<div id="cat-wrapper" style="display:none;width:100%;min-height:calc(100vh - 48px);">
+<iframe src="catering-menu.html" id="cat-iframe" style="width:100%;height:calc(100vh - 48px);min-height:500px;border:none;display:block;"></iframe>
 </div>
 
 <script>
@@ -2420,9 +2421,16 @@ function setMode(mode) {
   var btnP = document.getElementById('btn-packages');
   var btnC = document.getElementById('btn-catering');
   pkgW.style.display = mode === 'packages' ? '' : 'none';
-  catW.style.display = mode === 'catering'  ? '' : 'none';
+  catW.style.display = mode === 'catering'  ? 'block' : 'none';
   btnP.classList.toggle('active', mode === 'packages');
   btnC.classList.toggle('active', mode === 'catering');
+  if (mode === 'catering') {
+    var iframe = document.getElementById('cat-iframe');
+    if (iframe && !iframe.dataset.loaded) {
+      iframe.src = 'catering-menu.html';
+      iframe.dataset.loaded = '1';
+    }
+  }
 }
 </script>
 
