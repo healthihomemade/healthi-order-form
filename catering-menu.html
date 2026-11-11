@@ -463,7 +463,7 @@
   @keyframes shimmer { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
   .cat-tab {
     flex: 1;
-    padding: 14px 10px;
+    padding: 10px 10px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -477,7 +477,7 @@
     position: relative;
   }
   .cat-tab:not(:last-child) { border-right: 1px solid rgba(255,180,80,0.35); }
-  .cat-tab .tab-icon { display: block; font-size: 20px; margin-bottom: 4px; }
+  .cat-tab .tab-icon { display: none; }
   .cat-tab.active { background: rgba(0,0,0,0.22); color: #fff; }
   .cat-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 50%; height: 3px; background: #ffd080; border-radius: 2px 2px 0 0; }
   .cat-tab:not(.active):hover { background: rgba(255,255,255,0.1); color: #fff; }
