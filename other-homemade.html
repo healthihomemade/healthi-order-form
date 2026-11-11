@@ -81,6 +81,13 @@
     margin-top: 2px;
     letter-spacing: 0.3px;
   }
+  .item-note {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
   .qty-control {
     display: flex;
     align-items: center;
@@ -222,11 +229,11 @@
 
 <script>
 const ITEMS = [
-  { id: 'tadke',       name: 'Tadke',       rate: 10, unit: 'lb' },
-  { id: 'gondh',       name: 'Gondh Laddu', rate: 17, unit: 'lb' },
-  { id: 'panjeeri',    name: 'Panjeeri',    rate: 17, unit: 'lb' },
-  { id: 'gajjar',      name: 'Gajjar Halwa',rate: 15, unit: 'lb' },
-  { id: 'desi-ghee',   name: 'Desi Ghee',   rate: 20, unit: 'lb' },
+  { id: 'tadka',     name: 'Tadka',        note: 'Customizable as per need — Jain / Without Onion Garlic',                              rate: 10, unit: 'lb' },
+  { id: 'gondh',     name: 'Gondh Laddu',  note: 'Nuts and without nuts option available',                                               rate: 17, unit: 'lb' },
+  { id: 'panjeeri',  name: 'Panjeeri',     note: 'Special for expecting mothers',                                                        rate: 17, unit: 'lb' },
+  { id: 'gajjar',    name: 'Gajjar Halwa', note: 'With nuts and without nuts · Dairy free option also available',                        rate: 15, unit: 'lb' },
+  { id: 'desi-ghee', name: 'Desi Ghee',    note: '100% pure — Prepared in traditional style with butter',                               rate: 20, unit: 'lb' },
 ];
 
 const qty = {};
@@ -242,6 +249,7 @@ function render() {
       <div class="item-info">
         <div class="item-name">${it.name}</div>
         <div class="item-price">$${it.rate} / ${it.unit}</div>
+        ${it.note ? `<div class="item-note">${it.note}</div>` : ''}
       </div>
       <div class="qty-control">
         <button class="qty-btn" onclick="change('${it.id}',-1)">−</button>
