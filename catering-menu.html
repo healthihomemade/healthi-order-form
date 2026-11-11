@@ -439,37 +439,32 @@
   }
   .footer-call-btn:hover { background: #1ebe5d; transform: translateY(-2px); }
   .footer p { font-size: 13px; color: rgba(255,255,255,0.5); }
-  .promo-banner {
-    margin-top: 20px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    background: linear-gradient(135deg, #c05010 0%, #e06820 60%, #b04010 100%);
-    border: 1px solid rgba(255,180,80,0.4);
-    border-left: 4px solid #f0a030;
-    border-radius: 8px;
-    padding: 9px 14px;
-    display: flex;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 8px;
+  .cat-tabs { display: flex; gap: 0; margin: 20px 0 0; border-radius: 10px 10px 0 0; overflow: hidden; border: 1px solid rgba(200,150,42,0.3); border-bottom: none; }
+  .cat-tab {
+    flex: 1;
+    padding: 14px 10px;
+    background: var(--parchment);
+    border: none;
+    cursor: pointer;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: background 0.2s, color 0.2s;
     position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(180,80,0,0.3), 0 0 14px rgba(220,120,20,0.2);
   }
-  .promo-banner::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, #f0a030, #ffd080, #f0a030, transparent);
-    animation: shimmer 2.5s ease-in-out infinite;
-  }
-  @keyframes shimmer { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-  .promo-badge { background: var(--gold); color: var(--dark); font-size: 7px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; padding: 2px 5px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-  .promo-inline-items { font-size: 13px; color: #000; flex: 1; white-space: nowrap; overflow: visible; min-width: 0; font-weight: 600; }
-  .promo-price { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 900; color: #000; white-space: nowrap; flex-shrink: 0; }
-  .promo-per { font-family: 'Lato', sans-serif; font-size: 13px; font-weight: 600; color: #222; margin-left: 2px; }
+  .cat-tab:not(:last-child) { border-right: 1px solid rgba(200,150,42,0.3); }
+  .cat-tab .tab-icon { display: block; font-size: 20px; margin-bottom: 4px; }
+  .cat-tab.active { background: var(--forest); color: #fff; }
+  .cat-tab.active::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 40%; height: 3px; background: var(--gold-light); border-radius: 2px 2px 0 0; }
+  .cat-tab-content { display: none; border: 1px solid rgba(200,150,42,0.3); border-top: none; border-radius: 0 0 10px 10px; padding: 16px 0 4px; background: var(--cream); }
+  .cat-tab-content.active { display: block; }
+  .tray-coming-soon { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .tray-coming-soon .tcs-icon { font-size: 48px; margin-bottom: 12px; }
+  .tray-coming-soon h3 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--forest); margin-bottom: 8px; }
+  .tray-coming-soon p { font-size: 14px; line-height: 1.6; max-width: 300px; margin: 0 auto; }
   .quote-section { background: linear-gradient(160deg, #1a2e16 0%, #1e3d1a 100%); padding: 24px 16px 16px; margin-top: 8px; }
   .quote-inner { max-width: 780px; margin: 0 auto; }
   .quote-header { margin-bottom: 14px; }
@@ -520,10 +515,8 @@
     .hero-sub, .hero-divider, .hero-cta { display: none; }
     .hero-tag { font-size: 11px; letter-spacing: 2px; margin-bottom: 6px; }
     .container { padding: 0 10px 8px; }
-    .promo-banner { padding: 7px 10px; gap: 6px; margin-top: 10px; flex-wrap: nowrap; }
-    .promo-badge { font-size: 8px; padding: 2px 6px; }
-    .promo-inline-items { font-size: 12px; }
-    .promo-price { font-size: 16px; }
+    .cat-tab { padding: 12px 6px; font-size: 11px; letter-spacing: 1.2px; }
+    .cat-tab .tab-icon { font-size: 18px; }
     .category-grid { gap: 10px; margin-top: 16px; }
     .cat-tile { padding: 14px 6px 12px; border-radius: 10px; }
     .cat-icon { font-size: 28px; }
@@ -583,54 +576,71 @@
   </div>
 </header>
 <div class="container">
-  <div class="promo-banner">
-    <span class="promo-inline-items">🥘 3 Subzi · 🥛 Raita · 🍚 Rice · 🍮 Dessert</span>
-    <span class="promo-price">$9.99<span class="promo-per">/person</span></span>
-  </div>
-  <div class="category-grid">
-    <button class="cat-tile" id="cat-tile-veggie" onclick="catSelectCategory('veggie')">
-      <span class="cat-icon">🥘</span>
-      <span class="cat-label">Veggie Delight</span>
-      <span class="cat-count" id="cat-count-veggie"></span>
+  <div class="cat-tabs">
+    <button class="cat-tab active" id="main-tab-thali" onclick="catSwitchTab('thali')">
+      <span class="tab-icon">🍽️</span>Thali
     </button>
-    <button class="cat-tile" id="cat-tile-raita" onclick="catSelectCategory('raita')">
-      <span class="cat-icon">🥛</span>
-      <span class="cat-label">Raita</span>
-      <span class="cat-count" id="cat-count-raita"></span>
-    </button>
-    <button class="cat-tile" id="cat-tile-rice" onclick="catSelectCategory('rice')">
-      <span class="cat-icon">🍚</span>
-      <span class="cat-label">Rice</span>
-      <span class="cat-count" id="cat-count-rice"></span>
-    </button>
-    <button class="cat-tile" id="cat-tile-breads" onclick="catSelectCategory('breads')">
-      <span class="cat-icon">🫓</span>
-      <span class="cat-label">Roti / Breads</span>
-      <span class="cat-count" id="cat-count-breads"></span>
-    </button>
-    <button class="cat-tile" id="cat-tile-desserts" onclick="catSelectCategory('desserts')">
-      <span class="cat-icon">🍮</span>
-      <span class="cat-label">Desserts</span>
-      <span class="cat-count" id="cat-count-desserts"></span>
-    </button>
-    <button class="cat-tile" id="cat-tile-appetizers" onclick="catSelectCategory('appetizers')">
-      <span class="cat-icon">🌶️</span>
-      <span class="cat-label">Appetizers</span>
-      <span class="cat-count" id="cat-count-appetizers"></span>
+    <button class="cat-tab" id="main-tab-tray" onclick="catSwitchTab('tray')">
+      <span class="tab-icon">🥘</span>Tray Wise
     </button>
   </div>
-  <div class="expanded-panel" id="catExpandedPanel" style="display:none">
-    <div class="expanded-header">
-      <span id="catExpandedTitle"></span>
-      <button class="expanded-close" onclick="catCloseCategory()">✕</button>
+
+  <!-- THALI TAB -->
+  <div class="cat-tab-content active" id="main-content-thali">
+    <div class="category-grid">
+      <button class="cat-tile" id="cat-tile-veggie" onclick="catSelectCategory('veggie')">
+        <span class="cat-icon">🥘</span>
+        <span class="cat-label">Veggie Delight</span>
+        <span class="cat-count" id="cat-count-veggie"></span>
+      </button>
+      <button class="cat-tile" id="cat-tile-raita" onclick="catSelectCategory('raita')">
+        <span class="cat-icon">🥛</span>
+        <span class="cat-label">Raita</span>
+        <span class="cat-count" id="cat-count-raita"></span>
+      </button>
+      <button class="cat-tile" id="cat-tile-rice" onclick="catSelectCategory('rice')">
+        <span class="cat-icon">🍚</span>
+        <span class="cat-label">Rice</span>
+        <span class="cat-count" id="cat-count-rice"></span>
+      </button>
+      <button class="cat-tile" id="cat-tile-breads" onclick="catSelectCategory('breads')">
+        <span class="cat-icon">🫓</span>
+        <span class="cat-label">Roti / Breads</span>
+        <span class="cat-count" id="cat-count-breads"></span>
+      </button>
+      <button class="cat-tile" id="cat-tile-desserts" onclick="catSelectCategory('desserts')">
+        <span class="cat-icon">🍮</span>
+        <span class="cat-label">Desserts</span>
+        <span class="cat-count" id="cat-count-desserts"></span>
+      </button>
+      <button class="cat-tile" id="cat-tile-appetizers" onclick="catSelectCategory('appetizers')">
+        <span class="cat-icon">🌶️</span>
+        <span class="cat-label">Appetizers</span>
+        <span class="cat-count" id="cat-count-appetizers"></span>
+      </button>
     </div>
-    <p class="section-validation" id="catVeggieValidation" style="display:none">⚠️ Please select at least 2 Veggie items</p>
-    <div id="cat-veggie" style="display:none"><div class="veggie-table" id="catVeggieGrid"></div></div>
-    <div id="cat-raita"  style="display:none"><div class="raita-table" id="catRaitaGrid"></div></div>
-    <div id="cat-rice"   style="display:none"><div class="raita-table" id="catRiceGrid"></div></div>
-    <div id="cat-breads" style="display:none"><div class="items-grid" id="catBreadsGrid"></div></div>
-    <div id="cat-desserts"   style="display:none"><div class="items-grid" id="catDessertsGrid"></div></div>
-    <div id="cat-appetizers" style="display:none"><div class="items-grid" id="catAppetizersGrid"></div></div>
+    <div class="expanded-panel" id="catExpandedPanel" style="display:none">
+      <div class="expanded-header">
+        <span id="catExpandedTitle"></span>
+        <button class="expanded-close" onclick="catCloseCategory()">✕</button>
+      </div>
+      <p class="section-validation" id="catVeggieValidation" style="display:none">⚠️ Please select at least 2 Veggie items</p>
+      <div id="cat-veggie" style="display:none"><div class="veggie-table" id="catVeggieGrid"></div></div>
+      <div id="cat-raita"  style="display:none"><div class="raita-table" id="catRaitaGrid"></div></div>
+      <div id="cat-rice"   style="display:none"><div class="raita-table" id="catRiceGrid"></div></div>
+      <div id="cat-breads" style="display:none"><div class="items-grid" id="catBreadsGrid"></div></div>
+      <div id="cat-desserts"   style="display:none"><div class="items-grid" id="catDessertsGrid"></div></div>
+      <div id="cat-appetizers" style="display:none"><div class="items-grid" id="catAppetizersGrid"></div></div>
+    </div>
+  </div>
+
+  <!-- TRAY WISE TAB -->
+  <div class="cat-tab-content" id="main-content-tray">
+    <div class="tray-coming-soon">
+      <div class="tcs-icon">🥘</div>
+      <h3>Tray Wise Orders</h3>
+      <p>Order individual trays of your favourite dishes — perfect for large gatherings. Coming soon!</p>
+    </div>
   </div>
 </div>
 <section class="quote-section" id="catQuoteSection" style="display:none">
@@ -767,6 +777,14 @@ const catCategoryLabels = {
   veggie:'🥘 Veggie Delight',raita:'🥛 Raita',rice:'🍚 Rice',
   breads:'🫓 Roti / Breads',desserts:'🍮 Desserts',appetizers:'🌶️ Appetizers'
 };
+
+function catSwitchTab(tab) {
+  ['thali','tray'].forEach(t => {
+    document.getElementById('main-tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('main-content-' + t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'thali') {} else { catCloseCategory(); }
+}
 
 function catChangeGuests(delta) {
   catGuests = Math.max(1, catGuests + delta);
