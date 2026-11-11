@@ -170,30 +170,32 @@
   .nav-btn:hover, .nav-btn.active { color: #fff; background: rgba(255,255,255,0.08); }
   .nav-btn:hover::after, .nav-btn.active::after { width: 60%; }
   .container { max-width: 1000px; margin: 0 auto; padding: 0 12px 8px; }
-  .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; }
+  .category-grid { display: flex; flex-wrap: nowrap; gap: 8px; margin-top: 16px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .category-grid::-webkit-scrollbar { display: none; }
   .cat-tile {
     background: var(--parchment);
     border: 1px solid rgba(200,150,42,0.25);
-    border-radius: 10px;
-    padding: 14px 8px 12px;
+    border-radius: 20px;
+    padding: 7px 14px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     gap: 6px;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
     font-family: 'Lato', sans-serif;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .cat-tile:hover, .cat-tile.active {
     background: linear-gradient(135deg, #e8f4e0, #f0f8ea);
     border-color: var(--forest-light);
-    box-shadow: 0 4px 16px rgba(45,90,39,0.15);
-    transform: translateY(-2px);
+    box-shadow: 0 2px 10px rgba(45,90,39,0.15);
   }
   .cat-tile.active { border-width: 2px; }
-  .cat-icon { font-size: 30px; line-height: 1; }
-  .cat-label { font-size: 14px; font-weight: 700; color: var(--text); text-align: center; line-height: 1.2; }
+  .cat-icon { font-size: 18px; line-height: 1; }
+  .cat-label { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1; }
   .cat-count {
     position: absolute;
     top: 6px; right: 6px;
@@ -542,10 +544,7 @@
     .container { padding: 0 10px 8px; }
     .cat-tab { padding: 12px 6px; font-size: 11px; letter-spacing: 1.2px; }
     .cat-tab .tab-icon { font-size: 18px; }
-    .category-grid { gap: 10px; margin-top: 16px; }
-    .cat-tile { padding: 14px 6px 12px; border-radius: 10px; }
-    .cat-icon { font-size: 28px; }
-    .cat-label { font-size: 13px; }
+    .category-grid { gap: 6px; margin-top: 12px; }
     .expanded-panel { padding: 16px 12px 18px; margin-top: 12px; }
     .expanded-header { font-size: 18px; margin-bottom: 14px; }
     .items-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
