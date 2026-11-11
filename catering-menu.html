@@ -1007,7 +1007,6 @@ function catToggleItem(id, el) {
 
 function catUpdateOrderBar() {
   const bar = document.getElementById('catOrderBar');
-  document.getElementById('catOrderCount').textContent = catSelected.size;
   if (catSelected.size > 0) bar.classList.add('visible');
   else bar.classList.remove('visible');
 }
