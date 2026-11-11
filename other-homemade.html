@@ -128,68 +128,77 @@
     justify-content: center;
   }
 
-  /* TOTAL BAR */
+  /* FLOATING PILL */
   .total-bar {
     position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(160deg, #1a2e16 0%, #1e3d1a 100%);
-    padding: 14px 20px;
-    display: none;
-    flex-direction: column;
-    gap: 10px;
-    z-index: 100;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-  }
-  .total-bar.visible { display: flex; }
-  .total-rows { display: flex; flex-direction: column; gap: 4px; }
-  .total-line {
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    gap: 0;
+    background: linear-gradient(135deg, #1e3d1a, #2d5a27);
+    border: 1px solid rgba(200,150,42,0.5);
+    border-radius: 50px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.35);
+    z-index: 100;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s;
+    pointer-events: none;
+  }
+  .total-bar.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+  .pill-total {
+    padding: 11px 18px;
+    display: flex;
     align-items: baseline;
-    font-size: 14px;
-    color: rgba(255,255,255,0.75);
+    gap: 6px;
   }
-  .total-line.grand {
-    font-family: 'Playfair Display', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    padding-top: 6px;
-    margin-top: 2px;
-  }
-  .total-line.grand span:last-child { color: var(--gold-light); }
-  .total-line-name { flex: 1; }
-  .total-line-amt { font-weight: 700; color: var(--gold-light); }
-  .total-actions { display: flex; gap: 8px; }
-  .place-btn {
-    flex: 1;
-    background: var(--gold);
-    color: var(--dark);
-    border: none;
-    padding: 12px 18px;
-    font-family: 'Lato', sans-serif;
-    font-size: 14px;
+  .pill-label {
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    border-radius: 4px;
+    color: rgba(255,255,255,0.5);
+  }
+  .pill-amt {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--gold-light);
+  }
+  .pill-divider { width: 1px; background: rgba(255,255,255,0.15); align-self: stretch; }
+  .place-btn {
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    padding: 11px 20px;
+    font-family: 'Lato', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: background 0.2s;
   }
   .place-btn:hover { background: var(--gold-light); }
   .clear-btn {
     background: none;
-    border: 1px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.5);
-    padding: 12px 16px;
+    border: none;
+    border-left: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.45);
+    padding: 11px 14px;
     font-family: 'Lato', sans-serif;
-    font-size: 14px;
-    border-radius: 4px;
+    font-size: 13px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: color 0.2s;
   }
-  .clear-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+  .clear-btn:hover { color: #fff; }
 
   /* FOOTER */
   .footer { background: var(--forest); text-align: center; padding: 16px 16px 20px; color: rgba(255,255,255,0.6); font-size: 14px; }
@@ -220,11 +229,13 @@
 </footer>
 
 <div class="total-bar" id="totalBar">
-  <div class="total-rows" id="totalRows"></div>
-  <div class="total-actions">
-    <button class="place-btn" onclick="placeOrder()">📧 Place This Order</button>
-    <button class="clear-btn" onclick="clearAll()">Clear</button>
+  <div class="pill-total">
+    <span class="pill-label">Total</span>
+    <span class="pill-amt" id="pillAmt">$0</span>
   </div>
+  <div class="pill-divider"></div>
+  <button class="place-btn" onclick="placeOrder()">📧 Order</button>
+  <button class="clear-btn" onclick="clearAll()">✕</button>
 </div>
 
 <script>
@@ -269,19 +280,10 @@ function change(id, delta) {
 
 function updateTotal() {
   const bar = document.getElementById('totalBar');
-  const rows = document.getElementById('totalRows');
   let total = 0;
-  const lines = [];
-  ITEMS.forEach(it => {
-    if (qty[it.id] > 0) {
-      const amt = qty[it.id] * it.rate;
-      total += amt;
-      lines.push(`<div class="total-line"><span class="total-line-name">${it.name} × ${qty[it.id]} ${it.unit}</span><span class="total-line-amt">$${amt.toFixed(2)}</span></div>`);
-    }
-  });
+  ITEMS.forEach(it => { total += qty[it.id] * it.rate; });
   if (total > 0) {
-    lines.push(`<div class="total-line grand"><span>Total</span><span>$${total.toFixed(2)}</span></div>`);
-    rows.innerHTML = lines.join('');
+    document.getElementById('pillAmt').textContent = '$' + total.toFixed(2);
     bar.classList.add('visible');
   } else {
     bar.classList.remove('visible');
