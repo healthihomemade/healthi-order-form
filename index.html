@@ -2414,10 +2414,8 @@ body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; 
 <div id="cat-wrapper" style="display:none;width:100%;min-height:calc(100vh - 48px);">
 <iframe src="catering-menu.html?v=4" id="cat-iframe" style="width:100%;height:calc(100vh - 48px);min-height:500px;border:none;display:block;"></iframe>
 </div>
-<div id="other-wrapper" style="display:none;width:100%;min-height:calc(100vh - 48px);background:#faf6ef;display:none;align-items:center;justify-content:center;flex-direction:column;padding:60px 20px;text-align:center;">
-  <div style="font-size:52px;margin-bottom:16px;">🏠</div>
-  <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:#2d5a27;margin-bottom:10px;">Other Homemade</h2>
-  <p style="font-size:15px;color:#6b5640;max-width:300px;line-height:1.6;">Coming soon — fresh homemade specialties beyond the menu.</p>
+<div id="other-wrapper" style="display:none;width:100%;min-height:calc(100vh - 48px);">
+<iframe src="other-homemade.html" id="other-iframe" style="width:100%;height:calc(100vh - 48px);min-height:500px;border:none;display:block;"></iframe>
 </div>
 </div>
 
@@ -2431,7 +2429,11 @@ function setMode(mode) {
   var btnO = document.getElementById('btn-other');
   pkgW.style.display = mode === 'packages' ? '' : 'none';
   catW.style.display = mode === 'catering' ? 'block' : 'none';
-  othW.style.display = mode === 'other' ? 'flex' : 'none';
+  othW.style.display = mode === 'other' ? 'block' : 'none';
+  if (mode === 'other') {
+    var oframe = document.getElementById('other-iframe');
+    if (oframe && !oframe.dataset.loaded) { oframe.src = 'other-homemade.html'; oframe.dataset.loaded = '1'; }
+  }
   btnP.classList.toggle('active', mode === 'packages');
   btnC.classList.toggle('active', mode === 'catering');
   btnO.classList.toggle('active', mode === 'other');

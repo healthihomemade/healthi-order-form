@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Other Homemade — Healthy Homemade</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6ef;
+    --parchment: #f2ead8;
+    --forest: #2d5a27;
+    --forest-light: #3d7a35;
+    --gold: #c8962a;
+    --gold-light: #e8b84b;
+    --dark: #1a1208;
+    --text: #2c1f0e;
+    --muted: #6b5640;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(160deg, #1e3d1a 0%, #2d5a27 40%, #3a4a1a 100%);
+    padding: 12px 20px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+
+  /* TAGLINE */
+  .tagline {
+    text-align: center;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted);
+    padding: 14px 20px 4px;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  /* ITEMS */
+  .items-wrap { max-width: 480px; margin: 0 auto; padding: 12px 16px 100px; }
+
+  .item-card {
+    background: var(--parchment);
+    border: 1px solid rgba(200,150,42,0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .item-info { flex: 1; }
+  .item-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .item-price {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+  }
+  .qty-control {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 1.5px solid rgba(200,150,42,0.4);
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .qty-btn {
+    background: rgba(200,150,42,0.12);
+    border: none;
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+    font-weight: 300;
+    color: var(--forest);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    line-height: 1;
+  }
+  .qty-btn:hover { background: rgba(200,150,42,0.28); }
+  .qty-val {
+    min-width: 36px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    border-left: 1px solid rgba(200,150,42,0.3);
+    border-right: 1px solid rgba(200,150,42,0.3);
+    padding: 0 4px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* TOTAL BAR */
+  .total-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(160deg, #1a2e16 0%, #1e3d1a 100%);
+    padding: 14px 20px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+  }
+  .total-bar.visible { display: flex; }
+  .total-rows { display: flex; flex-direction: column; gap: 4px; }
+  .total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 14px;
+    color: rgba(255,255,255,0.75);
+  }
+  .total-line.grand {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 6px;
+    margin-top: 2px;
+  }
+  .total-line.grand span:last-child { color: var(--gold-light); }
+  .total-line-name { flex: 1; }
+  .total-line-amt { font-weight: 700; color: var(--gold-light); }
+  .total-actions { display: flex; gap: 8px; }
+  .place-btn {
+    flex: 1;
+    background: var(--gold);
+    color: var(--dark);
+    border: none;
+    padding: 12px 18px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .place-btn:hover { background: var(--gold-light); }
+  .clear-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.5);
+    padding: 12px 16px;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .clear-btn:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+  /* FOOTER */
+  .footer { background: var(--forest); text-align: center; padding: 16px 16px 20px; color: rgba(255,255,255,0.6); font-size: 14px; }
+  .footer-call-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #22c55e; color: #fff; border-radius: 30px;
+    padding: 10px 24px; font-size: 15px; font-weight: 700;
+    text-decoration: none; margin-bottom: 10px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .footer-call-btn:hover { background: #1ebe5d; transform: translateY(-2px); }
+  .footer p { font-size: 13px; color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>Other Homemade</h1>
+</header>
+
+<p class="tagline">"All the items are 100% homemade with traditional ingredients"</p>
+
+<div class="items-wrap" id="itemsWrap"></div>
+
+<footer class="footer">
+  <a href="tel:+16476073961" class="footer-call-btn">📞 Call (647) 607-3961</a>
+  <p>Healthy Homemade · All vegetarian · Prices may vary</p>
+</footer>
+
+<div class="total-bar" id="totalBar">
+  <div class="total-rows" id="totalRows"></div>
+  <div class="total-actions">
+    <button class="place-btn" onclick="placeOrder()">📧 Place This Order</button>
+    <button class="clear-btn" onclick="clearAll()">Clear</button>
+  </div>
+</div>
+
+<script>
+const ITEMS = [
+  { id: 'tadke',       name: 'Tadke',       rate: 10, unit: 'lb' },
+  { id: 'gondh',       name: 'Gondh Laddu', rate: 17, unit: 'lb' },
+  { id: 'panjeeri',    name: 'Panjeeri',    rate: 17, unit: 'lb' },
+  { id: 'gajjar',      name: 'Gajjar Halwa',rate: 15, unit: 'lb' },
+  { id: 'desi-ghee',   name: 'Desi Ghee',   rate: 20, unit: 'lb' },
+];
+
+const qty = {};
+ITEMS.forEach(it => qty[it.id] = 0);
+
+function render() {
+  const wrap = document.getElementById('itemsWrap');
+  wrap.innerHTML = '';
+  ITEMS.forEach(it => {
+    const card = document.createElement('div');
+    card.className = 'item-card';
+    card.innerHTML = `
+      <div class="item-info">
+        <div class="item-name">${it.name}</div>
+        <div class="item-price">$${it.rate} / ${it.unit}</div>
+      </div>
+      <div class="qty-control">
+        <button class="qty-btn" onclick="change('${it.id}',-1)">−</button>
+        <div class="qty-val" id="qty-${it.id}">${qty[it.id]}</div>
+        <button class="qty-btn" onclick="change('${it.id}',1)">+</button>
+      </div>`;
+    wrap.appendChild(card);
+  });
+  updateTotal();
+}
+
+function change(id, delta) {
+  qty[id] = Math.max(0, qty[id] + delta);
+  document.getElementById('qty-' + id).textContent = qty[id];
+  updateTotal();
+}
+
+function updateTotal() {
+  const bar = document.getElementById('totalBar');
+  const rows = document.getElementById('totalRows');
+  let total = 0;
+  const lines = [];
+  ITEMS.forEach(it => {
+    if (qty[it.id] > 0) {
+      const amt = qty[it.id] * it.rate;
+      total += amt;
+      lines.push(`<div class="total-line"><span class="total-line-name">${it.name} × ${qty[it.id]} ${it.unit}</span><span class="total-line-amt">$${amt.toFixed(2)}</span></div>`);
+    }
+  });
+  if (total > 0) {
+    lines.push(`<div class="total-line grand"><span>Total</span><span>$${total.toFixed(2)}</span></div>`);
+    rows.innerHTML = lines.join('');
+    bar.classList.add('visible');
+  } else {
+    bar.classList.remove('visible');
+  }
+}
+
+function clearAll() {
+  ITEMS.forEach(it => { qty[it.id] = 0; document.getElementById('qty-' + it.id).textContent = 0; });
+  updateTotal();
+}
+
+function placeOrder() {
+  let lines = ['Other Homemade Order — Healthy Homemade\n'];
+  let total = 0;
+  ITEMS.forEach(it => {
+    if (qty[it.id] > 0) {
+      const amt = qty[it.id] * it.rate;
+      total += amt;
+      lines.push(`  • ${it.name} — ${qty[it.id]} lb × $${it.rate} = $${amt.toFixed(2)}`);
+    }
+  });
+  lines.push('');
+  lines.push('─────────────────────────');
+  lines.push(`Total: $${total.toFixed(2)}`);
+  lines.push('');
+  lines.push('Please confirm availability and delivery.');
+  const subject = 'Homemade Order — Healthy Homemade';
+  window.location.href = 'mailto:healthihomemade@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(lines.join('\n'));
+}
+
+render();
+</script>
+</body>
+</html>
