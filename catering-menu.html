@@ -435,6 +435,10 @@
     transition: all 0.2s;
   }
   .modal-close:hover { background: rgba(200,150,42,0.1); color: var(--text); }
+  .email-field { margin-top: 20px; }
+  .email-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .email-input { width: 100%; padding: 11px 14px; border: 1.5px solid rgba(200,150,42,0.35); border-radius: 6px; font-family: 'Lato', sans-serif; font-size: 15px; color: var(--text); background: var(--parchment); outline: none; transition: border-color 0.2s; }
+  .email-input:focus { border-color: var(--gold); }
   .footer { background: var(--forest); text-align: center; padding: 16px 16px 20px; color: rgba(255,255,255,0.6); font-size: 14px; margin-top: 0; }
   .footer-call-btn {
     display: inline-block;
@@ -730,10 +734,14 @@
 <div class="modal-overlay" id="catModalOverlay" onclick="catCloseModal(event)">
   <div class="modal">
     <h2>Your Selection</h2>
-    <p class="modal-sub">Share this with us when you DM to place your order!</p>
+    <p class="modal-sub">Review your order and enter your email to receive a confirmation receipt.</p>
     <div id="catModalContent"></div>
+    <div class="email-field">
+      <label class="email-label">Your Email (for receipt)</label>
+      <input type="email" id="catCustomerEmail" class="email-input" placeholder="you@example.com">
+    </div>
     <div class="modal-footer">
-      <button class="modal-dm-btn" onclick="catCopyOrder()">📋 Copy Order</button>
+      <button class="modal-dm-btn" onclick="catPlaceOrderWhatsApp()">📧 Place Order</button>
       <button class="modal-close" onclick="catCloseModal()">Close</button>
     </div>
   </div>
@@ -895,8 +903,12 @@ function catPlaceOrderWhatsApp() {
   bodyLines.push('Please confirm availability and event date.');
 
   const subject = 'Catering Order — Healthy Homemade (' + catGuests + ' guests)';
-  const body = 'Catering Order — Healthy Homemade\nGuests: ' + catGuests + '\n\n' + bodyLines.join('\n');
-  window.location.href = 'mailto:healthihomemade@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  const customerEmail = (document.getElementById('catCustomerEmail') || {}).value || '';
+  const bodyText = 'Catering Order — Healthy Homemade\nGuests: ' + catGuests + '\n\n' + bodyLines.join('\n');
+  let mailto = 'mailto:healthihomemade@gmail.com';
+  if (customerEmail) mailto += '?cc=' + encodeURIComponent(customerEmail) + '&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
+  else mailto += '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
+  window.location.href = mailto;
 }
 
 function catRenderGrid(sec, gridId) {
