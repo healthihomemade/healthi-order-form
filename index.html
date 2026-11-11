@@ -2411,7 +2411,7 @@ body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; 
 
 </div>
 <div id="cat-wrapper" style="display:none;width:100%;min-height:calc(100vh - 48px);">
-<iframe src="catering-menu.html?v=2" id="cat-iframe" style="width:100%;height:calc(100vh - 48px);min-height:500px;border:none;display:block;"></iframe>
+<iframe src="catering-menu.html?v=3" id="cat-iframe" style="width:100%;height:calc(100vh - 48px);min-height:500px;border:none;display:block;"></iframe>
 </div>
 </div>
 
@@ -2428,7 +2428,7 @@ function setMode(mode) {
   if (mode === 'catering') {
     var iframe = document.getElementById('cat-iframe');
     if (iframe && !iframe.dataset.loaded) {
-      iframe.src = 'catering-menu.html?v=2';
+      iframe.src = 'catering-menu.html?v=3';
       iframe.dataset.loaded = '1';
     }
   }
