@@ -2317,7 +2317,7 @@ body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; 
       <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;color:#1a1612;text-align:center;margin-bottom:8px;">Add Saturday Delivery?</div>
       <div style="font-size:13px;color:#8a8278;text-align:center;line-height:1.6;margin-bottom:20px;">
         The Junior package is designed for <strong>Mon–Fri</strong> delivery.<br>
-        Adding Saturday will increase your total by <strong>$20/month</strong><br>
+        Adding Saturday will increase your total by <strong>$10/month</strong><br>
         ($180 → $200).
       </div>
       <div style="display:flex;gap:10px;">
@@ -2331,7 +2331,7 @@ body { background: #faf6ef; overflow-x: hidden; width: 100%; min-height: 100vh; 
           flex:1;padding:11px;border:none;border-radius:10px;
           background:#2d4a3e;font-family:'Mulish',sans-serif;font-size:13px;
           font-weight:700;color:white;cursor:pointer;">
-          Add Saturday +$20
+          Add Saturday +$10
         </button>
       </div>
     </div>
@@ -2465,8 +2465,8 @@ const PRICING = {
   WEEKLY:   { REGULAR:90,  LARGE:105, FAMILY:180 },
   BIWEEKLY: { REGULAR:165, LARGE:175, FAMILY:280 },
   MONTHLY:  { JUNIOR:180, REGULAR:240, LARGE:270, FAMILY:450 },
-  MONTHLY_SAT: { JUNIOR:200, REGULAR:280, LARGE:315, FAMILY:525 }, // Mon-Sat rates
-  SAT_SURCHARGE: { REGULAR:40, LARGE:45, FAMILY:75 } // surcharge over Mon-Fri rate
+  MONTHLY_SAT: { JUNIOR:190, REGULAR:260, LARGE:295, FAMILY:495 }, // Mon-Sat rates
+  SAT_SURCHARGE: { REGULAR:20, LARGE:25, FAMILY:45 } // surcharge over Mon-Fri rate
 };
 
 const FREQ_LABELS = {
@@ -3460,7 +3460,7 @@ function handleJuniorSatChoice(confirmed) {
     $cl('qbtn-monsat').add('active');
     $cl('qbtn-monfri').remove('active');
     state.juniorSatExtra = true;
-    showToastMsg('Saturday added — Total updated to $200/month');
+    showToastMsg('Saturday added — Total updated to $190/month');
     updateDaysPanelSubtitle();
     pkgUpdateQuote();
   }
