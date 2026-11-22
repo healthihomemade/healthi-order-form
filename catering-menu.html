@@ -733,11 +733,11 @@
 <div class="modal-overlay" id="catModalOverlay" onclick="catCloseModal(event)">
   <div class="modal">
     <h2>Your Selection</h2>
-    <p class="modal-sub">Review your order and enter the recipient's email to send them this menu.</p>
+    <p class="modal-sub">Review your order and enter your email to receive a confirmation receipt.</p>
     <div id="catModalContent"></div>
     <div class="email-field">
-      <label class="email-label">Send To (Recipient Email)</label>
-      <input type="email" id="catCustomerEmail" class="email-input" placeholder="recipient@example.com">
+      <label class="email-label">Your Email (for receipt)</label>
+      <input type="email" id="catCustomerEmail" class="email-input" placeholder="you@example.com">
     </div>
     <div class="modal-footer">
       <button class="modal-dm-btn" onclick="catPlaceOrderWhatsApp()">📧 Place Order</button>
@@ -904,12 +904,9 @@ function catPlaceOrderWhatsApp() {
   const subject = 'Catering Order — Healthy Homemade (' + catGuests + ' guests)';
   const customerEmail = (document.getElementById('catCustomerEmail') || {}).value || '';
   const bodyText = 'Catering Order — Healthy Homemade\nGuests: ' + catGuests + '\n\n' + bodyLines.join('\n');
-  let mailto;
-  if (customerEmail) {
-    mailto = 'mailto:' + encodeURIComponent(customerEmail) + '?cc=' + encodeURIComponent('healthihomemade@gmail.com') + '&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
-  } else {
-    mailto = 'mailto:healthihomemade@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
-  }
+  let mailto = 'mailto:healthihomemade@gmail.com';
+  if (customerEmail) mailto += '?cc=' + encodeURIComponent(customerEmail) + '&subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
+  else mailto += '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(bodyText);
   window.location.href = mailto;
 }
 
